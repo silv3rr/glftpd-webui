@@ -29,10 +29,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build basic glftpd and web images
         run: ./docker-build.sh
-      - name: Push image
-        run: |
-          docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web:latest
-          docker push ghcr.io/silv3rr/docker-glftpd-web:latest
+#      - name: Push image
+#        run: |
+#          docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web:latest
+#          docker push ghcr.io/silv3rr/docker-glftpd-web:latest
       - name: Push dev image
         run: |
           docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web-dev:latest
