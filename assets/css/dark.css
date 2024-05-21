@@ -1,0 +1,103 @@
+/* DARK THEME https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8 */
+
+[data-theme='dark'] {
+    --font-color: #929292;
+    --bg-color: #161625;
+}
+
+[data-theme='dark'] .bg-custom {
+    background-color: #24242d;
+}
+[data-theme='dark'] h6 {
+    background-color: gray;
+}
+[data-theme='dark'] hr.vsep {
+    background-color: lightgray;
+}
+[data-theme='dark'] button,
+[data-theme='dark'] button.btn {  
+    color: #ccc;
+    background-color: #6c757d;
+    border-color: #9b9b9b;
+}
+[data-theme='dark'] a:hover {
+    color: #2f5d8f;
+}
+[data-theme='dark'] button:hover,
+[data-theme='dark'] button.btn:hover {  
+    color: #6c757d;
+    background-color: #424242;
+}
+[data-theme='dark'] .btn-collapse {
+    background-color: steelblue;
+}
+[data-theme='dark'] .status a {
+    color: #0056b3;
+    font-weight: bold;
+}
+[data-theme='dark'] * {
+    border-color: whitesmoke;
+}
+[data-theme='dark'] .modal-header {
+    background-color: lightgray;
+    border-color: whitesmoke;
+}
+[data-theme='dark'] .modal-body {
+    background-color: lightgray;
+    border-color: whitesmoke;
+    color: black;
+}
+[data-theme='dark'] .modal-footer {
+    background-color: lightgray;
+    border-color: whitesmoke;
+}
+[data-theme='dark'] .spinner-border {
+    border-color: steelblue;
+    border-right-color: transparent;
+}
+[data-theme='dark'] input,
+[data-theme='dark'] .form-control,
+[data-theme='dark'] textarea,
+[data-theme='dark'] select,
+[data-theme='dark'] option {
+    color: black;
+    background-color: #aaa;
+}
+[data-theme='dark'] .btn-refresh {
+    color: black;
+}
+[data-theme='dark'] .btn-refresh:hover {
+    color: white;
+}
+[data-theme='dark'] .btn-collapse:hover, .btn-refresh:hover, .btn-refresh a:hover {
+    color: white;
+    background-color: #424242;
+}
+
+[data-theme='dark'] .debug {
+    color: lightblue;
+}
+[data-theme='dark'] .status #up {
+    background-color: green;
+    color: #ddd;
+}
+[data-theme='dark'] .btn-outline-danger {
+    border-color: #dc3545!important;
+}
+[data-theme='dark'] .card {
+    background-color: #222;
+}
+/*
+[data-theme='dark'] .btn-link:hover, .btn-txt:hover {
+    color: #aaa!important;
+}
+*/
+[data-theme='dark'] a:focus {
+    color: #bd38bd!important;
+}
+[data-theme='dark'] .color-custom {
+    color: #0d92d4;
+}
+[data-theme='dark'] .alert .btn-link {  
+    color: darkcyan;
+}
