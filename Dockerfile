@@ -11,7 +11,7 @@ ARG WEBUI_USERNAME
 ARG WEBUI_PASSWORD
 FROM alpine:3.18
 HEALTHCHECK CMD wget -qO /dev/null http://127.0.0.1/health
-LABEL org.opencontainers.image.source=https://github.com/silv3rr/docker-glftpd
+LABEL org.opencontainers.image.source=https://github.com/silv3rr/glftpd-webui
 LABEL org.opencontainers.image.description="Web-gui to manage glftpd"
 EXPOSE ${WEBUI_PORT:-443}
 WORKDIR /app

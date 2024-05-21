@@ -10,7 +10,7 @@ Shows online users, status and stops/starts glftpd. Can also be used to view log
 
 _Main page UI, click to enlarge_
 
-[![main](docs/images/webui_small.png "Main page")](docs/images/wepepbui.png)
+[![main](docs/images/webui_small.png "Main page")](docs/images/webui.png)
 
 ## Usage
 

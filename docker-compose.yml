@@ -94,7 +94,7 @@ services:
       #   - WEBUI_USERNAME=notshit
       #   - WEBUI_PASSWORD=Othersh1ttyPass
   
-    # uncomment form host instead of brdige
+    # uncomment for host instead of bridge
     ##network_mode: host
 
     ##privileged: true
