@@ -33,3 +33,7 @@ jobs:
         run: |
           docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web:latest
           docker push ghcr.io/silv3rr/docker-glftpd-web:latest
+      - name: Push dev image
+        run: |
+          docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web-dev:latest
+          docker push ghcr.io/silv3rr/docker-glftpd-web-dev:latest
