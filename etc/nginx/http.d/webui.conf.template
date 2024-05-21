@@ -1,0 +1,195 @@
+# glftpd-webui::template
+
+#
+# TODO: make listen port variable: 443=inside docker w/bridge, 4444=host)
+#		same for upstreams
+#
+
+server {
+	listen 443 ssl;
+	server_name _;
+	ssl_certificate /etc/nginx/webui.crt;
+	ssl_certificate_key /etc/nginx/webui.key;
+	ssl_protocols TLSv1.3;
+	ssl_prefer_server_ciphers on;
+	ssl_dhparam /etc/nginx/dhparam.pem;
+	ssl_ciphers EECDH+AESGCM:EDH+AESGCM;
+	ssl_ecdh_curve secp384r1;
+	ssl_session_timeout 10m;
+	ssl_session_tickets off;
+	access_log /var/log/nginx/access.log;
+	#error_log  /var/log/nginx/error.log error;
+	error_log  /var/log/nginx/error.log debug;
+	server_tokens off;
+	satisfy all;
+	auth_basic "Authentication Required";
+	auth_basic_user_file /etc/nginx/.htpasswd;
+	allow 127.0.0.1;
+	allow 172.16.0.0/12;
+	allow 192.168.0.0/16;
+	allow 10.0.0.0/8;
+	deny all;
+	root /app;
+	index index.html index.htm index.php;
+	#auth_request /auth;
+	
+	location = /auth/login.php {
+		#auth_request off;
+		proxy_pass              https://auth/login.php;
+		proxy_set_header        X-Original-URI $request_uri;
+		proxy_ssl_verify        off;
+		proxy_set_header Host $host;
+  		#proxy_set_header X-Forwarded-Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		#proxy_set_header X-Forwarded-Proto $scheme;
+		error_page 404 502 = @error_auth_5xx;
+	}
+
+	location = /auth/logout.php {
+		#auth_request off;
+		proxy_pass              https://auth/logout.php;
+		proxy_set_header        X-Original-URI $request_uri;
+		proxy_ssl_verify        off;
+	}
+
+	location = /auth/index.php {
+		##satisfy any;
+		#auth_request off;
+		##internal;
+		proxy_pass              https://auth/index.php;
+		proxy_set_header        X-Original-URI $request_uri;
+		proxy_ssl_verify        off;
+		proxy_set_header Host $host;
+  		proxy_set_header X-Real-IP $remote_addr;
+  		#proxy_set_header X-Forwarded-Host $host;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		limit_except POST {
+			deny all;
+		}
+	}
+
+	location /auth {
+		internal;
+		proxy_pass              https://auth/index.php;
+		proxy_pass_request_body off;
+		proxy_set_header        Content-Length "";
+		proxy_set_header        X-Original-URI $request_uri;
+		#proxy_set_header x-user $user;
+		proxy_ssl_verify        off;
+		proxy_set_header Host $host;
+		limit_except GET {
+			deny all;
+    	}
+	}
+
+	location ~ \.php$ {
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+		fastcgi_pass unix:/var/run/php/php-fpm.sock;
+		fastcgi_index index.php;
+		include fastcgi.conf;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	location ~ /\.git {
+		deny all;
+	}
+
+	location ~ /(LICENSE|README|README.md|SECURITY.md|config.php|screenshot.gif)$ {
+		deny all;
+	}
+
+	location /tty/ {
+		#auth_request /auth;
+		proxy_pass http://tty/;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header Host $http_host;
+		#	error_page 403 404 = @error_4xx;
+		#	error_page 500 502 503 504 = @error_5xx;
+	}
+
+	location ~ "^/(users.*|totals.*|static/g[0-9]{4,6}\.svg|kick/.*)$" {
+		#auth_request /auth;
+		proxy_pass http://glftpd/$1;
+		#error_page 502 = @error_spy_502;
+	}
+
+	location  = /static/style.css {
+		#auth_request /auth;
+		return 301 /assets/css/spy.css;
+	}
+
+	location = "/static/g15950.svg" {
+		return 301 /assets/img/empty.svg;
+	}
+
+	location ~ ^/user/(.+)$ {
+		#auth_request /auth;
+		#return 301 /user.php?user=$1
+		return 301 /index.php?user=$1;
+	}
+
+	location /spy {
+		#auth_request /auth;
+		proxy_pass http://glftpd;
+		#error_page 502 = @error_spy_502;
+	}
+
+	#rewrite ^/user/(.+)$ $scheme://$http_host/user.php?user=$1 permanent;
+
+	location ~ "^/(static|lib)/.+$" {
+		#auth_request off;
+	}
+
+	location = /favicon.ico {
+		#auth_request off;
+  		try_files $uri $uri/ =404;
+	}
+
+	location @error_4xx {
+		index /templates/error_4xx.html;
+	}
+
+	location @error_5xx {
+		#auth_request off;
+		index /templates/error_5xx.html;
+	}
+
+	#location @error_spy_502 {
+	#	index /templates/spy_502.html;
+	#}
+
+	location @error_auth_5xx {
+        add_header 'Content-Type' 'text/plain';
+        return 302 $scheme://$http_host/;
+	}
+
+	#location /skip_auth_here {
+	#	#auth_request off;
+	#}
+
+	#error_page 401 = @error_auth_401;
+	#location @errorauth_401 {
+	#	##auth_request off;
+	#	#return 302 /auth/login.php;
+	#	return 302 $scheme://$http_host/auth/login.php;	
+	#}
+
+}
+
+upstream auth {
+	server localhost:444;
+}
+
+upstream glftpd {
+	server glftpd:5000;
+}
+
+upstream tty {
+	server glftpd:8080;
+}
