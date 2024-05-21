@@ -1,0 +1,58 @@
+---
+version: '3'
+services:
+  # Update this to the name of the service you want to work with in your docker-compose.yml file
+  local-web:
+    # Uncomment if you want to override the service's Dockerfile to one in the .devcontainer 
+    # folder. Note that the path of the Dockerfile and context is relative to the *primary* 
+    # docker-compose.yml file (the first in the devcontainer.json "docker compose --project-name glftpd-webui -f /home/silver/dev/glftpd-webui/docker-compose.yml -f /home/silver/dev/glftpd-webui/.devcontainer/docker-compose.yml -f /tmp/devcontainercli-silver/docker-compose/docker-compose.devcontainer.build-1715273477232.yml -f /tmp/devcontainercli-silver/docker-compose/docker-compose.devcontainer.containerFeatures-1715273477344-b9fd536e-042b-4f8f-b6d4-e9bcc3ff772d.yml up -d"
+    # array). The sample below assumes your primary file is in the root of your project.
+    #
+    # build:
+    #   context: .
+    #   dockerfile: .devcontainer/Dockerfile
+
+    #build:
+    #  args:
+    #     - GLFTPD_URL="https://glftpd.io/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"
+    #  extra_hosts: ["host.docker.internal:host-gateway"]
+
+    volumes:
+      # Update this to wherever you want VS Code to mount the folder of your project
+      # - ..:/workspaces:cached
+      - ./etc/nginx/http.d:/etc/nginx/http.d:cached
+      - ./src/ui:/app:cached
+      - ./src/auth:/auth:cached
+      - ./lib/ui:/app/lib:cached
+      - ./lib/auth:/auth/lib:cached
+      - ./templates:/app/templates:cached
+      - ./assets:/app/assets:cached
+
+     # TODO: local
+      - /jail/glftpd:/glftpd:cached
+      #- /run:/run2
+    environment:
+      - WEBUI_AUTHMODE=none
+
+
+  #local-glftpd:
+  #  volumes:
+  #    - /home/silver/dev/docker-glftpd/glftpd/site:/glftpd/site:rw
+  #    - /home/silver/dev/docker-glftpd/glftpd/glftpd.conf:/glftpd/glftpd.conf
+  #    - /home/silver/dev/docker-glftpd/glftpd/etc:/glftpd/etc
+  #    - /home/silver/dev/docker-glftpd/glftpd/ftp-data/users:/glftpd/ftp-data/users
+  #    - /home/silver/dev/docker-glftpd/glftpd/ftp-data/groups:/glftpd/ftp-data/groups
+  #    - /home/silver/dev/docker-glftpd/glftpd/sitebot:/glftpd/sitebot
+
+    
+    # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
+    # cap_add:
+    #   - SYS_PTRACE
+    # security_opt:
+    #   - seccomp:unconfined
+
+    # Overrides default command so things don't shut down after the process ends.
+    #command: /bin/sh -c "while sleep 1000; do :; done"
+
+    #privileged: true
+    #network_mode: host
