@@ -1,0 +1,12 @@
+/glftpd
+/glftpd/
+/archive/
+glftpd/
+etc/nginx/auth.d/*.conf
+etc/nginx/http.d/*.conf
+lib/ui/fontawesome-free-6.1.2-web/
+.env
+*.bak
+*.crt
+*.key
+*.swp
