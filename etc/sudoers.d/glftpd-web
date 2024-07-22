@@ -1,0 +1,7 @@
+Cmnd_Alias SYSTEMCTL = /bin/systemctl start glftpd.socket, /bin/systemctl stop glftpd.socket /bin/systemctl start glftpd.socket
+Cmnd_Alias SERVICE = /sbin/service glftpd start, /sbin/service glftpd stop, /sbin/service glftpd start
+Cmnd_Alias PKILL = /usr/bin/pkill -9 -f glftpd
+Cmnd_Alias KILLALL = /usr/bin/killall -9 gotty >/dev/null 2>&1, /usr/bin/killall -9 gl_spy >/dev/null 2>&1, /usr/bin/killall -9 useredit >/dev/null 2>&1
+Cmnd_Alias BUSYBOX = /bin/busybox killall -9 gotty >/dev/null 2>&1, /bin/busybox killall -9 gl_spy >/dev/null 2>&1, /bin/busybox killall -9 useredit >/dev/null 2>&1
+Cmnd_Alias GLTOOL = /glftpd/bin/gltool.sh, /jail/glftpd/bin/gltool.sh, /usr/local/bin/gltool.sh
+nobody ALL = (root) NOPASSWD: SYSTEMCTL, SERVICE, PKILL, KILLALL, BUSYBOX, HASHGEN, PASSCHK, GLTOOL
