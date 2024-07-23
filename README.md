@@ -27,10 +27,10 @@ Pick one of these 3 options
 **2**) If you do not want to use glftpd in docker, use 'local' mode.
 
 **3**) Install ui without using docker at all. Needs nginx with php-fpm8 or newer, copy ui files to document root (e.g. /var/www/html):
-- assets, libs, templates, statics and src dirs
-- download pyspy and pywho for your distro
-- other bins
-- sudoers file
+- assets, lib, templates and src dirs
+- download/replace pyspy and pywho for your distro
+- copy/compile other bins (gotty, hashgen, passchk)
+- copy etc/sudoers.d/glftpd-web
 
 See Dockerfile for details.
 
@@ -44,7 +44,7 @@ See Dockerfile for details.
 
 Options 'docker' or 'local' mode, auth and custom html title can be changed in `config.php`.
 
-In docker mode the gl container must be named 'glftpd' (if it's not, edit `config.php`)
+In docker mode the gl container must be named 'glftpd' (if it's not, edit `config.php` to change)
 
 In local mode, the quickest way to access '/glftpd' dir is to bind mount it in the ui container. By default localhost is used to connect to gl/bot/spy/gotty.
 
@@ -52,11 +52,22 @@ Make sure your client's source ip is whitelisted. Default is `allow` all private
 
 #### Auth
 
-- basic: http authentication (default)
-- glftpd: use ftpd username/password
-- 'both' or 'none'
+- basic: http authentication using nginx (default)
+- glftpd: uses ftpd username/password, verifies with `passchk` bin
+- both: both glftpd and basic using php
+- none: disable auth
 
 To change user/pass used for basic auth, see `'http_auth'` option
+
+## Image
+
+- base: latest alpine
+- size: ~50mb
+- separate image from 'glftpd'
+- webserver: nginx, php8 fpm
+- logs: nginx logs to stderr/stdout
+
+View access logs with `docker logs glftpd-web`.
 
 ## Troubleshooting
 
