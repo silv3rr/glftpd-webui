@@ -1,4 +1,4 @@
-# glftpd-webui
+# glftpd-webui (v3) WIP
 
 ## /gl wɛb ʊi/
 
