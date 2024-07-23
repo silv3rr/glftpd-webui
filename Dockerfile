@@ -1,5 +1,5 @@
 ###################################################################   ####  # ##
-# >>  DOCKERFILE-GLFTPD-WEBUI
+# >>  DOCKERFILE-GLFTPD-WEBUI :: WEBUI
 ###################################################################   ####  # ##
 
 # install nginx, php and gl webui app
@@ -15,20 +15,20 @@ LABEL org.opencontainers.image.source=https://github.com/silv3rr/glftpd-webui
 LABEL org.opencontainers.image.description="Web-gui to manage glftpd"
 EXPOSE ${WEBUI_PORT:-443}
 WORKDIR /app
+COPY --chown=0:0 bin/entrypoint.sh /
 COPY --chown=0:0 bin/auth.sh /
+COPY --chown=0:0 etc/sudoers.d/glftpd-web /etc/sudoers.d
 COPY --chown=0:0 etc/nginx /etc/nginx
-COPY --chown=0:0 bin/gltool.sh /usr/local/bin
-COPY --chown=0:0 bin/gotty /usr/local/bin
-COPY --chown=0:0 bin/passchk /usr/local/bin
-COPY --chown=0:0 bin/pywho /usr/local/bin
-COPY --chown=0:0 bin/spy /usr/local/bin
-COPY --chown=100:101 assets/ /app/
-COPY --chown=100:101 lib/auth/ /auth/lib/
+COPY --chown=0:0 bin/gltool.sh bin/gotty bin/passchk bin/pywho bin/spy /usr/local/bin/
+COPY --chown=100:101 assets/ /app/assets/
 COPY --chown=100:101 lib/ui/ /app/lib/
 COPY --chown=100:101 lib/webspy/ /usr/local/bin/webspy/
 COPY --chown=100:101 src/ui /app/
-COPY --chown=100:101 src/auth /auth/
 COPY --chown=100:101 templates/ /app/templates/
+COPY --chown=100:101 src/auth /auth/
+COPY --chown=100:101 lib/auth/ /auth/lib/
+#COPY --chown=100:101 assets/css/ /auth/assets/css/
+#COPY --chown=100:101 lib/ui/bootstrap-4.6.2-dist/css/ /auth/lib/bootstrap-4.6.2-dist/css/
 #ADD --chown=100:101 fontawesome-free-6.5.1-web.tar.gz /app/lib
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 #sed -i 's/https/http/g' /etc/apk/repositories ;\
@@ -60,8 +60,7 @@ RUN test -n "$http_proxy" && { \
     ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log && \
     sed -i 's|listen = 127.0.0.1:9000|listen = /run/php/php-fpm.sock|' /etc/php*/php-fpm.d/www.conf && \
-    sed -i 's|;listen.owner = nobody|listen.owner = nginx|' /etc/php*/php-fpm.d/www.conf && \
-    sed -i 's|;listen.group = nobody|listen.owner = nginx|' /etc/php*/php-fpm.d/www.conf && \
+    sed -i 's/;listen.\(owner\|group\) = nobody/listen.\1 = nginx/' /etc/php*/php-fpm.d/www.conf && \
     # generate self-signed cert
     if [ "${WEBUI_CERT:-1}" -eq 1 ]; then \
       if [ ! -e /etc/nginx/webui.crt ] && [ ! -e /etc/nginx/webui.key ]; then \
@@ -74,27 +73,6 @@ RUN test -n "$http_proxy" && { \
     fi && \
     chown 0:0 /auth && \
     echo 'shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740' > /etc/nginx/.htpasswd && \
-    { echo 'Cmnd_Alias SYSTEMCTL = /bin/systemctl start glftpd.socket, /bin/systemctl stop glftpd.socket /bin/systemctl start glftpd.socket'; \
-      echo 'Cmnd_Alias SERVICE = /sbin/service glftpd start, /sbin/service glftpd stop, /sbin/service glftpd start'; \
-      echo 'Cmnd_Alias PKILL = /usr/bin/pkill -9 -f glftpd'; \
-      echo 'Cmnd_Alias KILLALL = /usr/bin/killall -9 gotty >/dev/null 2>&1, /usr/bin/killall -9 gl_spy >/dev/null 2>&1, /usr/bin/killall -9 useredit >/dev/null 2>&1'; \
-      echo 'Cmnd_Alias BUSYBOX = /bin/busybox killall -9 gotty >/dev/null 2>&1, /bin/busybox killall -9 gl_spy >/dev/null 2>&1, /bin/busybox killall -9 useredit >/dev/null 2>&1'; \
-      echo 'Cmnd_Alias GLTOOL = /glftpd/bin/gltool.sh, /jail/glftpd/bin/gltool.sh, /usr/local/bin/gltool.sh'; \
-      echo 'nobody ALL = (root) NOPASSWD: SYSTEMCTL, SERVICE, PKILL, KILLALL, BUSYBOX, HASHGEN, PASSCHK, GLTOOL'; \
-    } > /etc/sudoers.d/glftpd-web && \    
-    addgroup nobody ping || true && \
-    { echo '#!/bin/sh -x'; \
-      echo 'DOCKER_GID="$( stat -c %g /var/run/docker.sock )"'; \
-      echo 'grep -Eq "^docker:" /etc/group || echo "docker:x:${DOCKER_GID:-999}:nobody" >>/etc/group'; \
-      echo '{ nslookup -type=a glftpd-web 127.0.0.11 | grep -A 99 answer:; } | grep -q Address || echo "127.0.0.1 glftpd-web" >>/etc/hosts' ;\
-      echo '{ nslookup -type=a glftpd 127.0.0.11 | grep -A 99 answer:; } | grep -q Address || echo "127.0.0.1 glftpd" >>/etc/hosts' ;\
-      echo 'cp -rf /etc/nginx/http.d/auth.conf.template /etc/nginx/http.d/auth.conf';  \
-      echo 'cp -rf /etc/nginx/http.d/webui.conf.template /etc/nginx/http.d/webui.conf'; \
-      echo 'sed -i "s/\( *listen\) .* ssl;$/\1 ${WEBUI_PORT:-443} ssl;/" /etc/nginx/http.d/webui.conf'; \
-      echo 'chown 65534:root /app/config.php'; \
-      #echo 'USERNAME="$WEBUI_USERNAME" PASSWORD="$WEBUI_PASSWORD" AUTH="$WEBUI_AUTHMODE" /auth.sh'; \
-      echo '$(echo /usr/sbin/php-fpm*) -F &'; \
-      echo 'nginx -g "daemon off;"'; \
-    } >/entrypoint.sh && \
-    chmod +x /entrypoint.sh
+    addgroup nobody ping && \
+    rm -rf /tmp/* /var/tmp/*
 ENTRYPOINT [ "/entrypoint.sh" ]
