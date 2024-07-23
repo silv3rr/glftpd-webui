@@ -1,29 +1,45 @@
+---
 ###################################################################   ####  # ##
-# >> DOCKER-COMPOSE-GLFTPD-WEBUI
+# >> DOCKER-COMPOSE-GLFTPD-V3 :: WEBUI
 ###################################################################   ####  # ##
-# build args:           see docker-build.sh comments
-# environment options:  see docker-run.sh comments
-#
-# (un)comment any volumes to (bind) mount from host
-# optionally (un)comment any additional ports and args
-#
+# build args: <see docker-build.sh comments>
+# environment options: <see docker-run.sh comments>
+# uncomment any volumes to mount dirs from host
+# optionally uncomment any additional ports and args
 ###################################################################   ####  # ##
 
----
 services:
   glftpd:
     image: ghcr.io/silv3rr/docker-glftpd:latest
-#    volumes: &glftpd_volumes
-#      - ./glftpd/site:/glftpd/site:rw
-#      - ./glftpd/glftpd.conf:/glftpd/glftpd.conf
-#      - ./glftpd/etc:/glftpd/etc
-#      - ./glftpd/ftp-data/users:/glftpd/ftp-data/users
-#      - ./glftpd/ftp-data/groups:/glftpd/ftp-data/groups
-#      - ./glftpd/sitebot:/glftpd/sitebot
+    volumes: &glftpd_volumes
+      - source: ./glftpd/site
+        target: /glftpd/site
+        type: bind
+        bind: { create_host_path: false }
+      - source: ./glftpd/glftpd.conf
+        target: /glftpd/glftpd.conf
+        type: bind
+        bind: { create_host_path: false }
+      - source: ./glftpd/etc
+        target: /glftpd/etc
+        type: bind
+        bind: { create_host_path: false }
+      - source: ./glftpd/ftp-data/users
+        target: /glftpd/ftp-data/users
+        type: bind
+        bind: { create_host_path: false }
+      - source: ./glftpd/ftp-data/groups
+        target: /glftpd/ftp-data/groups
+        type: bind
+        bind: { create_host_path: false }
+      - source: ./glftpd/sitebot
+        target: /glftpd/sitebot
+        type: bind
+        bind: { create_host_path: false }
     ports: &glftpd_ports
       - "1337:1337"
       # uncomment for bot
-      # - "3333:3333"
+      - "3333:3333"
       # uncomment for pasv ports
       # - "5000-6000:5000-6000"
     ulimits: &glftpd_ulimits
@@ -38,11 +54,12 @@ services:
     image: ghcr.io/silv3rr/docker-glftpd-web:latest
     volumes: &web_volumes
       - /var/run/docker.sock:/var/run/docker.sock
-#      - ./glftpd/glftpd.conf:/app/glftpd/glftpd.conf
-#      - ./glftpd/sitebot/eggdrop.conf:/app/glftpd/sitebot/eggdrop.conf
-#      - ./glftpd/sitebot/pzs-ng/ngBot.conf:/app/glftpd/sitebot/pzs-ng/ngBot.conf
-#      - ./glftpd/site:/app/glftpd/site
-      ##- /run:/run2
+      - ./glftpd/glftpd.conf:/app/glftpd/glftpd.conf
+      - ./glftpd/sitebot/eggdrop.conf:/app/glftpd/sitebot/eggdrop.conf
+      - ./glftpd/sitebot/pzs-ng/ngBot.conf:/app/glftpd/sitebot/pzs-ng/ngBot.conf
+      - ./glftpd/site:/app/glftpd/site
+      # systemd from host
+      # - /run:/host-run
     ports: &web_ports
       - 4444:443
     ulimits: &web_ulimits
@@ -51,61 +68,63 @@ services:
         hard: 1024
     container_name: glftpd-web
     hostname: glftpd-web
-    depends_on: ['glftpd']  
+    depends_on: [glftpd]
 
 ###################################################################   ####  # ##
 # local build
 ###################################################################   ####  # ##
 
-  local-glftpd:
-    profiles:
-      - local
-#    build:
-#      context: .
-#      cache_from:
-#        - docker-glftpd:latest
-#      dockerfile: Dockerfile
-#      args:
-#        # - GLFTPD_URL=https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz
-#        - GLFTPD_SHA=981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad
-#        - INSTALL_ZS=1
-#        - INSTALL_BOT=1
-#        - INSTALL_WEBUI=1
+  local-glftpd-full:
+    profiles: [full]
+    build:
+      context: .
+      cache_from: [docker-glftpd:latest]
+      dockerfile: Dockerfile
+      args:
+        - GLFTPD_URL=https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz
+        - GLFTPD_SHA=981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad
+        - INSTALL_ZS=1
+        - INSTALL_BOT=1
+        - INSTALL_WEBUI=1
     image: docker-glftpd:latest
-#    volumes: *glftpd_volumes
+    volumes: *glftpd_volumes
     ports: *glftpd_ports
     ulimits: *glftpd_ulimits
-    container_name: glftpd
+    container_name: local-glftpd-full
     hostname: glftpd
     # environment:
 
+  local-glftpd:
+    profiles: [local]
+    image: docker-glftpd:latest
+    ports: *glftpd_ports
+    ulimits: *glftpd_ulimits
+    container_name: local-glftpd
+    hostname: glftpd
+
   local-web:
-    profiles:
-      - local
+    profiles: [local]
+    image: docker-glftpd-web:latest
     build:
       context: .
-      cache_from:
-        - docker-glftpd-web:latest
+      cache_from: [docker-glftpd-web:latest]
       dockerfile: Dockerfile
+      # uncomment to set port, auth mode, htpasswd etc
       # args:
-      #   uncomment to set port, auth mode, htpasswd etc
       #   - WEBUI_PORT=4043
       #   - WEBUI_AUTHMODE=basic
       #   - WEBUI_USERNAME=notshit
       #   - WEBUI_PASSWORD=Othersh1ttyPass
-  
-    # uncomment for host instead of bridge
-    ##network_mode: host
-
-    ##privileged: true
-    
-    image: docker-glftpd-web:latest
+    # uncomment to use host instead of bridge
+    # network_mode: host
     volumes: *web_volumes
     ports: *web_ports
     ulimits: *web_ulimits
-    container_name: glftpd-web
+    container_name: local-glftpd-web
     hostname: glftpd-web
-    depends_on: ['local-glftpd']
+    depends_on: [local-glftpd]
+    # uncomment to change authmode of the fly (basic|glftpd|both|none)
     # environment:
+    #   - WEBUI_AUTHMODE=glftpd
 
 # volumes:
