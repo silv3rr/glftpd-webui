@@ -1,90 +1,155 @@
 <?php
 
-//print "<pre>DEBUG: [auth] index.php \$_SERVER=" . print_r($_SERVER, true) . "</pre> <br>";
-//print "<pre>DEBUG: [auth] index.php \$cfg['auth']={$cfg['auth']}</pre><br>";
-//print "<pre>DEBUG: [auth] index.php \$cfg['auth_basic']=" . print_r($cfg['auth_basic'], true) . "</pre> <br>";
+// TODO:
+// - use $data or direct $docker/local
+// - add PHP_AUTH_DIGEST
 
-//if (!isset($_SESSION)) {
-//    session_start();
-//}
+if (empty($_SESSION)) {
+    session_start();
+}
 
-$debug = true;
+unset($_SESSION['DEBUG']);
+$_SESSION['DEBUG'] = array();
+
+// dont leave debug on, it breaks auth flow and creates loop:
+//   index.php(302) -> /auth/login.php -> /auth/index.php(POST) -> /auth/login.php
+
+$auth_debug = 1;
 
 if (!file_exists("/app/config.php")) {
     $cfg['auth'] = 'basic';
-    $cfg['http_auth'] = array('username' => '', 'password' => '');
+    $cfg['http_auth'] = array('username' => null, 'password' => null);
 }
 
-use shit\data;
+//use shit\data;
 
 require_once '/app/config.php';
-require_once '/app/get_data.php';
+//require_once '/app/get_data.php';
+require_once '/app/format.php';
 
-$data = new data;
+//$data = new data;
 
 //var_dump($data);
 
-// skip if auth not enabled in config
+use shit\docker;
+require_once '/app/docker_api.php';
+$docker = new docker;
 
-if (!isset($cfg['auth']) || ($cfg['auth'] === 'none')) {
+print "<pre>" . print_r($docker, true) . "</pre>";
+
+
+if(!empty($auth_debug) && $auth_debug === 1) {
+    print "<pre>DEBUG: auth/index.php \$cfg['auth']={$cfg['auth']}</pre>";
+    if (!empty($cfg['http_auth'])) {
+        print "<pre>DEBUG: auth/index.php \$cfg['http_auth']=" . print_r($cfg['http_auth'], true) . "</pre>";
+    }
+    //print "<pre>DEBUG: auth/index.php \$_SERVER=" . print_r($_SERVER, true) . "</pre>";
+    print "<pre>DEBUG: auth/index.php \$_SERVER['HTTP_COOKIE']={$_SERVER['HTTP_COOKIE']}</pre>";
+    print "<pre>DEBUG: auth/index.php \$_SERVER['HTTP_AUTHORIZATION']={$_SERVER['HTTP_AUTHORIZATION']}</pre>";
+    print "<pre>DEBUG: auth/index.php \$_SERVER['PHP_AUTH_USER']={$_SERVER['PHP_AUTH_USER']}</pre>";
+    print "<pre>DEBUG: auth/index.php \$_SERVER['PHP_AUTH_PW']={$_SERVER['PHP_AUTH_PW']}</pre>";
+}
+
+
+// if auth not enabled in config: exit
+
+if (empty($cfg['auth']) || ($cfg['auth'] === 'none')) {
     http_response_code(200);
     exit();
 }
 
-$_SESSION['auth_result'] = null;
+
+// some input validation
+
+if (empty($cfg['auth']) || ($cfg['auth'] === 'glftpd')) {
+    unset($_SESSION['basic_auth_result']);
+}
+
+if (!is_string($_SESSION['basic_auth_result'])) {
+    unset($_SESSION['basic_auth_result']);
+}
+
+if (!is_string($_SESSION['glftpd_auth_result'])) {
+    unset($_SESSION['glftpd_auth_result']);
+}
+
+// user is already authenticated
+
+if ( ($cfg['auth'] === 'both') &&
+     ((!empty($_SESSION['basic_auth_result']) && $_SESSION['basic_auth_result'] === "1") &&
+      (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) ) {
+    http_response_code(200);
+    exit();
+}
+
+// keep already selected user
+
+if (!empty($_SESSION['postdata']['select_user']) && $_SESSION['postdata']['select_user'] !== "Select username...") {
+    $query_params = "?user={$_SESSION['postdata']['select_user']}";
+}
 
 // check basic http auth
 
-if (isset($cfg['auth']) && ($cfg['auth'] === 'basic' || $cfg['auth'] === 'both')) {
-    if (isset($cfg['auth_basic']['username']) && isset($cfg['auth_basic']['password'])) {
-        // default shit/... : $_SERVER[HTTP_AUTHORIZATION] === 'Basic c2hpdDpFYXRTaDF0'))
-        // print "<pre>DEBUG: [auth] index.php: got auth basic";
-        if (isset($_SERVER["HTTP_AUTHORIZATION"])) {
+//   1) $_SERVER[HTTP_AUTHORIZATION] === 'Basic c2hpdDpFYXRTaDF0'  (default=shit:xxx)
+//   2) $_SERVER["PHP_AUTH_USER"] / $_SERVER["PHP_AUTH_PW"]
+//   3) try browser
+
+if (!empty($cfg['auth']) && ($cfg['auth'] === 'basic' || $cfg['auth'] === 'both')) {
+    if (!isset($_SERVER["HTTP_AUTHORIZATION"]) || !isset($_SERVER["PHP_AUTH_PW"])) {
+        $_SESSION['basic_auth_result'] = "0";
+    }
+    if (empty($_SERVER["HTTP_AUTHORIZATION"]) || empty($_SERVER["PHP_AUTH_PW"]))  {
+        $_SESSION['basic_auth_result'] = "0";
+    }
+    if ( (!empty($cfg['http_auth']['username']) && !empty($cfg['http_auth']['password'])) &&
+         ( empty($_SESSION['basic_auth_result']) || (!empty($_SESSION['basic_auth_result'] && $_SESSION['basic_auth_result'] === "0")) ) ) {
+        if (!empty($_SERVER["HTTP_AUTHORIZATION"])) {
             $http_auth = explode(" ", $_SERVER["HTTP_AUTHORIZATION"]);
-            $auth_basic = explode(":", base64_decode($http_auth[1]));
-            $auth_basic_username = $auth_basic[0];
-            $auth_basic_password = $auth_basic[1];
-            // print "<pre>DEBUG: [auth] index.php: HTTP_AUTHORIZATION auth_basic_username=${auth_basic_username} auth_basic_password=${auth_basic_password}</pre> <br>";
-        } elseif ((isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])))  {
-            $auth_basic_username = $_SERVER["PHP_AUTH_USER"];
-            $auth_basic_password = $_SERVER["PHP_AUTH_PW"];
-            // print "<pre>DEBUG: [auth] index.php: got PHP_AUTH_USER</pre> <br>";
+            $http_auth = explode(":", base64_decode($http_auth[1]));
+            $http_auth_username = $http_auth[0];
+            $http_auth_password = $http_auth[1];
+            if(!empty($auth_debug) && $auth_debug === 1) {
+                print "<pre>DEBUG: auth/index.php basic http_auth_username=${http_auth_username} http_auth_password=${http_auth_password}</pre>";
+            }
+        } elseif ((!empty($_SERVER["PHP_AUTH_USER"]) && !empty($_SERVER["PHP_AUTH_PW"])))  {
+            $http_auth_username = $_SERVER["PHP_AUTH_USER"];
+            $http_auth_password = $_SERVER["PHP_AUTH_PW"];
+            if(!empty($auth_debug) && $auth_debug === 1) {
+                print "<pre>DEBUG: auth/index.php basic PHP_AUTH_USER=${$_SERVER['PHP_AUTH_USER']} PHP_AUTH_PW=${$_SERVER['PHP_AUTH_PW']}</pre>";
+            }
         } else {
-            header("WWW-Authenticate: Basic realm=Website");
-            header("HTTP/1.0 401 Unauthorized");
-            exit;
+            if (!empty($auth_debug) && $auth_debug === 1) {
+                header('WWW-Authenticate: Basic realm="Authentication Required"');
+                header("HTTP/1.0 401 Unauthorized");
+            }
         }
-        if ($auth_basic_username === $cfg['auth_basic']['username'] && $auth_basic_password === $cfg['auth_basic']['password']) {
-            // print "<pre>DEBUG: [auth] index.php: basic MATCH (\$auth_basic_username={$auth_basic_username})</pre> <br>";
-            $_SESSION['auth_username'] = '&lt;basic auth&gt;';
-            unset($_SESSION['auth_mask']);
-            unset($_SESSION['auth_flag']);
-            //$_SESSION['auth_result'] = $auth_basic_username;
-            $_SESSION['auth_result'] = 'MATCH';
-            //http_response_code(200);
-            //header("Location: /", true, 200);
+        // verify user/pass
+        if ( (!empty($http_auth_username) && $http_auth_username === $cfg['http_auth']['username']) &&
+            (!empty($http_auth_password) && $http_auth_password === $cfg['http_auth']['password']) ) {
+            $_SESSION['basic_auth_result'] = '1';
+            $_SESSION['basic_auth_username'] = $http_auth_username;
+            if (!empty($auth_debug) && $auth_debug === 1) {
+                print "<pre>DEBUG: auth/index.php basic auth MATCH (\$http_auth_username={$http_auth_username})</pre>";
+            }
+            if ($cfg['auth'] === 'basic') {
+                if (!empty($auth_debug) && $auth_debug !== 1) {
+                    header("Location: /index.php" . $query_params, true, 200);
+                    exit();
+                }
+            }
         }
-        //http_response_code(401);
-        //exit();
     }
 }
 
+
 // check glftpd auth
+// ip-lib from https://github.com/mlocati/ip-lib
 
-if (isset($cfg['auth']) && ($cfg['auth'] === 'glftpd' || $cfg['auth'] === 'both')) {
-    // from https://github.com/mlocati/ip-lib
+if ( (!empty($cfg['auth']) && ($cfg['auth'] === 'glftpd' || $cfg['auth'] === 'both')) &&
+     (!empty($_POST['username']) && !empty($_POST['password'])) &&
+     (empty($_SESSION['glftpd_auth_result']) || (!empty($_SESSION['glftpd_auth_result'] && $_SESSION['glftpd_auth_result'] === "1"))) ) {
+
     require_once 'lib/ip-lib/ip-lib.php';
-    if(isset($debug)) {
-        //print_r($_SERVER);
-        print "<br><br>DEBUG: \$_POST= " . print_r($_POST, true). "<br>";
-        //print "DEBUG: \$_GET= " . print_r($_GET, true). "<br>";
-    }
-
-    if(isset($debug) && $debug) {
-        print "<pre>DEBUG: [auth] \$_SESSION=" . print_r($_SESSION, true) . "</pre> <br>";
-        //print "<pre>DEBUG: [auth] index.php: \$_SERVER=" . print_r($_SERVER, true) . "</pre> <br>";
-    }
-    
     function validate_hostmask($host) {
         $pattern = "/(?:.*@)?(?!-)(?!.*--)[A-Za-z0-9-]{1,63}(?<!-)(?:\.[A-Za-z0-9]{2,63})?$/";
         if (preg_match($pattern, $host)) {
@@ -93,130 +158,224 @@ if (isset($cfg['auth']) && ($cfg['auth'] === 'glftpd' || $cfg['auth'] === 'both'
         return false;
     }
 
-    if ( (empty($_SESSION['auth_result']) || (!empty($_SESSION['auth_result']) && $_SESSION['auth_result'] === "NOMATCH")) && 
-            (!empty($_POST['username']) && (!empty($_POST['password']))) ) {
+    if (!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php glftpd [1] \$_POST=" . print_r($_POST, true). "</pre>";
+        //print "DEBUG: auth/index.php \$_GET= " . print_r($_GET, true). "<br>";
+    }
 
-        $username = htmlspecialchars(trim($_POST['username']));
-        $password = htmlspecialchars(trim($_POST['password']));
+    if (!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php glftpd [1] \$_SESSION=" . print_r($_SESSION, true) . "</pre>";
+    }
 
-        if(isset($debug) && $debug) {
-            print "DEBUG: [auth] \$_POST=" . print_r($_POST, true) . "<br>";
-        }
+    $username = htmlspecialchars(trim($_POST['username']));
+    $password = htmlspecialchars(trim($_POST['password']));
 
-        // check addip mask
+    if(!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php glftpd [2] \$_POST=" . print_r($_POST, true) . "</pre>";
+        //print "<pre>DEBUG: auth/index.php \$_GET=" . print_r($_GET, true) . "</pre>";
+        //print "<pre>DEBUG: auth/index.php get_user()=". $data->get_user(); "</pre>";
+        //print "<pre>DEBUG: auth/index.php  \$_SESSION=" . print_r($_SESSION, true) . "</pre>";
+        //print "<pre>DEBUG: auth/index.php \$_SESSION['postdata']['select_user']=" . $_SESSION['postdata']['select_user'] . "</pre>";
+    }
 
-        //if(isset($debug) && $debug) {
-        //    print "<pre>DEBUG: [auth] index.php: get_user()=". $data->get_user(); "</pre><br>";
-        // }
+    //$_SESSION['postdata']['select_user'] = $username;
 
-        $_SESSION['postdata']['select_user'] = $username;
+    $replace_pairs = array(
+        '{$username}' => $username,
+    );
 
+
+    // TODO: test with data.php
+    $test_data = 0;
+    if(!empty($auth_debug) && $auth_debug === 1 && $test_data === 1) {
         $_SESSION['userfile'] = $data->get_userfile();
-
-        // debug
+        func(['userfile_raw', $replace_pairs]);
+        print "<pre>DEBUG: auth/index.php docker=" . print_r($docker, true). "</pre>";
         var_dump($data);
         print "<br>";
-  
-        if(isset($debug) && $debug) {
-            print "<pre>DEBUG: [auth] index.php: select_user=" . print_r($_SESSION['postdata']['select_user'], true) . "</pre><br>";
-        }
-        //exit;
+        //exit();
+    }
 
-        if (isset($debug) && $debug) {
-            print "<pre>DEBUG: [auth] index.php: \$_SESSION['userfile']=" . print_r($_SESSION['userfile'], true) . "</pre><br>";
-        }
 
-        if (!isset($_SESSION['userfile'])) {
-            //http_response_code(401);
-            header("HTTP/1.1 401 Unauthorized: userfile not found");
-        }
+    // get flags and ip from user file
+    $result = call_user_func_array([$docker, 'func'], array(['userfile_raw', $replace_pairs]));
 
-        $result_addip = $_SESSION['userfile']['IP'];
+    if (!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php result=" . print_r($result, true) . "</pre>";
+    }
 
-        $addip_match = false;
+    $flags = "";
+    $ip = [];
 
-        //foreach(explode(PHP_EOL, $result_addip) as $addip) {
-        foreach($result_addip as $addip) {
-            $mask = explode ('@', $addip)[1];
-            if (isset($debug))
-                print "DEBUG: [auth] index.php: \$addip=$addip -> \$mask=$mask<br>";
-            $address = \IPLib\Factory::parseAddressString($_SERVER['HTTP_X_FORWARDED_FOR']);
-            $range = \IPLib\Factory::parseRangeString($mask);
-            if ($range->contains($address)) {
-                if (isset($debug)) {
-                    print "DEBUG: [auth] index.php: ip MATCH ( {$_SERVER['HTTP_X_FORWARDED_FOR']} and $mask )<br>";
-                }
-                $addip_match = true;
-                break;
-                //echo "DEBUG: auth OK filter/validate domain: " . $domain . "<br>";            
-            } elseif ((filter_var($mask, FILTER_VALIDATE_DOMAIN) && validate_hostmask($mask)) && (strpos($addip, $mask) !== false) ) {
-                if (isset($debug) && $debug) {
-                    print "DEBUG: [auth] addip host MATCH = ($addip and $mask)<br>";
-                }
-                $addip_match = true;
-                break;
+    if (!empty($result)) {
+        foreach ($result as $line) {
+            $fields = explode(' ', $line, 2);
+            if ($fields[0] === 'FLAGS') {
+                $flags =  $fields[1];
             }
-        }
-
-        // check for siteop flag
-
-        $result_flag = $_SESSION['userfile']['FLAGS'];
-
-        if (isset($debug)) {
-            //print "DEBUG: [auth] cmd=$cmd -> result_flag=$result_flag<br>";
-            print "DEBUG: [auth] index.php: \$_SESSION['userfile']['FLAGS']={$_SESSION['userfile']['FLAGS']}<br>";
-        }
-
-        if (preg_match('/^[0-9A-Z]+$/', $result_flag) && strpos($result_flag, '1') !== false) {
-            $flag_match = true;
-        }
-
-        if ($addip_match && $flag_match) {
-            //$cmd = "[\"/glftpd/bin/passchk\", \"$username\", \"$password\", \"/glftpd/etc/passwd\"]";
-            //print "DEBUG: [auth] sindex.php: iteop flag cmd=$cmd<br>";
-            $_SESSION['auth_result'] = null;
-            //$result_passchk = trim(substr($docker->exec("glftpd", $cmd), 8));
-            $replace_pairs = array(
-                '{$username}' => $username,
-                '{$password}' => $password
-            );
-            $result_passchk = $data->func(['passchck', $replace_pairs]);
-            if (is_array($result_passchk)) {
-                $result_passchk = $result_passchk[0];
-            }
-
-            print "<br>";
-            print "<pre>DEBUG: [auth] \$result_passchk=" . print_r($result_passchk, true) . "</pre><br>";
-
-            if (!empty($result_passchk) && $result_passchk === "MATCH") {
-                $_SESSION['auth_result'] = $result_passchk;
-                $_SESSION['auth_username'] = $username;
-                $_SESSION['auth_mask'] = $addip;
-                $_SESSION['auth_flag'] = $result_flag;
-                if (!isset($debug)) {
-                    header("Location: /", true, 200);
-                }
+            if ($fields[0] === 'IP') {
+                array_push($ip, $fields[1]);
             }
         }
     }
 
-    if(isset($debug)) {
-        if (!empty($_SESSION['auth_result'])) {
-            print "DEBUG: [auth] OK \$_SESSION['auth_result']={$_SESSION['auth_result']}";
-        } else {
-            print "DEBUG: [auth] NOK \$_SESSION['auth_result']={$_SESSION['auth_result']}";
+    if (!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php \$ip=" . print_r($ip, true) . "DEBUG: \$flags={$flags}" . "</pre>";
+    }
+
+    $_SESSION['userfile'] = [];
+    $_SESSION['userfile']['FLAGS'] = $flags;
+    $_SESSION['userfile']['IP'] = $ip;
+
+    if(!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php glftpd select_user=" . print_r($_SESSION['postdata']['select_user'], true) . "</pre>";
+    }
+
+    if (!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php glftpd \$_SESSION['userfile']=" . print_r($_SESSION['userfile'], true) . "</pre>";
+    }
+
+    if (empty($_SESSION['userfile'])) {
+        //http_response_code(401);
+        header("HTTP/1.1 401 Unauthorized: userfile not found");
+    }
+
+    $result_ip = $_SESSION['userfile']['IP'];
+
+    $ip_match = false;
+
+    // check ip mask
+
+    //foreach(explode(PHP_EOL, $result_ip) as $ip) {
+    foreach($result_ip as $ip) {
+        $mask = explode ('@', $ip)[1];
+        if (!empty($auth_debug) && $auth_debug === 1) {
+            print "<pre>DEBUG: auth/index.php glftpd \$ip=$ip -> \$mask=$mask</pre>";
+        }
+        $address = \IPLib\Factory::parseAddressString($_SERVER['HTTP_X_FORWARDED_FOR']);
+        $range = \IPLib\Factory::parseRangeString($mask);
+        if ($range->contains($address)) {
+            if (!empty($auth_debug) && $auth_debug === 1) {
+                print "<pre>DEBUG: auth/index.php glftpd ip MATCH ( {$_SERVER['HTTP_X_FORWARDED_FOR']} and $mask )</pre>";
+            }
+            $ip_match = true;
+            break;
+        } elseif ((filter_var($mask, FILTER_VALIDATE_DOMAIN) && validate_hostmask($mask)) && (strpos($ip, $mask) !== false) ) {
+            if (!empty($auth_debug) && $auth_debug === 1) {
+                print "<pre>DEBUG: auth/index.php glftpd ip MATCH = ($ip and $mask)</pre>";
+            }
+            $ip_match = true;
+            break;
         }
     }
 
+    // check for siteop flag
+
+    $result_flag = $_SESSION['userfile']['FLAGS'];
+    if (!empty($auth_debug) && $auth_debug === 1) {
+        //print "DEBUG: auth/index.php cmd=$cmd result_flag=$result_flag<br>";
+        print "<pre>DEBUG: auth/index.php glftpd \$_SESSION['userfile']['FLAGS']={$_SESSION['userfile']['FLAGS']}</pre>";
+    }
+    if (preg_match('/^[0-9A-Z]+$/', $result_flag) && strpos($result_flag, '1') !== false) {
+        $flag_match = true;
+    }
+
+    if (!empty($auth_debug) && $auth_debug === 1) {
+        print "<pre>DEBUG: auth/index.php glftpd \$ip_match={$ip_match} \$flag_match={$flag_match}</pre>";
+    }
+
+    // verify gl password
+
+    if ($ip_match && $flag_match) {
+        //$cmd = "[\"/glftpd/bin/passchk\", \"$username\", \"$password\", \"/glftpd/etc/passwd\"]";
+        //print "DEBUG: auth/index.php siteop flag cmd=$cmd<br>";
+        //$result_passchk = trim(substr($docker->exec("glftpd", $cmd), 8));
+        $replace_pairs = array(
+            '{$username}' => $username,
+            '{$password}' => $password
+        );
+        //$result_passchk = $data->func(['passchk', $replace_pairs]);
+        $result_passchk = call_user_func_array([$docker, 'func'], array(['passchk', $replace_pairs]));
+
+        if (is_array($result_passchk)) {
+            $result_passchk = $result_passchk[0];
+        }
+
+        if (!empty($auth_debug) && $auth_debug === 1) {
+            print "<pre>DEBUG: auth/index.php \$result_passchk=" . print_r($result_passchk, true) . "</pre>";
+        }
+
+        if (!empty($result_passchk) && $result_passchk === "1") {
+            $_SESSION['glftpd_auth_result'] = $result_passchk;
+            $_SESSION['glftpd_auth_username'] = $username;
+            $_SESSION['glftpd_auth_mask'] = $ip;
+            $_SESSION['glftpd_auth_flag'] = $result_flag;
+
+            //$_SESSION['postdata']['glftpd_auth_result'] = $result_passchk;
+
+            if(!empty($auth_debug) && $auth_debug === 1) {
+                print "<pre>DEBUG: auth/index.php glftpd match \$_SESSION['glftpd_auth_username']={$ $_SESSION['glftpd_auth_username']}</pre>" . PHP_EOL;
+            } else {
+                header("Location: /index.php" . $query_params , true, 200);
+                exit();
+            }
+
+            //print "<pre>DEBUG: auth \$_SESSION['postdata']=" . print_r($_SESSION['postdata'], true) . "</pre>";
+        }
+    }
 }
 
-if (!empty($_SESSION['auth_result']) && $_SESSION['auth_result'] === "MATCH") {
-    http_response_code(200);
-} else {
-    unset($_SESSION['auth_username']);
-    unset($_SESSION['auth_mask']);
-    unset($_SESSION['auth_flag']);
-    http_response_code(401);
+// debug result
+
+if (!empty($cfg['auth']) && (!empty($auth_debug) && $auth_debug === 1)) {
+    if (($cfg['auth'] === 'glftpd') && ((!empty($_SESSION['glftpd_auth_result']) && ($_SESSION['glftpd_auth_result'] === "0")))) {
+        print "<br>DEBUG: auth/index.php NOK: \$_SESSION['glftpd_auth_result']={$_SESSION['glftpd_auth_result']}<br>" . PHP_EOL;
+    }
+    if (($cfg['auth'] === 'basic') && ((!empty($_SESSION['basic_auth_result']) && ($_SESSION['basic_auth_result'] === "0")))) {
+        print "<br>DEBUG: auth/index.php NOK: \$_SESSION['basic_auth_result']={$_SESSION['basic_auth_result']}<br>" . PHP_EOL;
+    }
 }
 
+// return response
+
+if (!empty($cfg['auth'])) {
+    if (($cfg['auth'] === 'basic') && ((!empty($_SESSION['basic_auth_result']) && ($_SESSION['basic_auth_result'] === "1")))) {
+        if(!empty($auth_debug) && $auth_debug === 1) {
+            print "<br>DEBUG: auth/index.php basic OK: \$_SESSION['basic_auth_result']={$_SESSION['basic_auth_result']}<br>" . PHP_EOL;
+        }
+        http_response_code(200);
+        exit();
+    }
+    if (($cfg['auth'] === 'glftpd') && (!empty($_SESSION['glftpd_auth_result']) && ($_SESSION['glftpd_auth_result'] === "1"))) {
+            if(!empty($auth_debug) && $auth_debug === 1) {
+            print "<br>DEBUG: auth/index.php glftpd OK: \$_SESSION['glftpd_auth_result']={$_SESSION['glftpd_auth_result']}<br>" . PHP_EOL;
+        }
+        http_response_code(200);
+        exit();
+    }
+
+    if ( ($cfg['auth'] === 'both') &&
+          ((!empty($_SESSION['basic_auth_result']) && $_SESSION['basic_auth_result'] === "1") &&
+           (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) ) {
+
+        if (!empty($auth_debug) && $auth_debug === 1) {
+            print "<br>DEBUG: auth/index.php both OK:<br>" . PHP_EOL;
+            print "&nbsp;&nbsp; \$_SESSION['basic_auth_result']={$_SESSION['basic_auth_result']}<br>" . PHP_EOL;
+            print "&nbsp;&nbsp; \$_SESSION['glftpd_auth_result']={$_SESSION['glftpd_auth_result']}<br>" . PHP_EOL;
+        }
+        http_response_code(200);
+        exit();
+    }
+    if ( ($cfg['auth'] === 'both') && (empty($_SESSION['basic_auth_result']) || empty($_SESSION['glftpd_auth_result'])) ) {
+        header("Location: /auth/login.php", true, 302);
+    }
+}
+
+if (!empty($auth_debug) && $auth_debug !== 1) {
+    unset($_SESSION['glftpd_auth_username']);
+    unset($_SESSION['glftpd_auth_mask']);
+    unset($_SESSION['glftpd_auth_flag']);
+}
+
+http_response_code(401);
 exit();
