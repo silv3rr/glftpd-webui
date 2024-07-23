@@ -12,7 +12,7 @@
 
 	// The 'service' property is the name of the service for the container that VS Code should
 	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
-	"service": "local-web",
+	"service": "dev-web",
 
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
@@ -28,7 +28,7 @@
 
 	// Uncomment the next line if you want start specific services in your Docker Compose config.
 	// "runServices": [],
-	"runServices": [ "local-glftpd" ],
+	"runServices": ["local-glftpd"],
 
 	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
 	// "shutdownAction": "none",
@@ -44,7 +44,7 @@
 
 	"remoteEnv": {
 		//"COMPOSE_PROJECT_NAME": "local"
-		"COMPOSE_PROFILES": "local"
+		"COMPOSE_PROFILES": "dev"
 	},
 
 	"overrideCommand": false,
