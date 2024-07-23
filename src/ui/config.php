@@ -3,22 +3,22 @@
 /*-----------------------------------------------------------------------*
 *   GLFTPD:WEBUI configuration
 *------------------------------------------------------------------------*
-*   'mode'  docker: uses docker api, runs commands in '''' container
+*   'mode'  docker: uses docker api, runs commands in 'glftpd' container
 *           local: exec commands locally (set 'runas_user')
 *   'auth'  basic: use basic http authentication (optional: set user/pass)
-*           '': login form checks ftp username/password
-*           (or '''', 'none' to disable)
+*           glftpd: login form checks ftp username/password
+*           (or 'both', or 'none' to disable)
 *-----------------------------------------------------------------------*/
 
 return $cfg = array(
-    'auth'                      => "basic",
+    'auth'                      => "both",
     'mode'                      => "docker",
     'show_more_opts'            => false,
     'show_alerts'               => true,
     'max_items'                 => 10,
-    'debug'                     => false,
+    'debug'                     => 9,
     'http_auth'                 => ['username' => "shit", 'password' => "EatSh1t"],
-    'spy'                       => ['enabled' => true, 'refresh' => false],
+    'spy'                       => ['enabled' => false, 'refresh' => false],
     'modal'                     => ["pywho" => true, "commands" => false],
     'title'                     => '<em class="fa-solid fa-left-right"></em>
                                     <span style="font-weight:bold;color:#5456c5;">GLFTPD</span>:
@@ -27,8 +27,8 @@ return $cfg = array(
 
     'docker' => array(
       'api'               => "http://localhost/v1.44",
-      'basic_container'  => "basic",
-      'bin_dir'           => "/basic/bin",
+      'glftpd_container'  => "glftpd",
+      'bin_dir'           => "/glftpd/bin",
     ),
 
     'local' => array(

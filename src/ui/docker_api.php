@@ -174,7 +174,6 @@ class docker {
         return json_decode(self::api("GET", "/containers/json?all=$all"));
     }
 
-    //public function func(string $action, array $vars=[]): mixed {
     public function func(array|string $args): mixed {
         $action = is_array($args) ? $args[0] : $args;
         $command = $this->commands[$action];
@@ -183,13 +182,14 @@ class docker {
                 '{$bindir}' => $this->cfg['docker']['bin_dir'],
                 '{$gl_ct}' => $this->cfg['docker']['glftpd_container'],
             );
+            $command[1] = strtr($command[1], $replace_pairs);
             if (is_array($args)) {
                 $args[1] = array_merge($args[1], $replace_pairs);
                 $command[2] = strtr($command[2], $args[1]);
             } else {
                 $command[2] = strtr($command[2], $replace_pairs);
             }
-            //print "<pre>DEBUG: docker_api func \$action={$action} \$command[2]=" . print_r($command[2], true) . " \$command=" . print_r($command, true) . " \$args=" . print_r($args, true) . "</pre>";
+            //$this->debug->print(pre: true, loc: 'docker_api', action: $action, _command_2: $command[2], command: $command, args: $args );
             $this->debug->trace(trace: 'docker-func-1', action: $action, command: $command);
             $result = call_user_func_array(['self', array_shift($command)], $command);
             $this->debug->trace(trace: 'docker-func-2', result: $result);

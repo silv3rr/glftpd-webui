@@ -5,10 +5,14 @@
  *--------------------------------------------------------------------------*/
 
 
+ //var_dump(session_status());
+//print "DEBUG: \$_SESSION['auth_result']={$_SESSION['auth_result']}<br>";
+//print "DEBUG: \$_SESSION['auth_username']={$_SESSION['auth_username']}<br>";
+
+
 /*--------------------------------------------------------------------------*/
 // TODO:
 /*--------------------------------------------------------------------------*/
-// auth: reenable + test glmode, docker runtime: run auth.sh (basic/gl/both)
 // add self service for users (addip, invite), use gl auth
 // cleanup debug
 // switch to mvc framework (laravel|symfony)
@@ -41,6 +45,7 @@ use shit\debug;
 use shit\data;
 use shit\docker;
 use shit\local;
+use shit\controller;
 
 require_once 'debug.php';
 require_once 'format.php';
@@ -60,10 +65,12 @@ $data = new data;
 
 // check for .dockerenv and disable service controls if webui is running in ct
 
+$docker_sock = false;
 $local_dockerenv = false;
 
-if (cfg::get('mode') || cfg::get('mode') == "docker") {
+if (cfg::get('mode') || cfg::get('mode') === "docker") {
     $docker = new docker;
+    $docker_sock = @fsockopen('unix:///run/docker.sock');
 } else {
     $local = new local;
     $dockerenv = is_file("/.dockerenv");
@@ -84,8 +91,9 @@ if (cfg::get('debug')) {
     $debug->print(
         loc: 'index',
         debug_lvl: "<strong>" . cfg::get('debug') . "</strong>",
-        debug_mode: "<strong>" . cfg::get('mode') . "</strong>",
+        debug_mode: "'<strong>" . cfg::get('mode') . "</strong>'",
         local_dockerenv: "'<strong>" . $local_dockerenv . "</strong>'",
+        auth: "'<strong>" . cfg::get('auth') . "</strong>'",
         file: __FILE__
     );
     print "</span>" . PHP_EOL;
@@ -160,7 +168,7 @@ if (cfg::get('debug') > 9 && !empty($_SESSION['postdata'])) {
     $debug->print(loc: 'index-2', count__SESSION_postdata: count($_SESSION['postdata']));
 }
 
-// debug: postdata handling (old)
+// debug: postdata handling (deprecated)
 /*
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $_SESSION['postData'] = array_map('htmlspecialchars', $_POST);
@@ -186,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     unset($_POST);
     print $_SERVER['PHP_SELF'];
     header("Location: ".$_SERVER['PHP_SELF'] . $query_params);
-    exit;
+    exit();
 }
 */
 
@@ -291,12 +299,8 @@ if (isset($_SESSION['update']['user_group']) && $_SESSION['update']['user_group'
     $data->get_users_groups();
 }
 
-show_notifications($local_dockerenv);
-
-// TODO: update status?
-//if (isset($_SESSION['update']['status']) && $_SESSION['update']['status']) {
-// ...
-//}
+show_notifications(docker_sock: $docker_sock);
+show_notifications(local_dockerenv: $local_dockerenv);
 
 unset($_SESSION['results']);
 
@@ -311,7 +315,7 @@ if (isset($_SESSION['cmd_output'])) {
 /* TEMPLATE
 /*--------------------------------------------------------------------------*/
 
- require 'templates/main.html.php';
+require 'templates/main.html.php';
 
 if (isset($_SESSION['modal'])) {
     show_modal();
@@ -336,6 +340,15 @@ if (cfg::get('spy')['enabled']) {
     if (!cfg::get('spy')['refresh']) {
         print '<script type="text/javascript">function set_norefresh(){};</script>' . PHP_EOL;
     }
+}
+
+if (isset($_SESSION['update']['status']) && $_SESSION['update']['status']) {
+    //print '<script type="text/javascript">$("#notifications_status").attr("style", "display:none")';
+    print '<script type="text/javascript">$("#notifications_status").remove();';
+}
+if (isset($_SESSION['update']['results']) && $_SESSION['update']['results']) {
+    //print '<script type="text/javascript">$("#notifications_results").attr("style", "display:none")';
+    print '<script type="text/javascript">$("#notifications_results").remove();';
 }
 
 print <<<_EOF_

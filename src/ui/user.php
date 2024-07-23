@@ -1,6 +1,6 @@
 <?php
 
-// nginx redirects pyspy's /user/<username> here
+// stub; nginx redirects pyspy's /user/<username> here
 
 session_start();
 

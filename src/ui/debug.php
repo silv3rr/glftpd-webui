@@ -1,4 +1,5 @@
 <?php
+
 /*--------------------------------------------------------------------------*
  *   SHIT:FRAMEWORK debug
  *--------------------------------------------------------------------------*/
@@ -34,7 +35,7 @@ class debug {
             if (isset($a['pre'])) {
                 print "<pre>DEBUG: {$a['loc']} {$out}</pre>" . PHP_EOL;
             } else {
-                print "DEBUG: {$a['loc']} {$out}" . PHP_EOL;
+                print "DEBUG: {$a['loc']} {$out}" . "<br>" . PHP_EOL;
             }
         }
     }
@@ -50,7 +51,7 @@ class debug {
         if ($this->cfg['debug'] > 2) {
             $out = "";
             foreach($a as $k => $v) {
-                if ($k === 'ch') {
+                if ($k === 'ch' && gettype($v) === 'object') {
                     $k = 'curl_http_code';
                     $v = curl_getinfo($v, CURLINFO_HTTP_CODE);
                 }

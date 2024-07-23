@@ -6,11 +6,15 @@
 
 namespace shit;
 
+use shit\debug;
 use shit\local;
 use shit\docker;
 
+require_once 'debug.php';
 require_once 'local_exec.php';
 require_once 'docker_api.php';
+
+$debug = new debug;
 
 class data {
     private array $cfg;
@@ -34,11 +38,11 @@ class data {
             //$this->cfg = $args;
             //$this->cfg = array_splice($func_get_args, 0, 1)[0];
             //$argv = array_splice($func_get_args, 0, 1)[0];
-            print "<pre>DEBUG: get_data func \$args=" . print_r($args, true) . "<br></pre>" . PHP_EOL;
-            print "<pre>DEBUG: get_data func \$func_get_args=" . print_r($func_get_args, true) . " END get_data func" . "<br></pre>" . PHP_EOL;
-            print "<pre>DEBUG: get_data func \$this->cfg=" . var_dump($this->cfg) . "<br></pre>";
-            print "<pre>DEBUG: get_data func \$args="  . var_dump($args) . "<br></pre>";
-            print "<pre>DEBUG: get_data func \$argv="  . var_dump($argv) . "<br></pre>";
+            $debug->print(pre: true, loc: 'get_data func', args: $args);
+            $debug->print(pre: true, loc: 'get_data func', func_get_args: $func_get_args);
+            $debug->print(pre: true, loc: 'get_data func', _this_cfg: var_dump($this->cfg));
+            $debug->print(pre: true, loc: 'get_data func', _args: var_dump($args));
+            $debug->print(pre: true, loc: 'get_data func', _argv: var_dump($argv));
             //exit();
         }
         
@@ -48,30 +52,48 @@ class data {
             $local = new local;
             switch ($argv[0]) {
                 case "ftpd":
-                    $result = $local->test_ftp($this->cfg['services']['ftpd']['host'], $this->cfg['services']['ftpd']['port']);
+                    $result = $local->test_ftp(
+                        $this->cfg['services']['ftpd']['host'],
+                        $this->cfg['services']['ftpd']['port']
+                    );
                     break;
                 case "irc":
-                    $result = $local->test_port($this->cfg['services']['irc']['host'], $this->cfg['services']['irc']['port']);
+                    $result = $local->test_port(
+                        $this->cfg['services']['irc']['host'],
+                        $this->cfg['services']['irc']['port']
+                    );
                     break;
                 case "sitebot":
-                    $result = $local->test_port($this->cfg['services']['sitebot']['host'], $this->cfg['services']['sitebot']['port']);
+                    $result = $local->test_port(
+                        $this->cfg['services']['sitebot']['host'],
+                        $this->cfg['services']['sitebot']['port']
+                    );
                     break;
                 default:
                     // $_SESSION['DEBUG']['argv'] = $argv;
-                    // print "<br>DEBUG: get_data \$_SESSION['DEBUG']['argv']=" . $_SESSION['DEBUG']['argv']" . "<br>";
+                    //$debug->print(loc: 'get_data func', _SESSION_DEBUG_argv: $_SESSION['DEBUG']['argv']);
+
                     $result = call_user_func_array([$local, 'func'], $argv);
             }
         } elseif ($this->cfg['mode'] == "docker") {
             $docker = new docker;
             switch ($argv[0]) {
                 case "ftpd":
-                    $result = $docker->test_port('glftpd', $this->cfg['services']['ftpd']['host'], $this->cfg['services']['ftpd']['port']);
+                    $result = $docker->test_port(
+                        $this->cfg['docker']['glftpd_container'],$this->cfg['services']['ftpd']['host'], $this->cfg['services']['ftpd']['port']
+                    );
                     break;
                 case "irc":
-                    $result = $docker->test_port('glftpd', $this->cfg['services']['irc']['host'], $this->cfg['services']['irc']['port']);
+                    $result = $docker->test_port(
+                        $this->cfg['docker']['glftpd_container'],
+                        $this->cfg['services']['irc']['host'], $this->cfg['services']['irc']['port']
+                    );
                     break;
                 case "sitebot":
-                    $result = $docker->test_port('glftpd', $this->cfg['services']['sitebot']['host'], $this->cfg['services']['sitebot']['port']);
+                    $result = $docker->test_port(
+                        $this->cfg['docker']['glftpd_container'],
+                        $this->cfg['services']['sitebot']['host'], $this->cfg['services']['sitebot']['port']
+                    );
                     break;
                 default:
                     $result = call_user_func_array([$docker, 'func'], $argv);
@@ -126,7 +148,7 @@ class data {
     public function get_groups() {
         $groups_all = [];
         $result = $this->func('groups_raw');
-        //print "DEBUG: get_data get_groups \$result=" . print_r($result, true) . "<br>" . PHP_EOL;
+        //$debug->print(loc: 'get_data get_groups', result: $result);
         if (is_array($result)) {
             foreach ($result as $group) {
                 //$get_group = trim(sanitize_string($group));
@@ -142,7 +164,7 @@ class data {
     public function get_pgroups() {
         $pgroups_all = [];
         $result = $this->func('pgroups_raw');
-        //print "DEBUG: get_data get_pgroups \$result=" . print_r($result, true) . "<br>" . PHP_EOL;
+        //$debug->print(loc: 'get_data get_pgroups', result: $result);
         if (is_array($result)) {
             foreach ($result as $pgroup) {
                 //$get_pgroup = trim(sanitize_string($pgroup));
@@ -158,7 +180,7 @@ class data {
     public function get_users_groups() {
         $users_groups_all = [];
         $result = $this->func('usersgroups_raw');
-        //print "DEBUG: get_data get_usersgroups \$result=" . print_r($result, true) . "<br>" . PHP_EOL;
+        //$debug->print(loc: 'get_data get_usersgroups', result: $result);
         if(is_array($result)) {
             foreach ($result as $get_user_group) {
                 //$get_user_group = trim(sanitize_string($get_user_group));
@@ -176,8 +198,8 @@ class data {
         if ($this->check_user()) {
             $replace_pairs = array('{$username}' => $_SESSION['postdata']['select_user']);
             $result = $this->func(['userfile_raw', $replace_pairs]);
-            //print "<pre>DEBUG: get_data get_userfile \$replace_pairs=" . print_r($replace_pairs, true) . "<br></pre>" . PHP_EOL;
-            //print "<pre>DEBUG: get_data get_userfile \$result=" . print_r($result, true) . "<br></pre>" . PHP_EOL;
+            //$debug->print(pre: true, loc: 'get_data get_userfile', replace_pairs: $replace_pairs);
+            //$debug->print(pre: true, loc: 'get_data get_userfile', result: $result);
             if (!empty($result)) {
                 foreach ($result as $line) {
                     $fields = explode(' ', $line, 2);
@@ -193,7 +215,7 @@ class data {
                 }
             }
         }
-        //print "DEBUG: get_data get_userfile-2 \$userfile=" . print_r($userfile,true) . "<br>" . PHP_EOL;
+        //$debug->print(pre: true, loc: 'get_data get_userfile-2', result: $userfile);
         return $userfile;
     }
 
