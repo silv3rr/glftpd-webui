@@ -1,10 +1,19 @@
 #!/bin/bash
 
 ################################## ################################   ####  # ##
-# >> DOCKER-BUILD-GLFTPD-WEBUI
+# >> DOCKER-BUILD-GLFTPD-V3 :: WEBUI
 ################################## ################################   ####  # ##
+#
+# BUILD-TIME VARIABLES:
+#
+# WEBUI_AUTHMODE=<basic|glftpd|both>
+# WEBUI_USERNAME=MyUser             set basic auth username (default: shit)
+# WEBUI_PASSWORD=MyPw123            set basic auth password
+#
+# ARGS+= " --any-flags " add any other docker build options
+#
+##################################################################   ####  ## ##
 
-# build webui only
 BUILD_GLFTPD=0
 INSTALL_WEBUI=1
 
@@ -13,7 +22,7 @@ GLFTPD_URL="${GLFTPD_URL:-"https://mirror.glftpd.nl.eu.org/glftpd-LNX-2.14a_3.0.
 GLFTPD_SHA="${GLFTPD_SHA:-"981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad"}"
 GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*/\1/' )"
 
-ARGS="$*"
+ARGS+="$*"
 
 echo "----------------------------------------------"
 echo "DOCKER-GLFTPD-BUILD-V3"
@@ -37,8 +46,7 @@ if [ "${BUILD_GLFTPD:-0}" -eq 1 ]; then
     .
 fi
 
-if [ "${INSTALL_WEBUI:-0}" -eq 1 ]; then
-  echo "Build image 'docker-glftpd-web'"
+if [ "${INSTALL_WEBUI:-1}" -eq 1 ]; then
   # shellcheck disable=SC2086
   docker build \
     $ARGS \

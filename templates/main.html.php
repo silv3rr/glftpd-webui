@@ -19,7 +19,7 @@
 <div class="title"><?= cfg::get('title') ?>
 </div>
 <div class="status">
-  <div class="subcat"><strong>Settings</strong></div>
+  <div class="subcat"><strong>status | ui-settings</strong></div>
   &nbsp;
   MODE: <span id="mode"><?= cfg::get('mode') ?></span><hr class="vsep"/>
   STATUS:
@@ -36,15 +36,15 @@
     </label>
     <div id="theme"><span>DARK THEME</span></div>
   </span>
-  <a href="https://github.com/silv3rr/docker-glftpd/blob/master/README.md"><button type="button" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
-    <em class="fa-solid fa-question"></em>
+  <a href="https://github.com/silv3rr/glftpd-webui/blob/master/README.md"><button type="button" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
+    <em class="fa-solid fa-question"></em> help
   </button></a>
   <a href data-toggle="modal" data-target="#bsModal" data-type="html" data-path="/templates/about.html">
     <button type="button" id="about" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2">
-    <em class="fa-solid fa-poo"></em>
+    <em class="fa-solid fa-poo"></em> about
   </button></a>
   <a href="/auth/login.php"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2" <?= (cfg::get('auth') !== 'none' ? "" : "disabled") ?>>
-    <em class="fa-solid fa-id-card"></em> 
+    <em class="fa-solid fa-id-card"></em> login
   </button></a>
 </div>
 
@@ -260,8 +260,8 @@
         <hr class="vsep"/>
         <button type="submit" name="termCmd" value="kill_gotty" id="kill_gotty" class="btn btn-sm btn-custom">close tty</button>
         <hr class="vsep"/>
-        <a class="btn btn-link color-custom" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
-          <em class="fa-solid fa-circle-info icon"></em>
+        <a class="btn info" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
+          <em class="fa-solid fa-circle-info"></em>
         </a>
         <div class="collapse" id="colTermInfo">
           <div class="card card-body">
