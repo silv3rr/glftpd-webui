@@ -4,8 +4,9 @@
 ###################################################################   ####  # ##
 # build args: <see docker-build.sh comments>
 # environment options: <see docker-run.sh comments>
+#
 # uncomment any volumes to mount dirs from host
-# optionally uncomment any additional ports and args
+# optionally uncomment args e.g. additional ftp ports
 ###################################################################   ####  # ##
 
 services:
@@ -74,10 +75,12 @@ services:
 # local build
 ###################################################################   ####  # ##
 
+  # (webui:build full glftpd image)
+  #   docker compose --profile full up --build local-glftpd-full local-web --detach
   local-glftpd-full:
     profiles: [full]
     build:
-      context: .
+      context: https://github.com/silv3rr/docker-glftpd.git
       cache_from: [docker-glftpd:latest]
       dockerfile: Dockerfile
       args:

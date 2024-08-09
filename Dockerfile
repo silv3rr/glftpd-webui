@@ -19,24 +19,21 @@ COPY --chown=0:0 bin/entrypoint.sh /
 COPY --chown=0:0 bin/auth.sh /
 COPY --chown=0:0 etc/sudoers.d/glftpd-web /etc/sudoers.d
 COPY --chown=0:0 etc/nginx /etc/nginx
-COPY --chown=0:0 bin/gltool.sh bin/gotty bin/passchk bin/pywho bin/spy /usr/local/bin/
+COPY --chown=0:0 bin/gltool.sh bin/gotty bin/passchk bin/pywho bin/spy etc/spy.conf /usr/local/bin/
+#COPY --chown=0:0 etc/webspy/ /usr/local/bin/webspy/
 COPY --chown=100:101 assets/ /app/assets/
 COPY --chown=100:101 lib/ui/ /app/lib/
-COPY --chown=100:101 lib/webspy/ /usr/local/bin/webspy/
 COPY --chown=100:101 src/ui /app/
 COPY --chown=100:101 templates/ /app/templates/
 COPY --chown=100:101 src/auth /auth/
 COPY --chown=100:101 lib/auth/ /auth/lib/
-#COPY --chown=100:101 assets/css/ /auth/assets/css/
-#COPY --chown=100:101 lib/ui/bootstrap-4.6.2-dist/css/ /auth/lib/bootstrap-4.6.2-dist/css/
-#ADD --chown=100:101 fontawesome-free-6.5.1-web.tar.gz /app/lib
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-#sed -i 's/https/http/g' /etc/apk/repositories ;\
 # hadolint ignore=SC2016,SC2086,DL3018
 RUN test -n "$http_proxy" && { \
       http_proxy=${http_proxy}; \
       https_proxy=${http_proxy}; \
     }; \
+    test -n "$apk_http" && sed -i 's/https/http/g' /etc/apk/repositories; \
     apk add --no-cache \
       nginx \
       php \

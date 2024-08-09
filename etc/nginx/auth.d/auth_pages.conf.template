@@ -1,0 +1,52 @@
+# glftpd-webui::template
+
+location ~ "^/(assets|lib)/.+$" {
+	auth_basic off;
+	auth_request off;
+}
+
+location ~ "^/auth/((assets|lib)/.*)$" {
+	auth_basic off;
+	auth_request off;
+	return 302 $scheme://$http_host/$1;
+}
+
+location = /auth/login.php {
+	auth_basic off;
+	auth_request off;
+	proxy_pass			https://auth-server/login.php;
+	proxy_set_header	X-Original-URI $request_uri;
+	proxy_ssl_verify	off;
+	proxy_set_header Host $host;
+	#proxy_set_header X-Forwarded-Host $host;
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	#proxy_set_header X-Forwarded-Proto $scheme;
+	error_page 404 502 = @error_auth_5xx;
+}
+
+location = /auth/logout.php {
+	auth_basic off;
+	auth_request off;
+	proxy_pass			https://auth-server/logout.php;
+	proxy_set_header	X-Original-URI $request_uri;
+	proxy_ssl_verify	off;
+	limit_except POST {
+		deny all;
+	}
+}
+
+location = /auth/index.php {
+	auth_basic off;
+	auth_request off;
+	proxy_pass				https://auth-server/index.php;
+	proxy_set_header		X-Original-URI $request_uri;
+	proxy_ssl_verify		off;
+	proxy_set_header Host $host;
+	proxy_set_header X-Real-IP $remote_addr;
+	#proxy_set_header X-Forwarded-Host $host;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	limit_except POST {
+		deny all;
+	}
+}
