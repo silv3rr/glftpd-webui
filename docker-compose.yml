@@ -112,9 +112,9 @@ services:
       # uncomment to set port, auth mode, htpasswd etc
       # args:
       #   - WEBUI_PORT=4043
-      #   - WEBUI_AUTHMODE=basic
-      #   - WEBUI_USERNAME=notshit
-      #   - WEBUI_PASSWORD=Othersh1ttyPass
+      #   - WEBUI_AUTH_MODE=basic
+      #   - WEBUI_AUTH_USER=notshit
+      #   - WEBUI_AUTH_PASS=Othersh1ttyPass
     # uncomment to use host instead of bridge
     # network_mode: host
     volumes: *web_volumes
@@ -125,6 +125,6 @@ services:
     depends_on: [local-glftpd]
     # uncomment to change authmode of the fly (basic|glftpd|both|none)
     # environment:
-    #   - WEBUI_AUTHMODE=glftpd
+    #   - WEBUI_AUTH_MODE=glftpd
 
 # volumes:

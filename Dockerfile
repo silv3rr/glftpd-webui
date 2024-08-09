@@ -6,9 +6,9 @@
 
 ARG WEBUI_PORT
 ARG WEBUI_CERT
-ARG WEBUI_AUTHMODE
-ARG WEBUI_USERNAME
-ARG WEBUI_PASSWORD
+ARG WEBUI_AUTH_MODE
+ARG WEBUI_AUTH_USER
+ARG WEBUI_AUTH_PASS
 FROM alpine:3.18
 HEALTHCHECK CMD wget -qO /dev/null http://127.0.0.1/health
 LABEL org.opencontainers.image.source=https://github.com/silv3rr/glftpd-webui
