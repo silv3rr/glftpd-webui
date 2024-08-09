@@ -71,7 +71,7 @@ class local {
         $command = $this->commands[$action];
         if (isset($command)) {
             $replace_pairs = array(
-                '{$bindir}' => $this->cfg['local']['bin_dir'],
+                '{$bin_dir}' => $this->cfg['local']['bin_dir'],
                 '{$runas}' => $this->cfg['local']['runas_user'],
             );
             if (is_array($args)) {
