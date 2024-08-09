@@ -19,7 +19,6 @@
 <div class="title"><?= cfg::get('title') ?>
 </div>
 <div class="status">
-  <div class="subcat"><strong>status | ui-settings</strong></div>
   &nbsp;
   MODE: <span id="mode"><?= cfg::get('mode') ?></span><hr class="vsep"/>
   STATUS:
@@ -97,7 +96,7 @@
         <em class="fa-solid fa-pause-circle"></em>
       </button>
       &nbsp;
-      <a href="/spy"><button type="button" class="btn btn-sm btn-custom mr-2 ">
+      <a href="/spy"><button type="button" class="btn btn-sm btn-custom mb-1 mr-2 ">
         <em class="fa-solid fa-up-right-and-down-left-from-center icon"></em>
       </button></a>
     </div>
@@ -182,7 +181,7 @@
   </div>
 
 
-  <?php if (!$local_dockerenv): ?>
+  <?php if (!$local_dockerenv_exists): ?>
   <div class="enabled-group">
     <div class="hspace"></div>
     <p>
@@ -273,7 +272,6 @@
         </div>
       </div>
     </div>
-  </div>
 
 </form>
 

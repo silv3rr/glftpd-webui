@@ -77,7 +77,7 @@
       <label for='reset_user_stats' class='col-form-label'>Stats:</label>
     </div>
     <div class="col-auto">
-      <button type="submit" name="gltoolCmd" value="show_user_stats" class="btn btn btn-outline-primary mr-2 mb-1">
+      <button type="submit" name="gltoolCmd" value="show_user_stats" class="btn btn-outline-primary mr-2 mb-1">
           <em class='fa-solid fa-chart-simple'></em> Show
       </button>
       <span class='border border-warning rounded p-2'>
@@ -115,7 +115,7 @@
     </a>
   </div>
   <div class="col-5"></div>
-    <button type='button' id='clear' name='clear' onclick='window.location = "?user="' class='btn btn-second btn-secondary btn ml-4 <?= ($data->check_user() ? "" : "disabled") ?>'>
+    <button type='button' id='clear' name='clear' onclick='window.location = "?user="' class='btn btn-secondary ml-4 <?= ($data->check_user() ? "" : "disabled") ?>'>
       <em class="fa-solid fa-circle-xmark"></em> Clear
     </button>
     <button type='submit' id='apply' name='applyBtn' class='btn btn-primary btn ml-3 <?= ($data->check_user() ? "" : "disabled") ?>'>
