@@ -82,13 +82,13 @@ fi
 
 if [ -z "$NETWORK" ]; then
   DOCKER_NETWORK="$(docker network ls --format '{{.Name}}' --filter 'Name=shit')"
-  if [ -n "$DOCKER_NETWORK" ] && [ "$DOCKER_NETWORK" = "shit" ];  then
+  if [ -n "$DOCKER_NETWORK" ] && [ "$DOCKER_NETWORK" = "shit" ]; then
     NETWORK="shit"
   fi
 fi
 
 if [ "${WEBUI_LOCAL:-0}" -eq 1 ]; then
-  WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd},dst=/glftpd "
+  WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd},dst=/glftpd "
   WEBUI_ARGS+=" --env WEBUI_PORT=4444 "
   echo "* Running webui on host network: https://localhost:4444"
 else
@@ -106,8 +106,8 @@ if [ "${GLFTPD_CONF:-0}" -eq 1 ] || [ "${ZS_STATUS:-0}" -eq 1 ]; then
     rmdir glftpd/glftpd.conf 2>/dev/null || { echo "ERROR: \"glftpd.conf\" is a directory, remove it manually"; }
   fi
   if [ -f glftpd/glftpd.conf ]; then
-    GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/glftpd.conf,dst=/glftpd/glftpd.conf "
-    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/glftpd.conf,dst=/app/glftpd/glftpd.conf"
+    GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/glftpd.conf,dst=/glftpd/glftpd.conf "
+    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/glftpd.conf,dst=/app/glftpd/glftpd.conf"
   fi
 fi
 
@@ -126,22 +126,22 @@ fi
 
 if [ "${GLFTPD_PERM_UDB:-0}" -eq 1 ]; then
   REMOVE_CT=0
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/ftp-data/users,dst=/glftpd/ftp-data/users "
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/ftp-data/groups,dst=/glftpd/ftp-data/groups"
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/etc,dst=/glftpd/etc "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/ftp-data/users,dst=/glftpd/ftp-data/users "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/ftp-data/groups,dst=/glftpd/ftp-data/groups"
+  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/etc,dst=/glftpd/etc "
 fi
 
 # shellcheck disable=SC2174
 if [ "${GLFTPD_SITE:-0}" -eq 1 ]; then
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/site,dst=/glftpd/site:rw "
-  WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/site,dst=/app/glftpd/site "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/site,dst=/glftpd/site:rw "
+  WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/site,dst=/app/glftpd/site "
 else
   WEBUI_ARGS+=" --mount type=tmpfs,dst=/app/glftpd/site/NO_BIND_MOUNT "
 fi
 
 if [ "${BOT_STATUS:-0}" -eq 1 ]; then
   REMOVE_CT=0
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/sitebot,dst=/glftpd/sitebot "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/sitebot,dst=/glftpd/sitebot "
   GLFTPD_ARGS+=" --publish ${IP_ADDR}:3333:3333 "
   for i in glftpd/sitebot/eggdrop.conf glftpd/sitebot/pzs-ng/ngBot.conf ; do
     if [ -d "$i" ]; then
@@ -149,10 +149,10 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
     fi
   done
   if [ -f glftpd/sitebot/eggdrop.conf ]; then
-    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/sitebot/eggdrop.conf,dst=/app/glftpd/sitebot/eggdrop.conf "
+    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/sitebot/eggdrop.conf,dst=/app/glftpd/sitebot/eggdrop.conf "
   fi
   if [ -f glftpd/sitebot/pzs-ng/ngBot.conf ]; then
-    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-/glftpd}/sitebot/pzs-ng/ngBot.conf,dst=/app/glftpd/sitebot/pzs-ng/ngBot.conf "
+    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/sitebot/pzs-ng/ngBot.conf,dst=/app/glftpd/sitebot/pzs-ng/ngBot.conf "
   fi
 fi
 

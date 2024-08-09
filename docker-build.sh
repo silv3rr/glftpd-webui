@@ -6,9 +6,9 @@
 #
 # BUILD-TIME VARIABLES:
 #
-# WEBUI_AUTHMODE=<basic|glftpd|both>
-# WEBUI_USERNAME=MyUser             set basic auth username (default: shit)
-# WEBUI_PASSWORD=MyPw123            set basic auth password
+# WEBUI_AUTH_MODE=<basic|glftpd|both>
+# WEBUI_AUTH_USER=MyUser             set basic auth username (default: shit)
+# WEBUI_AUTH_PASS=MyPw123            set basic auth password
 #
 # ARGS+= " --any-flags " add any other docker build options
 #
@@ -43,7 +43,7 @@ if [ "${BUILD_GLFTPD:-0}" -eq 1 ]; then
     --build-arg INSTALL_ZS="${INSTALL_ZS:-0}" \
     --build-arg INSTALL_WEBUI="${INSTALL_WEBUI:-0}" \
     --build-arg http_proxy="${http_proxy:-$HTTP_PROXY}" \
-    .
+    https://github.com/silv3rr/docker-glftpd.git
 fi
 
 if [ "${INSTALL_WEBUI:-1}" -eq 1 ]; then
