@@ -30,14 +30,13 @@ function option_user() {
 
 // display notifications on top
 
-//function show_notifications(bool $local_dockerenv, string $form = null, string $reload = null) {
-
 function show_notifications(...$args) {
+    /*
     $user = null;
     if (isset($args['form'])) {
         $form = $args['form'];
     }
-    if (isset($args['local_dockerenv']) && $args['local_dockerenv']) {
+    if (isset($args['local_dockerenv_exists']) && is_bool($args['local_dockerenv_exists']) && $args['local_dockerenv_exists']) {
         $form = "clear_user";
     }
     if (!empty($form)) {
@@ -52,13 +51,14 @@ function show_notifications(...$args) {
             print "  <form id='form' action='?user={$user}' method='POST'>" . PHP_EOL;
         }
     }
+    */
     if (cfg::get('show_alerts')) {
-        if (isset($args['docker_sock']) && !$args['docker_sock']) {
+        if (isset($args['docker_sock_exists']) && is_bool($args['docker_sock_exists']) && $args['docker_sock_exists']) {
             print "  <div id='notification_dockersock' class='alert alert-danger' role='alert'>Cannot access '/run/docker.sock'</div>" . PHP_EOL;
             print "  <p></p>" . PHP_EOL;
         }
-        if (isset($args['dockerenv']) && $args['dockerenv']) {
-            print "  <div id='notification_dockenv' class='alert alert-warning' role='alert'>Running ui from container, glftpd not installed (disabled spy and service mgmt)</div>" . PHP_EOL;
+        if (isset($args['local_dockerenv_exists']) && is_bool($args['local_dockerenv_exists']) && $args['local_dockerenv_exists']) {
+            print "  <div id='notification_local_dockerenv_exists' class='alert alert-warning' role='alert'>Running webui in container without glftpd (disabled spy and service mgmt)</div>" . PHP_EOL;
             print "  <p></p>" . PHP_EOL;
         }
         if (!empty($_SESSION['status']['gotty']) && $_SESSION['status']['gotty'] === "open") {
@@ -77,6 +77,7 @@ function show_notifications(...$args) {
             $_SESSION['update']['results'] = true;
         }
     }
+    /*
     if (!empty($form)) {
         if (!empty($reload) && $reload === "button") {
             print '    <button type="submit" class="btn btn-primary"><em class="fa-solid fa-retweet"></em>Reload</button>' . PHP_EOL;
@@ -88,6 +89,7 @@ function show_notifications(...$args) {
         $_SESSION['reload'] = true;
         print '<script type="text/javascript">setTimeout(function(){window.location.reload();},1);</script>';
     }
+    */
 }
 
 function show_output() {
