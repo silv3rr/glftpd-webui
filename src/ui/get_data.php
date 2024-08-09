@@ -38,12 +38,12 @@ class data {
             //$this->cfg = $args;
             //$this->cfg = array_splice($func_get_args, 0, 1)[0];
             //$argv = array_splice($func_get_args, 0, 1)[0];
-            $debug->print(pre: true, loc: 'get_data func', args: $args);
-            $debug->print(pre: true, loc: 'get_data func', func_get_args: $func_get_args);
-            $debug->print(pre: true, loc: 'get_data func', _this_cfg: var_dump($this->cfg));
-            $debug->print(pre: true, loc: 'get_data func', _args: var_dump($args));
-            $debug->print(pre: true, loc: 'get_data func', _argv: var_dump($argv));
-            //exit();
+            $debug->print(pre: true, pos: 'get_data func', args: $args);
+            $debug->print(pre: true, pos: 'get_data func', func_get_args: $func_get_args);
+            $debug->print(pre: true, pos: 'get_data func', _this_cfg: var_dump($this->cfg));
+            $debug->print(pre: true, pos: 'get_data func', _args: var_dump($args));
+            $debug->print(pre: true, pos: 'get_data func', _argv: var_dump($argv));
+            //exit;
         }
         
         // TODO: use reflection instead of call_user_func_array?
@@ -71,7 +71,7 @@ class data {
                     break;
                 default:
                     // $_SESSION['DEBUG']['argv'] = $argv;
-                    //$debug->print(loc: 'get_data func', _SESSION_DEBUG_argv: $_SESSION['DEBUG']['argv']);
+                    //$debug->print(pos: 'get_data func', _SESSION_DEBUG_argv: $_SESSION['DEBUG']['argv']);
 
                     $result = call_user_func_array([$local, 'func'], $argv);
             }
@@ -102,37 +102,6 @@ class data {
         return $result;
     }
 
-    // TODO: cleanup
-
-    /*
-    public function get_user(): bool|string {
-        $user = "";
-        if (!empty($_GET['user']) && $_GET['user'] !== "Select username...") {
-            if (!isset($_SESSION['postdata'])) {
-                $_SESSION['postdata'] = array();
-            }
-            $user = htmlspecialchars(trim($_GET['user']));
-            $_SESSION['postdata']['select_user'] = $user;
-            return $user;
-
-        }
-
-        if (isset($_POST['select_user']) && $_POST['select_user'] !== "Select username...") {
-            if (!isset($_SESSION['postdata'])) {
-                $_SESSION['postdata'] = array();
-            }
-            $user = htmlspecialchars(trim($_POST['select_user']));
-            $_SESSION['postdata']['select_user'] = $user;
-            return $user;
-        }
-        if (isset($_SESSION['postdata']['select_user'])) {
-            return $_SESSION['postdata']['select_user'];
-        }
-        return false;
-    }
-    */
-
-
     public function get_user(): bool|string {
         if ($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_GET['user']) && $_GET['user'] !== "Select username...") {
             return htmlspecialchars(trim($_GET['user']));
@@ -141,14 +110,13 @@ class data {
     }
 
     public function get_users() {
-        $users_all = [];
         $_SESSION['users'] = $this->func('users_raw');
     }
 
     public function get_groups() {
         $groups_all = [];
         $result = $this->func('groups_raw');
-        //$debug->print(loc: 'get_data get_groups', result: $result);
+        //$debug->print(pos: 'get_data get_groups', result: $result);
         if (is_array($result)) {
             foreach ($result as $group) {
                 //$get_group = trim(sanitize_string($group));
@@ -164,7 +132,7 @@ class data {
     public function get_pgroups() {
         $pgroups_all = [];
         $result = $this->func('pgroups_raw');
-        //$debug->print(loc: 'get_data get_pgroups', result: $result);
+        //$debug->print(pos: 'get_data get_pgroups', result: $result);
         if (is_array($result)) {
             foreach ($result as $pgroup) {
                 //$get_pgroup = trim(sanitize_string($pgroup));
@@ -180,7 +148,7 @@ class data {
     public function get_users_groups() {
         $users_groups_all = [];
         $result = $this->func('usersgroups_raw');
-        //$debug->print(loc: 'get_data get_usersgroups', result: $result);
+        //$debug->print(pos: 'get_data get_usersgroups', result: $result);
         if(is_array($result)) {
             foreach ($result as $get_user_group) {
                 //$get_user_group = trim(sanitize_string($get_user_group));
@@ -198,8 +166,7 @@ class data {
         if ($this->check_user()) {
             $replace_pairs = array('{$username}' => $_SESSION['postdata']['select_user']);
             $result = $this->func(['userfile_raw', $replace_pairs]);
-            //$debug->print(pre: true, loc: 'get_data get_userfile', replace_pairs: $replace_pairs);
-            //$debug->print(pre: true, loc: 'get_data get_userfile', result: $result);
+            //$debug->print(pre: true, pos: 'get_data get_userfile', replace_pairs: $replace_pairs, result: $result);
             if (!empty($result)) {
                 foreach ($result as $line) {
                     $fields = explode(' ', $line, 2);
@@ -215,7 +182,7 @@ class data {
                 }
             }
         }
-        //$debug->print(pre: true, loc: 'get_data get_userfile-2', result: $userfile);
+        //$debug->print(pre: true, pos: 'get_data get_userfile-2', result: $userfile);
         return $userfile;
     }
 
@@ -294,7 +261,7 @@ class data {
         if ((is_array($result)) && (!empty($result)) && (!preg_grep('/is not running/i', $result))) {
             $_SESSION['status']['gotty'] = "open";
         }
-        //$_SESSION['update']['status'] =  true;
+        //$_SESSION['update']['status'] = true;
     }
 
 }

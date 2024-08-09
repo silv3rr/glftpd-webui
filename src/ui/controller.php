@@ -45,15 +45,15 @@ if (isset($_GET['reset']) && $_GET['reset']) {
     print "<div style='color:red;border:2px solid'><h2>DEBUG: RESET</h2>" . PHP_EOL;
     print "<h2>Session was reset<br>" . PHP_EOL;
     print "Remove query param and reload, exiting...</h2><div>" . PHP_EOL;
-    exit();
+    exit;
 }
 
 // form submits, input controls and routing. mark changed values
 
 if (isset($_SESSION['postdata'])) {
-    if (cfg::get('debug') > 0) {
-        //$debug->print(loc: 'controller-1 set_cmd_result', _SESSION_postdata: $_SESSION['postdata']);
-    }
+    //if (cfg::get('debug') > 0) {
+    //    $debug->print(pos: 'controller-1 set_cmd_result', _SESSION_postdata: $_SESSION['postdata']);
+    //}
     // 'xxCmd' buttons for logs etc
     if (!empty($_SESSION['postdata']['dockerCmd'])) {
         if ($_SESSION['postdata']['dockerCmd'] === 'glftpd_logs') {
@@ -61,14 +61,14 @@ if (isset($_SESSION['postdata'])) {
             print $data->func($_SESSION['postdata']['dockerCmd']);
             unset($_SESSION['postdata']['dockerCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
-            exit();
+            exit;
         }
         if ($_SESSION['postdata']['dockerCmd'] === 'glftpd_inspect') {
             include_once 'templates/logs.html';
             print format_cmdout($data->func($_SESSION['postdata']['dockerCmd']));
             unset($_SESSION['postdata']['dockerCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
-            exit();
+            exit;
         }
     }
     if (!empty($_SESSION['postdata']['gltoolCmd'])) {
@@ -77,7 +77,7 @@ if (isset($_SESSION['postdata'])) {
             print format_cmdout($data->func($_SESSION['postdata']['gltoolCmd']));
             unset($_SESSION['postdata']['gltoolCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
-            exit();
+            exit;
         }
         if ($_SESSION['postdata']['gltoolCmd'] === "show_user_stats") {
             if ($data->check_user() && isset($_SESSION['userfile'])) {
@@ -100,16 +100,16 @@ if (isset($_SESSION['postdata'])) {
     foreach ($_SESSION['postdata'] as $name => $value) {
         if (cfg::get('debug') > 9) {
             if (is_scalar($name)) {
-                debug->print(loc: 'controller scalar', name: $name);
+                debug->print(pos: 'controller scalar', name: $name);
             }
             if (is_array($name)) {
-                debug->print(loc: 'controller array', name: $name);
+                debug->print(pos: 'controller array', name: $name);
             }
             if (is_scalar($value) && !empty($value)) {
-               debug->print(loc: 'controller scalar', value: $name);
+               debug->print(pos: 'controller scalar', value: $name);
             }
             if (is_array($value)) {
-                debug->print(loc: 'controller array', value: $name);
+                debug->print(pos: 'controller array', value: $name);
             }
         }
         // sitewho, tty, other cmds
@@ -162,9 +162,8 @@ if (isset($_SESSION['postdata'])) {
         // apply button
 
         if(isset($_SESSION['postdata']['applyBtn'])) {
-            //$debug->print(loc: 'controller', msg: 'got applyBtn');
-            //$debug->print(pre: true, loc: 'controller', _SESSION_postdata: $_SESSION['postdata'], ipCmd: $_SESSION['postdata']['ipCmd']);
-
+            //$debug->print(pos: 'controller', msg: 'got applyBtn');
+            //$debug->print(pre: true, pos: 'controller', _SESSION_postdata: $_SESSION['postdata'], ipCmd: $_SESSION['postdata']['ipCmd']);
             // ip masks: empty textarea, delip all
             if ($data->check_user() && isset($_SESSION['postdata']['ipCmd']) && empty($_SESSION['postdata']['ipCmd']) && (!empty($_SESSION['userfile']) && !empty($_SESSION['userfile']['IP']))) {
                 //$userfile_masks = preg_split('/[ \n]/', $_SESSION['userfile']['IP'], -1, PREG_SPLIT_NO_EMPTY);
@@ -179,10 +178,10 @@ if (isset($_SESSION['postdata'])) {
                 $_SESSION['update']['userfile'] = true;
                 unset($_SESSION['postdata']['ipCmd']);
             } elseif (!empty($_SESSION['postdata']['ipCmd'])) {
-                //$debug->print(loc: 'controller', msg: 'got ipCmd');
+                //$debug->print(pos: 'controller', msg: 'got ipCmd');
                 $userfile_masks = [];
                 $ipcmd_masks = preg_split('/[ \n]/', $_SESSION['postdata']['ipCmd'], -1, PREG_SPLIT_NO_EMPTY);
-                //$debug->print(pre: true, loc: 'controller', ipcmd_masks: $ipcmd_masks);
+                //$debug->print(pre: true, pos: 'controller', ipcmd_masks: $ipcmd_masks);
                 if ($data->check_user() && !empty($_SESSION['userfile']) && !empty($_SESSION['userfile']['IP'])) {
                     $userfile_masks = [];
                     if (is_array($_SESSION['userfile']['IP'])) {
@@ -191,7 +190,7 @@ if (isset($_SESSION['postdata'])) {
                         $userfile_masks = array($_SESSION['userfile']['IP']);
                     }
                 }
-                //$debug->print(pre: true, loc: 'controller', userfile_masks: $userfile_masks);
+                //$debug->print(pre: true, pos: 'controller', userfile_masks: $userfile_masks);
                 foreach ($userfile_masks as $mask) {
                     if (!in_array($mask, $ipcmd_masks)) {
                         $replace_pairs = array(
@@ -214,7 +213,7 @@ if (isset($_SESSION['postdata'])) {
                 unset($_SESSION['postdata']['ipCmd']);
             } // end ipCmd
             if ($data->check_user() && !empty($_SESSION['postdata']['setPassCmd'])) {
-                $debug->print(loc: 'controller', msg: 'controller got setPassCmd');
+                $debug->print(pos: 'controller', msg: 'controller got setPassCmd');
                 $replace_pairs = array(
                     '{$username}' => $_SESSION['postdata']['select_user'],
                     '{$password}' => $_SESSION['postdata']['setPassCmd']
@@ -227,7 +226,7 @@ if (isset($_SESSION['postdata'])) {
                 // flags: compare current vs new
                 //   - submitted = allflags - newflags
                 //   - unsubmitted = rest
-                $debug->print(loc: 'controller', msg: 'got flagCmd');
+                $debug->print(pos: 'controller', msg: 'got flagCmd');
                 if (is_string($_SESSION['postdata']['flagCmd']) && preg_match('/^flag_del\|[0-9A-Z]+$/', $_SESSION['postdata']['flagCmd'])) {
                     $flags = preg_replace('/^flag_del\|/', '', $_SESSION['postdata']['flagCmd']);
                     if (!empty($flags)) {
@@ -242,7 +241,7 @@ if (isset($_SESSION['postdata'])) {
                 $flags_del = flags_list();
                 if (is_array($_SESSION['postdata']['flagCmd'])) {
                     $flags_userfile = !empty($_SESSION['userfile']['FLAGS']) ? str_split($_SESSION['userfile']['FLAGS']) : [];
-                    //$debug->print(loc: 'controller', flags_userfile: $flags_userfile);
+                    //$debug->print(pos: 'controller', flags_userfile: $flags_userfile);
                     foreach ($_SESSION['postdata']['flagCmd'] as $flagcmd) {
                         if (preg_grep('/^flag_add\|[0-9A-Z]+$/', $_SESSION['postdata']['flagCmd'])) {
                             preg_match('/flag_add\|(?<flag>[0-9A-Z]+)/', $flagcmd, $matches);
@@ -255,21 +254,32 @@ if (isset($_SESSION['postdata'])) {
                         }
                     }
                 }
-                //$debug->print(pre: true, loc: 'controller', _matches_flag: $matches['flag'], flags_userfile: $flags_userfile);
-                //$debug->print(pre: true, loc: 'controller', action: 'del', flag: $flag);
-                //$debug->print(pre: true, loc: 'controller', flags_del: $flags_del);
-                // del all flags not in textarea and/or unused
+                //$debug->print(pre: true, pos: 'controller', _matches_flag: $matches['flag'], flags_userfile: $flags_userfile);
+                //$debug->print(pre: true, pos: 'controller', _flags_add_func: implode(array_values($flags_add)));
+                //$debug->print(pre: true, pos: 'controller', _flags_del_func: implode(array_keys($flags_del)));
+                // del all flags not selected in form and/or unused
                 if (!empty($flags_del)) {
                     $replace_pairs = array(
                         '{$username}' => $_SESSION['postdata']['select_user'],
                         '{$flags}' => implode(array_keys($flags_del))
                     );
-                    $data->func(['flag_del', $replace_pairs]);
+                    $_result = $data->func(['flag_del', $replace_pairs]);
+                    // TODO:
+                    //if (!empty($matches['flag']) && empty($flags_add) && !empty($_result)) {
+                    //    set_cmd_result("DONE: deleted flags \"{$matches['flag']}\" from \"{$_SESSION['postdata']['select_user']}\"");
+                    //}
+                    //if ($flags_del = flags_list()) {
+                    //    set_cmd_result("DONE: user \"{$_SESSION['postdata']['select_user']}\" has no flags");
+                    //}
+                    // show actually deleted flags in notification
+                    if (!empty($_result)) {
+                        set_cmd_result("DONE: deleted flags \"implode(array_keys($flags_del)\" from \"{$_SESSION['postdata']['select_user']}\"");
+                    }
                 }
                 if (!empty($flags_add)) {
                     $replace_pairs = array(
                         '{$username}' => $_SESSION['postdata']['select_user'],
-                        '{$flags}' => implode(array_keys($flags_add))
+                        '{$flags}' => implode(array_values($flags_add))
                     );
                     set_cmd_result($data->func(['flag_add', $replace_pairs]));
                 }
@@ -347,8 +357,7 @@ if (isset($_SESSION['postdata'])) {
 
         // submit cmds, without apply
 
-        //$debug->print(pre: true, loc: 'controller-3', _SESSION_postdata: $_SESSION['postdata']);
-
+        //$debug->print(pre: true, pos: 'controller-3', _SESSION_postdata: $_SESSION['postdata']);
         if ($name === 'userCmd') {
             if ($data->check_user() && $value === 'user_del') {
                 $replace_pairs = array('{$username}' => $_SESSION['postdata']['select_user']);
@@ -356,11 +365,11 @@ if (isset($_SESSION['postdata'])) {
                 unset($_SESSION['postdata']['select_user']);
             }
             if ($value === 'user_add') {
-                //$debug->print(loc: 'controller', msg: 'got userCmd', value: $value);
-                //$debug->print(pre: true, loc: 'controller', _SESSION_postdata: $_SESSION['postdata']);
-                //$debug->print(pre: true, loc: 'controller', _POST: $_POST);
+                //$debug->print(pos: 'controller', msg: 'got userCmd', value: $value);
+                //$debug->print(pre: true, pos: 'controller', _SESSION_postdata: $_SESSION['postdata']);
+                //$debug->print(pre: true, pos: 'controller', _POST: $_POST);
                 if (!empty($_SESSION['postdata']['user_name']) && !empty($_SESSION['postdata']['user_password'])) {
-                    //$debug->print(loc: 'controller', msg: 'got user_name & user_password');
+                    //$debug->print(pos: 'controller', msg: 'got user_name & user_password');
                     $group = "";
                     $mask = "";
                     $gadmin = 0;
@@ -392,17 +401,17 @@ if (isset($_SESSION['postdata'])) {
             unset($_SESSION['postdata']['userCmd']);
         } //end userCmd
         if ($name === 'userGrpCmd' && isset($value)) {
-            $debug->print(loc: 'controller', msg: 'got userGrpCmd', value: $value);
+            $debug->print(pos: 'controller', msg: 'got userGrpCmd', value: $value);
             foreach ($value as $k => $v) {
                 if (in_array($v, [ "Add user to group...",  "Group Admin...", "Add user to privgroup..." ])) {
                     unset($value[$k]);
                 }
             }
-            $debug->print(loc: 'controller', msg: 'after', value: $value);
+            $debug->print(pos: 'controller', msg: 'after', value: $value);
             if ($data->check_user() && is_array($value) && (preg_grep('/^(add|del)_user_group(_all)?\|.+/', $value))) {
-                $debug->print(loc: 'controller', msg: 'userGrpCmd got preg_grep');
+                $debug->print(pos: 'controller', msg: 'userGrpCmd got preg_grep');
                 foreach ($value as $user_group) {
-                    $debug->print(loc: 'controller', msg: 'userGrpCmd', user_group: $user_group);
+                    $debug->print(pos: 'controller', msg: 'userGrpCmd', user_group: $user_group);
                     if (preg_match('/^del_user_group_all\|.+/', $user_group)) {
                         foreach (explode(PHP_EOL, str_replace('del_user_group_all|', '', $user_group)) as $group) {
                             $replace_pairs = array(
@@ -414,9 +423,9 @@ if (isset($_SESSION['postdata'])) {
                         break;
                     } else {
                         preg_match('/(?<action>(?:add|del)_user_group)\|(?<group>.+)/', $user_group, $matches);
-                        $debug->print(loc: 'controller', msg: 'userGrpCmd', _matches_group: $matches['group'], matches_user_group: $matches['user_group']);
+                        $debug->print(pos: 'controller', msg: 'userGrpCmd', _matches_group: $matches['group'], user_group: $user_group);
                         if (!empty($matches['action']) && !empty($matches['group'])) {
-                            $debug->print(loc: 'controller', msg: 'got usergrp matches');
+                            $debug->print(pos: 'controller', msg: 'got usergrp matches');
                             $cmd = $matches['action'];
                             $replace_pairs = array(
                                 '{$username}' => $_SESSION['postdata']['select_user'],
@@ -480,7 +489,7 @@ if (isset($_SESSION['postdata'])) {
             unset($_SESSION['postdata']['userGrpCmd']);
         } //end userGrpCmd
         if ($name === 'grpCmd') {
-            $debug->print(loc: 'controller', msg: 'got grpCmd');
+            $debug->print(pos: 'controller', msg: 'got grpCmd');
             // sort users and groups arrays
             if (preg_match('/^sort_.+\|.+$/', $value)) {
                 preg_match('/sort_(?<list>.+)\|(?<order>(?:a-z|z-a|group))/', $value, $sort_matches);
@@ -492,9 +501,9 @@ if (isset($_SESSION['postdata'])) {
                     }
                 }
             }
-            $debug->print(loc: 'controller', msg: 'grpCmd', _SESSION_postdata: $_SESSION['postdata']);
+            $debug->print(pos: 'controller', msg: 'grpCmd', _SESSION_postdata: $_SESSION['postdata']);
             if ($value === 'group_add' && !empty($_SESSION['postdata']['group_add'])) {
-                $debug->print(loc: 'controller', msg: 'got group_add');
+                $debug->print(pos: 'controller', msg: 'got group_add');
                 $replace_pairs = array('{$group}' => $_SESSION['postdata']['group_add']);
                 set_cmd_result($data->func(['group_add', $replace_pairs]));
             }
@@ -508,18 +517,18 @@ if (isset($_SESSION['postdata'])) {
             $_SESSION['update']['groups'] = true;
             unset($_SESSION['postdata']['grpCmd']);
         } //end grpCmd
-        /* TODO: test / remove, as it breaks postdata
+        /*
         if (!empty($name)) {
             unset($_SESSION['postdata'][$name]);
         }
         */
-    } // end foreach postData
+    } // end foreach postdata
     //print "</pre>" . PHP_EOL;
     if (isset($sort_matches)) {
         if (!empty($sort_matches['list']) && !empty($sort_matches['order'])) {
             sort_array($sort_matches);
         } else {
-            unset($_SESSION['display_sort']);
         }
+            unset($_SESSION['display_sort']);
     }
 }
