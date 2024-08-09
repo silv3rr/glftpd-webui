@@ -22,24 +22,28 @@ class debug {
         );
     }
 
+    // print(key: 'value')
+    //  pos: position in code
+    //  pre: add '<pre>' html tag
     public function print(...$a) {
         if ($this->cfg['debug'] > 0) {
-            $loc = (isset($a['loc']) ? $a['loc'] : "<none>");
+            $pos = (isset($a['pos']) ? $a['pos'] : "<none>");
             $out = "";
             foreach($a as $k => $v) {
-                if ($k === 'loc' || $k === 'pre') {
+                if ($k === 'pos' || $k === 'pre') {
                     continue;
                 }
                 $out .= "{$k}: " . ((is_array($v)) ? print_r($v, true) : $v) . " ";
             }
             if (isset($a['pre'])) {
-                print "<pre>DEBUG: {$a['loc']} {$out}</pre>" . PHP_EOL;
+                print "<pre>DEBUG: {$a['pos']} {$out}</pre>" . PHP_EOL;
             } else {
-                print "DEBUG: {$a['loc']} {$out}" . "<br>" . PHP_EOL;
+                print "DEBUG: {$a['pos']} {$out}" . "<br>" . PHP_EOL;
             }
         }
     }
     
+    // trace(key: 'value')
     public function trace(...$a) {
         $trace = "<u>{$a['trace']}</u>";
         if (!isset($_SESSION['DEBUG'][$trace]) ) {

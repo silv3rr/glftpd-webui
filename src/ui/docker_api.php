@@ -179,7 +179,7 @@ class docker {
         $command = $this->commands[$action];
         if (isset($command)) {
             $replace_pairs = array(
-                '{$bindir}' => $this->cfg['docker']['bin_dir'],
+                '{$bin_dir}' => $this->cfg['docker']['bin_dir'],
                 '{$gl_ct}' => $this->cfg['docker']['glftpd_container'],
             );
             $command[1] = strtr($command[1], $replace_pairs);
@@ -189,7 +189,7 @@ class docker {
             } else {
                 $command[2] = strtr($command[2], $replace_pairs);
             }
-            //$this->debug->print(pre: true, loc: 'docker_api', action: $action, _command_2: $command[2], command: $command, args: $args );
+            //$this->debug->print(pre: true, pos: 'docker_api', action: $action, _command_2: $command[2], command: $command, args: $args );
             $this->debug->trace(trace: 'docker-func-1', action: $action, command: $command);
             $result = call_user_func_array(['self', array_shift($command)], $command);
             $this->debug->trace(trace: 'docker-func-2', result: $result);
