@@ -4,21 +4,17 @@
  *   SHIT:FRAMEWORK index -- "Don't worry, be crappy"
  *--------------------------------------------------------------------------*/
 
-
- //var_dump(session_status());
-//print "DEBUG: \$_SESSION['auth_result']={$_SESSION['auth_result']}<br>";
-//print "DEBUG: \$_SESSION['auth_username']={$_SESSION['auth_username']}<br>";
-
-
-/*--------------------------------------------------------------------------*/
 // TODO:
-/*--------------------------------------------------------------------------*/
+// auth: fix 'both', it's wonky w/ the basic auth + retest 'basic'
+// fix del flags notifications
 // add self service for users (addip, invite), use gl auth
 // cleanup debug
 // switch to mvc framework (laravel|symfony)
-/*--------------------------------------------------------------------------*/
 
-// debug: reset session https://localhost/index.php?reset=1
+// DEBUG:
+// reset session https://localhost/index.php?reset=1
+// var_dump(session_status());
+
 
 /*--------------------------------------------------------------------------*/
 /* GET CONFIG
@@ -56,54 +52,54 @@ require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter
 $debug = new debug;
 $data = new data;
 
-// include array with commands for docker or local 'mode'
+// mode: docker or local, each has their own array in {docker,local}_commands.php with {$vars}
+// replace pairs: 
+//    params -u {$username} -p {$password} -g {$group}   -i {$mask}   -f {$flags} -a {$gadmin}
+//           -p {$pgroup}   -t {$tagline}  -k {$credits} -l {$logins} -r {$ratio}
+//    global {$bin_dir} {$gl_ct} 
+// docker: check for .dockerenv and disable service controls if webui is running in ct
 
-// replace pairs:
-//   params -u {$username} -p {$password} -g {$group}   -i {$mask}   -f {$flags} -a {$gadmin}
-//          -p {$pgroup}   -t {$tagline}  -k {$credits} -l {$logins} -r {$ratio}
-//   global {$bindir} {$gl_ct} 
-
-// check for .dockerenv and disable service controls if webui is running in ct
-
-$docker_sock = false;
-$local_dockerenv = false;
+$docker_sock_exists = false;
+$local_dockerenv_exists = false;
 
 if (cfg::get('mode') || cfg::get('mode') === "docker") {
     $docker = new docker;
-    $docker_sock = @fsockopen('unix:///run/docker.sock');
+    $docker_sock_exists = @fsockopen('unix:///run/docker.sock');
 } else {
     $local = new local;
     $dockerenv = is_file("/.dockerenv");
-    $local_dockerenv = ($dockerenv ? $dockerenv : false);
+    $local_dockerenv_exists = ($dockerenv ? $dockerenv : false);
 }
 
 if (cfg::get('debug')) {
-    // debug: proxy, req method
-    print "<small>" . PHP_EOL;
-    /*
-    $debug->print(loc: 'index', _SERVER_REMOTE_ADDR: $_SERVER['REMOTE_ADDR']);
-    $debug->print(loc: 'index', _SERVER_HTTP_CLIENT_IP: $_SERVER['HTTP_CLIENT_IP']);
-    $debug->print(loc: 'index', _SERVER_HTTP_X_FORWARDED_FOR: $_SERVER['HTTP_X_FORWARDED_FOR']);
-    $debug->print(pre: true, loc: 'index', _SERVER: $_SERVER);
-    $debug->print(pre: true, loc: 'index', _SERVER_REQUEST_METHOD: $_SERVER['REQUEST_METHOD']);
-    */
-    print "<span class='debug'>" . PHP_EOL;
+    print "<span class='debug'><small>" . PHP_EOL;
     $debug->print(
-        loc: 'index',
+        pos: 'index',
         debug_lvl: "<strong>" . cfg::get('debug') . "</strong>",
         debug_mode: "'<strong>" . cfg::get('mode') . "</strong>'",
-        local_dockerenv: "'<strong>" . $local_dockerenv . "</strong>'",
+        local_dockerenv_exists: "'<strong>" . $local_dockerenv_exists . "</strong>'",
         auth: "'<strong>" . cfg::get('auth') . "</strong>'",
         file: __FILE__
     );
-    print "</span>" . PHP_EOL;
-    print "</small><br>" . PHP_EOL;
+    print "</span></small><br>" . PHP_EOL;
+}
 
+if (cfg::get('debug') > 9) {
+    print "<span><small>" . PHP_EOL;
+    $debug->print(
+    pos: 'index',
+        _SERVER_REMOTE_ADDR: $_SERVER['REMOTE_ADDR'],
+        _SERVER_HTTP_CLIENT_IP: $_SERVER['HTTP_CLIENT_IP'],
+        _SERVER_HTTP_X_FORWARDED_FOR: $_SERVER['HTTP_X_FORWARDED_FOR'],
+        _SERVER_REQUEST_METHOD: $_SERVER['REQUEST_METHOD'],
+    );
+    $debug->print(pos: 'index', pre: true, _SERVER: $_SERVER);
+    print "</span></small><br>" . PHP_EOL;
 }
 
 if (cfg::get('debug') > 1) {
     if (!empty($_POST)) {
-        $debug->print(pre: true, loc: 'index', _POST: $_POST);
+        $debug->print(pre: true, pos: 'index', _POST: $_POST);
     }
 }
 
@@ -138,22 +134,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_SESSION['postdata']['select_user']) && $_SESSION['postdata']['select_user'] !== "Select username...") {
         $query_params = "?user={$_SESSION['postdata']['select_user']}";
     }
-
     if (cfg::get('debug') > 9) {
-        $debug->print(pre: true, loc: 'index-1', var_dump__SESSION_postdata: var_dump($_SESSION['postdata']));
-        $debug->print(loc: 'index-1', array_sum__array_map__is_string__SESSION_postdata: array_sum(array_map('is_string', $_SESSION['postdata'])));
-        $debug->print(loc: 'index-1', array_sum__array_map__is_array__SESSION_postdata: array_sum(array_map('is_array', $_SESSION['postdata'])));
-        $debug->print(loc: 'index-1', array_sum__array_map__is_object__SESSION_postdata: array_sum(array_map('is_object', $_SESSION['postdata'])));
-        $debug->print(loc: 'index-1', count__SESSION_postdata: count($_SESSION['postdata']));
+        $debug->print(pre: true, pos: 'index-1', var_dump__SESSION_postdata: var_dump($_SESSION['postdata']));
+        $debug->print(pos: 'index-1', _array_sum__array_map__is_string__SESSION_postdata: array_sum(array_map('is_string', $_SESSION['postdata'])));
+        $debug->print(pos: 'index-1', _array_sum__array_map__is_array__SESSION_postdata: array_sum(array_map('is_array', $_SESSION['postdata'])));
+        $debug->print(pos: 'index-1', _array_sum__array_map__is_object__SESSION_postdata: array_sum(array_map('is_object', $_SESSION['postdata'])));
+        $debug->print(pos: 'index-1', _count__SESSION_postdata: count($_SESSION['postdata']));
     }
-
     if (!empty($_SESSION) && !empty($_SESSION['postdata'])) {
         $sum_str = array_sum(array_map('is_string', $_SESSION['postdata']));
         $sum_arr = array_sum(array_map('is_array', $_SESSION['postdata']));
         if (($sum_str+$sum_arr) === count($_SESSION['postdata'])) {
             unset($_POST);
             header("Location: " . $_SERVER['PHP_SELF'] . $query_params);
-            exit();
+            exit;
         } else {
             unset($_SESSION['postdata']);
         }
@@ -161,14 +155,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if (cfg::get('debug') > 9 && !empty($_SESSION['postdata'])) {
-    $debug->print(pre: true, loc: 'index-2', var_dump__SESSION_postdata: var_dump($_SESSION['postdata']));
-    $debug->print(loc: 'index-2', array_sum__array_map__is_string__SESSION_postdata: array_sum(array_map('is_string', $_SESSION['postdata'])));
-    $debug->print(loc: 'index-2', array_sum__array_map__is_array__SESSION_postdata: array_sum(array_map('is_array', $_SESSION['postdata'])));
-    $debug->print(loc: 'index-2', array_sum__array_map__is_object__SESSION_postdata: array_sum(array_map('is_object', $_SESSION['postdata'])));
-    $debug->print(loc: 'index-2', count__SESSION_postdata: count($_SESSION['postdata']));
+    $debug->print(pre: true, pos: 'index-2', var_dump__SESSION_postdata: var_dump($_SESSION['postdata']));
+    $debug->print(pos: 'index-2', array_sum__array_map__is_string__SESSION_postdata: array_sum(array_map('is_string', $_SESSION['postdata'])));
+    $debug->print(pos: 'index-2', array_sum__array_map__is_array__SESSION_postdata: array_sum(array_map('is_array', $_SESSION['postdata'])));
+    $debug->print(pos: 'index-2', array_sum__array_map__is_object__SESSION_postdata: array_sum(array_map('is_object', $_SESSION['postdata'])));
+    $debug->print(pos: 'index-2', count__SESSION_postdata: count($_SESSION['postdata']));
 }
 
-// debug: postdata handling (deprecated)
+// test: uncomment for old non-recursive postdata handling
+
 /*
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $_SESSION['postData'] = array_map('htmlspecialchars', $_POST);
@@ -176,14 +171,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (array_sum(array_map('is_string', $_SESSION['postData'])) == count($_SESSION['postData'])) {
         unset($_POST);
         header("Location: " . $_SERVER['PHP_SELF']);
-        exit();
+        exit;
     } else {
         unset($_SESSION['postData']);
     }
 }
 */
 
-// debug: test POST
+// test: uncomment to set postdata to POST
+
 /*
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $query_params = "";
@@ -193,18 +189,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $_SESSION['postdata'] = $_POST;
     unset($_POST);
     print $_SERVER['PHP_SELF'];
-    header("Location: ".$_SERVER['PHP_SELF'] . $query_params);
-    exit();
+    header("Location: " . $_SERVER['PHP_SELF'] . $query_params);
+    exit;
 }
 */
 
-// debug: force user 'glftpd'
-/*
-if (cfg::get('debug') > 8) {
-    $_SESSION['postdata']['select_user'] = 'glftpd';
-    $debug->print(ploc: 'index', get: $_GET['user'], select_user: $_SESSION['postdata']['select_user']);
-}
-*/
+// test: uncomment to force user 'glftpd'
+
+//$_SESSION['postdata']['select_user'] = 'glftpd';
+//$debug->print(ppos: 'index', get: $_GET['user'], select_user: $_SESSION['postdata']['select_user']);
 
 if (cfg::get('debug') > 0) {
     unset($_SESSION['DEBUG']);
@@ -212,27 +205,12 @@ if (cfg::get('debug') > 0) {
 }
 
 if ((cfg::get('debug') > 1) && (isset($_SESSION['postdata']))) {
-    $debug->print(pre: true, loc: 'index', _SESSION_postdata: $_SESSION['postdata']);
+    $debug->print(pre: true, pos: 'index', _SESSION_postdata: $_SESSION['postdata']);
 }
 
-/*
-if ((cfg::get('debug') > 2) && (isset($_SESSION['results']))) {
-    $debug->print(pre: true, loc: 'index', _SESSION_results: $_SESSION['results']);
-}
-*/
-
-/*
-if ((cfg::get('debug') > 2) && (isset($_SESSION['cmd_output']))) {
-    $debug->print(pre: true, loc: 'index', _SESSION_cmd_output: $_SESSION['cmd_output']);
-}
-*/
-
-/*
-if ((cfg::get('debug') > 7) && (isset($_SESSION))) {
-    $debug->print(pre: true, loc: 'index', _SESSION: $_SESSION);
-}
-*/
-
+//$debug->print(pre: true, pos: 'index', _SESSION_results: $_SESSION['results']);
+//$debug->print(pre: true, pos: 'index', _SESSION_cmd_output: $_SESSION['cmd_output']);
+//$debug->print(pre: true, pos: 'index', _SESSION: $_SESSION);
 
 // get data from glftpd files
 
@@ -244,13 +222,7 @@ if ($data->check_user()) {
     $_SESSION['userfile'] = $data->get_userfile();
 }
 
-/*
-if (cfg::get('debug') > 1 && (!empty($_SESSION['DEBUG']))) {
-    if (!empty($_SESSION['userfile'])) {
-        $debug->print(loc: 'index', _SESSION_userfile: $_SESSION['userfile']);
-    }
-}
-*/
+//$debug->print(pos: 'index', _check__SESSION_userfile: $_SESSION['userfile']);
 
 foreach (['tagline', 'credits', 'logins', 'ratio'] as $field) {
     if (!empty($_SESSION['userfile'][strtoupper($field)])) {
@@ -270,10 +242,10 @@ $data->get_status();
 
 require_once 'controller.php';
 
-// get any updates values, before loading template
+// get any updated values, before loading template
 
 if (cfg::get('debug') > 1) {
-    $debug->print(loc: "index", _SESSION_update: $_SESSION['update']);
+    $debug->print(pos: "index", _SESSION_update: $_SESSION['update']);
 }
 
 if (isset($_SESSION['update']['userfile']) && $_SESSION['update']['userfile']) {
@@ -299,16 +271,14 @@ if (isset($_SESSION['update']['user_group']) && $_SESSION['update']['user_group'
     $data->get_users_groups();
 }
 
-show_notifications(docker_sock: $docker_sock);
-show_notifications(local_dockerenv: $local_dockerenv);
+show_notifications(
+    docker_sock_exists: $docker_sock_exists,
+    local_dockerenv_exists: $local_dockerenv_exists
+);
 
 unset($_SESSION['results']);
 
-/*
-if (isset($_SESSION['cmd_output'])) {
-    $debug->print(pre: true, loc: 'index [2]', _SESSION_cmd_output: $_SESSION['cmd_output']);
-}
-*/
+// $debug->print(pre: true, pos: 'index [2]', _SESSION_cmd_output: $_SESSION['cmd_output']);
 
 
 /*--------------------------------------------------------------------------*/
@@ -331,23 +301,22 @@ unset($_SESSION['display_sort']);
 
 unset($_SESSION['update']);
 
-if (cfg::get('debug') > 0 && (!empty($_SESSION['DEBUG']))) {
-    print "<hr><pre>DEBUG: index <strong>\$_SESSION['DEBUG']</strong><br>" . print_r($_SESSION['DEBUG'], true) . "</pre>" . PHP_EOL;
+if (cfg::get('debug') > 0 && !empty($_SESSION['DEBUG'])) {
+    print "<hr><pre>DEBUG: index <strong>\$_SESSION['DEBUG']</strong><br>" .
+    print_r($_SESSION['DEBUG'], true) . "</pre>" . PHP_EOL;
 }
 
 if (cfg::get('spy')['enabled']) {
     print '<script type="text/javascript" src="spy.js"></script>' . PHP_EOL;
     if (!cfg::get('spy')['refresh']) {
-        print '<script type="text/javascript">function set_norefresh(){};</script>' . PHP_EOL;
+        print '<script type="text/javascript">set_norefresh();</script>' . PHP_EOL;
     }
 }
 
 if (isset($_SESSION['update']['status']) && $_SESSION['update']['status']) {
-    //print '<script type="text/javascript">$("#notifications_status").attr("style", "display:none")';
     print '<script type="text/javascript">$("#notifications_status").remove();';
 }
 if (isset($_SESSION['update']['results']) && $_SESSION['update']['results']) {
-    //print '<script type="text/javascript">$("#notifications_results").attr("style", "display:none")';
     print '<script type="text/javascript">$("#notifications_results").remove();';
 }
 
