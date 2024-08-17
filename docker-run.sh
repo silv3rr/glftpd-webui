@@ -8,7 +8,7 @@
 # GLDIR="<path>"                   basedir for bind mounts (default=./glftpd)
 #                                  ( to reuse existing install set to /glftpd )
 # WEBUI_LOCAL=1                    run commands on same host, no docker [0|1]
-# WEBUI_AUTHMODE="basic"           auth mode [basic|glftpd|both|none]
+# WEBUI_AUTH_MODE="basic"          auth mode [basic|glftpd|both|none]
 # NETWORK="host"                   docker network mode [host|bridge]
 # FORCE=1                          remove any existing container first [0|1]
 #
@@ -23,7 +23,7 @@ GLFTPD=0
 
 WEBUI=1
 WEBUI_LOCAL=1
-WEBUI_AUTHMODE="basic"
+WEBUI_AUTH_MODE="basic"
 #NETWORK="host"
 
 DOCKER_REGISTRY="ghcr.io/silv3rr"
@@ -157,7 +157,7 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
 fi
 
 WEBUI_ARGS+=" --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock "
-WEBUI_ARGS+=" --env WEBUI_AUTHMODE=${WEBUI_AUTHMODE:-basic} "
+WEBUI_ARGS+=" --env WEBUI_AUTH_MODE=${WEBUI_AUTH_MODE:-basic} "
 
 # custom glftpd commands
 

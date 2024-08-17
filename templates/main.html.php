@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <title>GLFTPD:WEBUI</title>
@@ -92,7 +92,7 @@
       <a href="<?php $_SERVER['PHP_SELF'] ?>"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2">
         <em class="fa-solid fa-sync"></em>
       </button></a>
-      <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh();">
+      <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh(3000);">
         <em class="fa-solid fa-pause-circle"></em>
       </button>
       &nbsp;
@@ -259,7 +259,7 @@
         <hr class="vsep"/>
         <button type="submit" name="termCmd" value="kill_gotty" id="kill_gotty" class="btn btn-sm btn-custom">close tty</button>
         <hr class="vsep"/>
-        <a class="btn info" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
+        <a class=" btn btn-sm btn-custom" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
           <em class="fa-solid fa-circle-info"></em>
         </a>
         <div class="collapse" id="colTermInfo">

@@ -8,7 +8,7 @@ DESCRIPTION="directly manage users and groups, outside of glftpd"
 REQUIREMENTS=" awk, cut, grep, sed, hashgen(slv), passchk(pzs-ng)"
 # -------------------------------------------------------------------slv.2o24---
 
-GLDIR="/jail/glftpd"
+GLDIR="/glftpd"
 AUTH=0
 CHECK_SYS_BINS=0
 CHECK_MASK=1
@@ -68,11 +68,11 @@ OPTIND=1
 while getopts ha:c:d:f:g:i:k:l:u:p:r:s:t:z: opt; do
   case $opt in
     a) GADMIN=$OPTARG ;;                      # (ADDUSERGROUP|USERGADMIN)
-    c) COMMAND=$OPTARG ;;                    
+    c) COMMAND=$OPTARG ;;
     d) GROUPDESC=$OPTARG ;;                   # (ADDGROUP)
     f) FLAGS=$OPTARG ;;                       # (CHFLAG)
     g) GROUP=$OPTARG ;;                       # (ADDGROUP|DELGROUP|CHGRP)
-    h) echo "$HELP" && exit 0 ;;                
+    h) echo "$HELP" && exit 0 ;;
     i) MASK=$OPTARG ;;                        # (ADDIP|DELIP)
     k) CREDITS=$OPTARG ;;                     # (CHCREDITS)
     l) LOGINS=$OPTARG ;;                      # (CHLOGINS)
@@ -82,7 +82,7 @@ while getopts ha:c:d:f:g:i:k:l:u:p:r:s:t:z: opt; do
     s) PGROUP=$OPTARG ;;                      # (ADDPGROUP|DELPGROUP)
     t) TAGLINE=$OPTARG ;;                     # (CHTAG)
     z) ADMIN=$OPTARG ;;
-    *) exit 1 ;;             
+    *) exit 1 ;;
   esac
 done
 shift "$((OPTIND-1))"
@@ -93,7 +93,7 @@ if [ -n "$*" ]; then
 fi
 
 if [ "$(readlink /proc/$$/exe 2>&1)" = "/bin/busybox" ]; then
-  echo "ERROR: busybox not supported"
+  echo "ERROR: busybox detected"
   exit 1
 fi
 
@@ -165,13 +165,13 @@ func_update_userfile() {
 func_clean_tmp() {
   if [ -e "$USERFILE.tmp" ]; then
     rm "$USERFILE.tmp" || { echo "ERROR: userfile"; exit 1; }
-  fi 
+  fi
   if [ -e "$GLDIR/etc/passwd.tmp"  ]; then
     rm "$GLDIR/etc/passwd.tmp"  || { echo "ERROR: passwd file"; exit 1; }
   fi
   if [ -e "$GLDIR/etc/group.tmp"  ]; then
     rm "$GLDIR/etc/group.tmp"  || { echo "ERROR: group file"; exit 1; }
-  fi  
+  fi
 }
 
 func_get_glconf() {
@@ -378,7 +378,7 @@ func_rawip() {
       grep -ow "^IP .*" "$USERFILE" | cut -d" " -f2-
     else
       grep -Pow "^IP \K.*" "$USERFILE"
-    fi    
+    fi
   fi
 }
 
@@ -395,7 +395,7 @@ func_mask_tests() {
   if [ "${ALLOW_ALL_IP:-0}" = 0 ] && echo "$MASK" | grep -Eq '^\*@\*'; then
     echo "ERROR: mask 'all' not allowed"
     exit 1
-  fi 
+  fi
   if [ "${ALLOW_NO_IDENT:-0}" = 0 ] && echo "$MASK" | grep -Eq '^\*@'; then
     echo "ERROR: ident is required"
     exit 1
@@ -403,7 +403,7 @@ func_mask_tests() {
   if [ "${ALLOW_IPMASK:-1}" = 0 ] && [ "${is_ipmask:-0}" -eq 1 ]; then
     echo "ERROR: ipmasks are not allowed"
     exit 1
-  fi  
+  fi
   if [ "${ALLOW_HOSTMASK:-0}" = 0 ] && [ ! "${has_octet:-0}" ] && [ "${is_hostmask:-0}" -eq 1 ]; then
     echo "ERROR: hostmasks are not allowed"
     exit 1
@@ -411,11 +411,11 @@ func_mask_tests() {
   if [ "${ALLOW_NUM_RANGE:-1}" = 0 ] && echo "$MASK" | grep -Eq "[\]\[\]?"; then
     echo "ERROR: number ranges are not allowed"
     exit 1
-  fi  
+  fi
   if [ "${ALLOW_CIDR:-1}" = 0 ] && echo "$MASK" | grep -Eq "/"; then
     echo "ERROR: cidr not allowed"
     exit 1
-  fi   
+  fi
   if [ "${ALLOW_IPV6:-0}" = 0 ] && echo "$MASK" | grep -Eq ":"; then
     echo "ERROR: ipv6 not allowed"
     exit 1
@@ -487,7 +487,7 @@ func_addip() {
   { cat "$USERFILE"; echo "IP $MASK" >> "$USERFILE.tmp"; } >> "$USERFILE.tmp" || \
     { echo "ERROR: adding mask"; exit 1; }
   func_update_userfile
-  func_logmsg "added \"$MASK\" to \"$USERNAME\"" 
+  func_logmsg "added \"$MASK\" to \"$USERNAME\""
 }
 
 # ----------------------------------------------
@@ -516,7 +516,7 @@ func_delip() {
 func_chpass() {
   func_check_user "$USERNAME"
   func_clean_tmp
-  PASSCHK_BIN="$(func_get_bin passchk)"  
+  PASSCHK_BIN="$(func_get_bin passchk)"
   HASHGEN_BIN="$(func_get_bin hashgen)"
   if [ -z "$PASSWORD" ]; then
     echo "ERROR: missing new password"
@@ -538,13 +538,13 @@ func_chpass() {
   if ! grep -Eq "^${USERNAME}:" "$GLDIR/etc/passwd"; then
     echo "ERROR: user not found in /etc/passwd"
     exit 1
-  fi  
+  fi
   HASH="$($HASHGEN_BIN "$USERNAME" "$PASSWORD" | cut -d: -f2)"
   if ! echo "$HASH" | grep -Eq '^\$[0-9a-f]{8}\$[0-9a-f]{40}$'; then
     echo "ERROR: generating hash"
     exit 1
   fi
-  sed -Ei "s|^$USERNAME:[^:]+:(.*)$|$USERNAME:$MASK:$HASH:\1|" "$GLDIR/etc/passwd" >> "$GLDIR/etc/passwd.tmp" || { echo "ERROR: changing /etc/passwd"; exit 1; } 
+  sed -Ei "s|^$USERNAME:[^:]+:(.*)$|$USERNAME:$MASK:$HASH:\1|" "$GLDIR/etc/passwd" >> "$GLDIR/etc/passwd.tmp" || { echo "ERROR: changing /etc/passwd"; exit 1; }
   if [ -s "$GLDIR/etc/passwd.tmp" ]; then
     mv "$GLDIR/etc/passwd.tmp" "$GLDIR/etc/passwd" || { echo "ERROR: updating passwd file"; exit 1; }
   fi
@@ -620,7 +620,7 @@ func_addusergroup() {
   func_update_userfile
   GADMIN_MSG=""
   if [ "${GADMIN:-0}" -eq 1 ]; then
-    GADMIN_MSG=" (as gadmin)"
+    GADMIN_MSG="(as gadmin)"
   fi
   func_logmsg "added user \"$USERNAME\" to group \"$GROUP\"${GADMIN_MSG}"
 }
@@ -718,7 +718,7 @@ func_adduser() {
   if grep -Eq "^${USERNAME}:" "$GLDIR/etc/passwd"; then
     echo "ERROR: user already exists in /etc/passwd"
     exit 1
-  fi    
+  fi
   if [ -n "$HASHGEN_BIN" ] && [ ! -x "$HASHGEN_BIN" ]; then
     echo "ERROR: missing hashgen"
     exit 1
@@ -759,7 +759,7 @@ func_adduser() {
     echo "ERROR: passwd"
     exit 1
   fi
-  func_logmsg "added user \"$USERNAME\"" 
+  func_logmsg "added user \"$USERNAME\""
 }
 
 # ----------------------------------------------
@@ -768,15 +768,15 @@ func_adduser() {
 func_deluser() {
   func_check_user "$USERNAME"
   func_clean_tmp
-  rm "$USERFILE" || { echo "ERROR: deleting userfile"; exit 1; } 
-  sed "/^${USERNAME}:/d" "$GLDIR/etc/passwd" >> "$GLDIR/etc/passwd.tmp" || { echo "ERROR: changing /etc/passwd"; exit 1; } 
+  rm "$USERFILE" || { echo "ERROR: deleting userfile"; exit 1; }
+  sed "/^${USERNAME}:/d" "$GLDIR/etc/passwd" >> "$GLDIR/etc/passwd.tmp" || { echo "ERROR: changing /etc/passwd"; exit 1; }
   if [ -s "$GLDIR/etc/passwd.tmp" ]; then
     mv "$GLDIR/etc/passwd.tmp" "$GLDIR/etc/passwd" || { echo "ERROR: updating passwd file"; exit 1; }
   else
     echo "ERROR: updating passwd file"
     exit 1;
   fi
-  func_logmsg "deleted user \"$USERNAME\"" 
+  func_logmsg "deleted user \"$USERNAME\""
 }
 
 # ----------------------------------------------
@@ -823,7 +823,7 @@ func_addgroup() {
     echo "ERROR: group file"
     exit 1
   fi
-  func_logmsg "added group \"$GROUP\"" 
+  func_logmsg "added group \"$GROUP\""
 }
 
 # ----------------------------------------------
@@ -840,15 +840,15 @@ func_delgroup() {
     echo "ERROR: groupfile"
     exit 1
   fi
-  rm "$GROUPFILE" || { echo "ERROR: deleting groupfile"; exit 1; } 
-  sed "/^$GROUP/d" "$GLDIR/etc/group" >> "$GLDIR/etc/group.tmp" || { echo "ERROR: changing /etc/group"; exit 1; } 
+  rm "$GROUPFILE" || { echo "ERROR: deleting groupfile"; exit 1; }
+  sed "/^$GROUP/d" "$GLDIR/etc/group" >> "$GLDIR/etc/group.tmp" || { echo "ERROR: changing /etc/group"; exit 1; }
   if [ -s "$GLDIR/etc/group.tmp" ]; then
     mv "$GLDIR/etc/group.tmp" "$GLDIR/etc/group" || { echo "ERROR: updating group file"; exit 1; }
   else
     echo "ERROR: group file"
     exit 1
   fi
-  func_logmsg "deleted group \"$GROUP\"" 
+  func_logmsg "deleted group \"$GROUP\""
 }
 
 # ----------------------------------------------
@@ -912,7 +912,7 @@ func_addflag() {
   if [ "${GREP_PERL:-1}" -eq 0 ]; then
     CURRENT_FLAGS="$(grep -ow "^FLAGS .*" "$USERFILE" | cut -d" " -f2-)"
   else
-    CURRENT_FLAGS="$(grep -Pow "^FLAGS \K.*" "$USERFILE")"  
+    CURRENT_FLAGS="$(grep -Pow "^FLAGS \K.*" "$USERFILE")"
   fi
   if [ -n "$CURRENT_FLAGS" ]; then
     # shellcheck disable=SC2001
@@ -947,7 +947,7 @@ func_delflag() {
     echo "ERROR: invalid flag(s)"
     exit 1
   fi
-  if [ "${GREP_PERL:-1}" -eq 0 ]; then  
+  if [ "${GREP_PERL:-1}" -eq 0 ]; then
     NEW_FLAGS="$(grep -ow "^FLAGS .*" "$USERFILE" | cut -d" " -f2-)"
   else
     NEW_FLAGS="$( grep -Pow "^FLAGS \K.*" "$USERFILE" )"
@@ -1043,7 +1043,7 @@ func_usergadmin() {
   if [ "${GADMIN:-0}" -eq "1" ]; then
     action="add"
   fi
-  func_logmsg "changed user \"$USERNAME\", $action \"$GROUP\" gadmin"
+  func_logmsg "changed user \"$USERNAME\", $action as \"$GROUP\" gadmin"
 }
 
 # ----------------------------------------------
@@ -1078,7 +1078,7 @@ func_bc() {
       if [ "$1" -lt "1024" ]; then
         UNIT="b"
       elif [ "$1" -ge "1024" ] && [ "$1" -lt "1024000" ]; then
-        UNIT="KB"      
+        UNIT="KB"
       elif [ "$1" -ge "1024000" ] && [ "$1" -lt "1024000000" ]; then
         UNIT="MB"
       elif [ "$1" -ge "1024000000" ] && [ "$1" -lt "1024000000000" ]; then
@@ -1180,7 +1180,7 @@ func_listuserstats() {
     printf "%s\t\t%-10s\t\t%s %s (%s)\n" "NUKE" "$stat_section" "$(func_bc "$bytes")" "$times" "$(date -d@"$last" +'%F %H:%M')"
   done
   echo
-  if [ "${GREP_PERL:-1}" -eq 0 ]; then  
+  if [ "${GREP_PERL:-1}" -eq 0 ]; then
     IFS=" " read -r _numlogins lastlogin _maxtime _todaytime <<<"$(grep -ow "^TIME \K([0-9]+ ?)+" "$USERFILE" | cut -d" " -f2-)"
   else
     IFS=" " read -r _numlogins lastlogin _maxtime _todaytime <<<"$(grep -Pow "^TIME \K([0-9]+ ?)+" "$USERFILE")"

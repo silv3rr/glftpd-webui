@@ -100,6 +100,7 @@ services:
   local-glftpd:
     profiles: [local]
     image: docker-glftpd:latest
+    volumes: *glftpd_volumes
     ports: *glftpd_ports
     ulimits: *glftpd_ulimits
     container_name: local-glftpd

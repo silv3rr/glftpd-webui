@@ -1,13 +1,14 @@
 <?php
 
+/*--------------------------------------------------------------------------*
+ *   SHIT:FRAMEWORK auth login
+ *--------------------------------------------------------------------------*/
+
 if (empty($_SESSION)) {
     session_start();
 }
-
 require_once '/app/config.php';
-
 //$login_debug = 1;
-
 ?>
 
 
@@ -112,49 +113,41 @@ require_once '/app/config.php';
                 </div>
             <?php else: ?>
                 <div class="form-group">
-                    <h5>Glftpd login</h5>
+                    <h5>Login with glftpd account</h5>
                 </div>
                 <div class="form-group">
-                    <label for="username" class="ml-2">Username:</label>
+                    <label for="glftpd_user" class="ml-2">User:</label>
                     <div class="col-3">
-                        <input type="text" id="username" name="username" placeholder="my-glftpd-user" class="form-control">
+                        <input type="text" id="glftpd_user" name="glftpd_user" placeholder="my-glftpd-username" class="form-control">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="password" class="ml-2">Password:</label>
+                    <label for="glftpd_password" class="ml-2">Password:</label>
                     <div class="col-3">
-                        <input type="password" id="password" name="password" placeholder="secr3t" class="form-control">
+                        <input type="password" id="glftpd_password" name="glftpd_password" placeholder="secr3t" class="form-control">
                     </div>
                 </div>
-                <input type="submit" value="Login" class="btn btn btn-primary"/>
+                <input type="submit" value="Login" class="btn btn-primary"/>
             <?php endif ?>
         </form>
-        <a href="/auth/logout.php"><button type="button" class="btn btn-outline-primary">Logout</button></a>
+        <form id="form" action="/auth/logout.php" method="POST" class="d-inline">
+            <input type="submit" value="Logout" class="btn btn-outline-primary"/>
+        </form>
     <?php endif ?>
 
-    <br>
-
-<?php if (!empty($login_debug)): ?>
-    <br><hr><br>
+<?php if (!empty($login_debug) && $login_debug === 1): ?>
+    <div class="pt-3 pb-3"><hr></div>
     <pre><strong>DEBUG:</strong></pre>
     <?= (!empty($_SESSION['basic_auth_result']) ? "<pre>\$_SESSION['basic_auth_result']={$_SESSION['basic_auth_result']}</pre>" : '' ) ?>
     <?= (!empty($_SESSION['glftpd_auth_result']) ? "<pre>\$_SESSION['glftpd_auth_result']={$_SESSION['glftpd_auth_result']}</pre>" : '' ) ?>
-    <?= (!empty($_SESSION['glftpd_auth_username']) ? "<pre>\$_SESSION['glftpd_auth_username']={$_SESSION['glftpd_auth_username']}</pre>" : '' ) ?>
+    <?= (!empty($_SESSION['glftpd_auth_user']) ? "<pre>\$_SESSION['glftpd_auth_user']={$_SESSION['glftpd_auth_user']}</pre>" : '' ) ?>
     <?= (!empty($_SERVER['PHP_AUTH_USER']) ? "<pre>\$_SERVER['PHP_AUTH_USER']={$_SERVER['PHP_AUTH_USER']}</pre>" : '' ) ?>
+    <pre>$_SERVER['REMOTE_ADDR']=<?= $_SERVER['REMOTE_ADDR'] ?></pre>
+    <pre>$_SERVER['HTTP_CLIENT_IP']=<?= $_SERVER['HTTP_CLIENT_IP'] ?></pre>
+    <pre>$_SERVER['HTTP_X_FORWARDED_FOR']=<?= $_SERVER['HTTP_X_FORWARDED_FOR'] ?></pre>
     <pre>$_POST=<?= print_r($_POST, true)?></pre>
     <pre>$_SERVER=<?= print_r($_SERVER, true) ?></pre>
-    <?php
-        /*
-        <pre>$_SESSION=<?= print_r($_SESSION, true)?></pre>
-        <pre>$_SERVER=<?= print_r($_SERVER, true) ?></pre>
-        $_SERVER['REMOTE_ADDR']=<?= $_SERVER['REMOTE_ADDR'] ?>
-        $_SERVER['HTTP_CLIENT_IP']=<?= $_SERVER['HTTP_CLIENT_IP'] ?>
-        $_SERVER['HTTP_X_FORWARDED_FOR']=<?=    $_SERVER['HTTP_X_FORWARDED_FOR'] ?>
-
-        </pre>
-        */
-    ?>
-    <br>
+    <pre>$_SESSION=<?= print_r($_SESSION, true)?></pre>
 <?php endif ?>
 
 </body>

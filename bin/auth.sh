@@ -33,7 +33,6 @@ if echo "$AUTH" | grep -Eq "^($modes)$"; then
     basic)
       if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
         echo "$PASSWORD" | htpasswd -n -i "$USERNAME" > /etc/nginx/.htpasswd
-        sed -i "s|^\(.*'http_auth'\s*=>\).*$|\1 \['username\' => '$USERNAME', 'password' => '$PASSWORD'\],|" /app/config.php;
       else
         echo "$default_htpasswd" > /etc/nginx/.htpasswd
       fi

@@ -272,8 +272,8 @@ if (isset($_SESSION['postdata'])) {
                     //    set_cmd_result("DONE: user \"{$_SESSION['postdata']['select_user']}\" has no flags");
                     //}
                     // show actually deleted flags in notification
-                    if (!empty($_result)) {
-                        set_cmd_result("DONE: deleted flags \"implode(array_keys($flags_del)\" from \"{$_SESSION['postdata']['select_user']}\"");
+                    if (($flags_del !== flags_list()) && empty($flags_add) && !empty($_result)) {
+                        set_cmd_result("DONE: deleted flags \"" . implode(array_keys($flags_del)) . "\" from \"{$_SESSION['postdata']['select_user']}\"");
                     }
                 }
                 if (!empty($flags_add)) {
@@ -517,18 +517,20 @@ if (isset($_SESSION['postdata'])) {
             $_SESSION['update']['groups'] = true;
             unset($_SESSION['postdata']['grpCmd']);
         } //end grpCmd
+
         /*
         if (!empty($name)) {
             unset($_SESSION['postdata'][$name]);
         }
         */
+
     } // end foreach postdata
     //print "</pre>" . PHP_EOL;
     if (isset($sort_matches)) {
         if (!empty($sort_matches['list']) && !empty($sort_matches['order'])) {
             sort_array($sort_matches);
         } else {
-        }
             unset($_SESSION['display_sort']);
+        }
     }
 }

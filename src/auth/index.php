@@ -1,8 +1,11 @@
 <?php
 
-// TODO:
-// - use $data or direct $docker/local
-// - add PHP_AUTH_DIGEST
+/*--------------------------------------------------------------------------*
+ *   SHIT:FRAMEWORK auth index
+ *--------------------------------------------------------------------------*/
+// TODO: add nginx htp auth digest / PHP_AUTH_DIGEST
+
+// XXX: index.php(302) -> /auth/login.php -> /auth/index.php(POST) -> /auth/login.php
 
 if (empty($_SESSION)) {
     session_start();
@@ -11,24 +14,20 @@ if (empty($_SESSION)) {
 unset($_SESSION['DEBUG']);
 $_SESSION['DEBUG'] = array();
 
-// dont leave debug on, it breaks auth flow and creates loop:
-//   index.php(302) -> /auth/login.php -> /auth/index.php(POST) -> /auth/login.php
-
-$auth_debug = 1;
+// do not leave debug on, it breaks auth flow and allows any user without logging in
+//$auth_debug = 1;
 
 if (!file_exists("/app/config.php")) {
     $cfg['auth'] = 'basic';
     $cfg['http_auth'] = array('username' => null, 'password' => null);
 }
 
-//use shit\data;
-
 require_once '/app/config.php';
-//require_once '/app/get_data.php';
 require_once '/app/format.php';
 
+//use shit\data;
+//require_once '/app/get_data.php';
 //$data = new data;
-
 //var_dump($data);
 
 use shit\docker;
@@ -39,6 +38,7 @@ print "<pre>" . print_r($docker, true) . "</pre>";
 
 
 if(!empty($auth_debug) && $auth_debug === 1) {
+    print "<pre>DEBUG: auth/index.php \$docker=" . print_r($docker, true) . "</pre>";
     print "<pre>DEBUG: auth/index.php \$cfg['auth']={$cfg['auth']}</pre>";
     if (!empty($cfg['http_auth'])) {
         print "<pre>DEBUG: auth/index.php \$cfg['http_auth']=" . print_r($cfg['http_auth'], true) . "</pre>";

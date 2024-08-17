@@ -182,7 +182,7 @@ function sort_array(array $matches) {
     }
 }
 
-function fmt_bytes(int $size, int $precision = 2) {
+function fmt_bytes(int $size, int $precision = 2): string {
     if ($size > 0) {
         $base = log($size, 1024);
         $suffixes = array('', 'K', 'M', 'G', 'T');
@@ -199,7 +199,7 @@ function fmt_lastlogin(): string {
     }
 }
 
-function format_stats(string $field) {
+function format_stats(string $field): array {
     $i=0;
     $s=0;
     $section = array();
