@@ -63,6 +63,9 @@
     color: black;
     background-color: #aaa;
 }
+[data-theme='dark'] option:checked {
+    background-color: whitesmoke;
+}
 [data-theme='dark'] .btn-refresh {
     color: black;
 }

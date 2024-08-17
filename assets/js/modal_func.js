@@ -1,3 +1,5 @@
+// show modal using function
+
 function ttyModal() {   
     setTimeout(function(){
         $('#bsModalLabel').text('Terminal - by GoTTY');

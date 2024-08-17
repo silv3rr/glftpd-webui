@@ -1,3 +1,5 @@
+// theme switcher
+
 const toggleSwitchTheme = document.querySelector('.theme-switch input[type="checkbox"]');
 toggleSwitchTheme.addEventListener('change', switchTheme, false);
 

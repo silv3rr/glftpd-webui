@@ -1,3 +1,5 @@
+// collapse if arrow key is pressed
+
 $(document).ready(function() {
     $('.multi-collapse').collapse('show');
 });

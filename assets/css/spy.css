@@ -247,14 +247,17 @@ a:link, a:visited, a:hover, a:active {
 .icons button {
     height: 24px;
     border-radius: 5px;
-    margin-left: 2px;
-    line-height: 0%;
+    margin-left: 0px;
+    /* line-height: 0%; */
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 .icons img {
     height: 16px;
+    vertical-align: unset;
 }
 .icons #index {
-    display: inline-block;
+    /* display: inline-block; */
     cursor: default;
     color: gray;
     border-width: 1px;
@@ -263,7 +266,8 @@ a:link, a:visited, a:hover, a:active {
     padding-left: 2px;
     padding-right: 1px;
     margin-right: 3px;
-    line-height: normal;
+    /* line-height: normal; */
+    vertical-align: text-bottom;
 }
 .bold, #bold {
     font-weight: bold;

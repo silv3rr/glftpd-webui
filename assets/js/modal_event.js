@@ -1,3 +1,5 @@
+// show modal on event
+
 $('#bsModal').on('show.bs.modal', function(event) {
     let button = $(event.relatedTarget);    
     let type = button.data('type');
