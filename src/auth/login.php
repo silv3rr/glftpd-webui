@@ -24,80 +24,77 @@ require_once '/app/config.php';
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-
-
-    <div>
-        <form id="form"  method="POST">
-            <button type="submit" formaction="/auth/index.php" class="btn btn btn-secondary">Test Login</button>
-            <button type="submit" formaction="/auth/logout.php" class="btn btn btn-secondary">Test Logout</button>
-            <button type="submit" formaction="/auth/logout.php" name="basic_auth" value="1" class="btn btn-outline-secondary">Test BasicAuth Reset</button>
-        </form>
-    </div>
-
-
-    <?php if (!empty($_SESSION['basic_auth_result'])): ?>
-        <?php if ($_SESSION['basic_auth_result'] === "0"): ?>
-            <div class="alert alert-danger" role="alert">
-                Basic authentication failed
-            </div>
-        <?php endif ?>
-        <?php if ($_SESSION['basic_auth_result'] === "1"): ?>
+    <?php if (!empty($login_debug) && $login_debug === 1): ?>
+        <div>
+            <form id="form"  method="POST">
+                <button type="submit" formaction="/auth/index.php" class="btn btn-secondary">Test Login</button>
+                <button type="submit" formaction="/auth/logout.php" class="btn btn-secondary">Test Logout</button>
+                <button type="submit" formaction="/auth/logout.php" name="basic_auth" value="1" class="btn btn-outline-secondary">Test BasicAuth Reset</button>
+            </form>
+        </div>
+    <?php endif ?>
+    <?php if ($cfg['auth'] === "basic"): ?>
+        <div class="alert alert-info" role="alert">
+            Goto <a href='/' class="alert-link">main page</a>
+        </div>
+    <?php elseif ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both"): ?>
+        <?php if (empty($_SESSION['glftpd_auth_result'])): ?>
             <div class="alert alert-secondary" role="alert">
-                Basic authentication successful
+                You are <strong>not</strong> logged in
             </div>
+        <?php endif ?>
+        <?php if (!empty($_SESSION['basic_auth_result']) && !empty($_SESSION['glftpd_auth_result'])): ?>
+            <?php if ($_SESSION['basic_auth_result'] === "1" && $_SESSION['glftpd_auth_result'] === "1"): ?>
+                <div class="alert alert-success" role="alert">
+                    You are logged in, goto <a href='/' class="alert-link">main page</a>
+                </div>
+            <?php endif ?>
         <?php endif ?>
     <?php endif ?>
-
-    <?php if (!empty($_SESSION['glftpd_auth_result'])): ?>
-        <?php if ($_SESSION['glftpd_auth_result'] === "0"): ?>
-            <div class="alert alert-danger" role="alert">
-                Incorrect glftpd username or password
-            </div>
-        <?php endif ?>
-    <?php endif ?>
-
-    <?php if (!empty($_SESSION['basic_auth_result']) && !empty($_SESSION['glftpd_auth_result'])): ?>
-        <?php if ($_SESSION['glftpd_auth_result'] !== "1" || $_SESSION['basic_auth_result'] !== "1"): ?>
-            <div class="alert alert-secondary" role="alert">
-                You are logged out
-            </div>
-        <?php endif ?>
-        <?php if ($_SESSION['basic_auth_result'] !== "0" && $_SESSION['glftpd_auth_result'] === "1"): ?>
-            <div class="alert alert-success" role="alert">
-                You are logged in, goto <a href='/'>main page</a>
-            </div>
-        <?php endif ?>
-    <?php endif ?>
-
     <h1 style="display:inline">COMMAND CENTER</h1> <h1 style="display:inline;text-decoration:none">&nbsp;| LOGIN</h1>
     <p></p>
     <?php if (!empty($cfg['auth'])): ?>
         <div class="form-group mb-1">
-            <small id="help" class="form-text text-muted">Configured auth method is: <strong><?= $cfg['auth'] ?></strong></small>
+            <small id="help" class="form-text text-muted">Configured auth method is set to: <strong><?= $cfg['auth'] ?></strong></small>
         </div>
-        <div class="mb-1">&nbsp;</div>
-    <?php endif ?>
-
-    <?php if (!empty($cfg['auth']) && ($cfg['auth'] === "basic" || $cfg['auth'] === "both")): ?>
-    <div class="form-group">
-        <h5>Basic authentication</h5>
-        <?php if (!empty($_SERVER['PHP_AUTH_USER'])): ?>
-            <div class="col-3">
-                User: <strong><?= $_SERVER['PHP_AUTH_USER'] ?></strong>
-            </div>
+        <div class="form-group mb-1">
+            <small id="help" class="form-text text-muted">Using ip address: <strong><?= $_SERVER['HTTP_X_FORWARDED_FOR'] ?></strong></small>
+        </div>
+        <?php if ($cfg['auth'] === "basic" || $cfg['auth'] === "both"): ?>
+            <div class="form-group mb-1">
+                <?php if (!empty($_SERVER['PHP_AUTH_USER'])): ?>
+                    <small id="help" class="form-text text-muted">Basic auth user from browser: <strong><?= $_SERVER['PHP_AUTH_USER'] ?></strong></small>
+                    <?php if ($cfg['auth'] === "both" && !empty($_SESSION['basic_auth_result'])): ?>
+                        <span id="help" class="form-text text-muted">
+                            <small>
+                                Basic authentication:
+                                <?= ($_SESSION['basic_auth_result'] === "1") ? '<span class="text-success">successful</span>' : '<span class="text-danger">failed</span>' ?>
+                            </small>
+                        </span>
+                    <?php endif ?>
+                <?php else: ?>
+                    <div class="form-group mb-1">
+                        <small id="help" class="form-text text-danger"><strong>No basic authentication from browser</small></strong>
+                        <div>
+                            <form id="form"  method="POST">
+                                <button type="submit" formaction="/auth/index.php" class="btn btn-sm btn-outline-danger">Login</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endif ?>
+            <?php endif ?>
+            </span>
+        </div>
         <?php endif ?>
-    </div>
-    <hr>
-    <?php endif ?>
-
     <?php if (!empty($cfg['auth']) && ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both")): ?>
+        <div class="pt-1"><hr></div>
         <form id="form" action="/auth/index.php" method="POST" class="d-inline">
             <?php if (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1"): ?>
                 <div class="form-group">
-                   <h5>Glftpd user login</h5>
-                    <?php if (!empty($_SESSION['glftpd_auth_username'])): ?>
+                   <h5>Currently logged in as glftpd user</h5>
+                    <?php if (!empty($_SESSION['glftpd_auth_user'])): ?>
                         <div class="col-3">
-                            Username: <strong><?= $_SESSION['glftpd_auth_username'] ?></strong>
+                            User: <strong><?= $_SESSION['glftpd_auth_user'] ?></strong>
                         </div>
                     <?php endif ?>
                     <?php if (!empty($_SESSION['glftpd_auth_mask'])): ?>
