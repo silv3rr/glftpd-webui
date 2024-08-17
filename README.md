@@ -44,33 +44,40 @@ Options such as webui-mode ('docker' or 'local'), 'auth', a custom html title an
 
 #### auth
 
-Set `WEBUI_AUTH_USER` or run `./auth.sh <mode>`
+Set `WEBUI_AUTH_MODE=<mode>` or run `./auth.sh <mode>`
+
+_auth.sh makes any needed changes to nginx config and config.php and is be triggered by env var or run directly_
 
 auth modes:
 
 - basic: http authentication with standard browser pop up to login (default)
 - glftpd: login with html user/pass form, checked against glftpd's userdb using `passchk` bin
-- both: enables glftpd and basic at the same time
+- both: combines glftpd and basic auth modes
 - none: disable auth
-- additionally access is always limited to allowed ip ranges (see 'nginx' below)
+
+additionally access is always limited to allowed ip ranges (see 'nginx' below)
 
 ##### basic 
 
 Uses nginx and htpasswd to store user/password.
 
-In webui-mode docker mode, set `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change credentials. This can also be changed in docker-run.sh or docker-compose.yml.
+In webui-mode docker mode,set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change credentials. This setting can also be (permanently) changed in docker-run.sh or docker-compose.yml.
 
 In local mode, run: `./auth.sh basic <user> <password>`
 
 ##### glftpd
 
-Besides user/pass, also checks userfile for flag '1'(SITEOP) and compares client ip to ip/host mask(s) in X-Forwarded-For header.
+Besides gl user/pass, also checks userfile for '1' flag (SITEOP) and compares client ip to src ip/host mask(s) in X-Forwarded-For header.
 
 (tested in 'docker' mode only but should also work for 'local')
 
 ##### both
 
-Combines 'glftpd' and 'basic'. To make this work for basic auth, php pops up an input window and compares user/pass to config.php (instead of nginx/htpasswd). Change http auth credentials the same way as 'basic'. To force browser to relogin, try url http:/xxx@your.ip:4444
+Combines 'basic' and 'glftpd' modes. For basic auth, php pops up an input window and compares username and password to 'http_auth' setting from config.php (instead of nginx/htpasswd). To force browser to relogin, try url http:/xxx@your.ip:4444
+
+In webui-mode docker mode, set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change http auth credentials. Can also be changed in docker-run.sh or docker-compose.yml.
+
+In local mode, run: `./auth.sh both <user> <password>`
 
 (tested in 'docker' mode only but should also work for 'local')
 
@@ -97,7 +104,7 @@ Make sure your client's source ip is whitelisted. Default is 'allow' all private
 
 ### Requirements
 
-- Network: webui need to be able to connect to tcp ports 1337(glftpd), 3333(bot), 8080(gotty) and 5050(pyspy) 
+- Network: webui needs to be able to connect to tcp ports 1337(glftpd), 3333(bot), 8080(gotty) and 5050(pyspy) 
 - User management: needs access to /glftpd dir, either in glftpd container or on same host
 - Stop/start glftpd: needs access to docker socket or systemd/service + sudo in local mode
 - Terminal commands: these need to run in glftpd container or on same host in local mode (php exec)
@@ -133,7 +140,7 @@ Make sure your client's source ip is whitelisted. Default is 'allow' all private
 
 - i want to add a new button to run a command
     - sure, good luck with that :P ... 
-    - ok.. ok. to get you started: edit main html template and {docker,local}_commands.php
+    - ok, ok. to get you started: edit main html template and {docker,local}_commands.php
 
 -  why is this using docker / stupid php / not react / todays js framework / not properly written OOP code 
     - coz of ur mom
