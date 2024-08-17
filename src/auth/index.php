@@ -20,6 +20,7 @@ $_SESSION['DEBUG'] = array();
 if (!file_exists("/app/config.php")) {
     $cfg['auth'] = 'basic';
     $cfg['http_auth'] = array('username' => null, 'password' => null);
+    $cfg['mode'] = 'docker';
 }
 
 require_once '/app/config.php';
@@ -31,11 +32,15 @@ require_once '/app/format.php';
 //var_dump($data);
 
 use shit\docker;
+use shit\local;
 require_once '/app/docker_api.php';
-$docker = new docker;
+require_once '/app/local_exec.php';
 
-print "<pre>" . print_r($docker, true) . "</pre>";
-
+if ($cfg['mode'] === "docker") {
+    $docker = new docker;
+} else {
+    $local = new local;
+}
 
 if(!empty($auth_debug) && $auth_debug === 1) {
     print "<pre>DEBUG: auth/index.php \$docker=" . print_r($docker, true) . "</pre>";
