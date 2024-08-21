@@ -33,3 +33,5 @@ jobs:
         run: |
           docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web:latest
           docker push ghcr.io/silv3rr/docker-glftpd-web:latest
+          docker tag glftpd-webui:latest ghcr.io/silv3rr/glftpd-webui:latest
+          docker push ghcr.io/silv3rr/glftpd-webui:latest
