@@ -4,13 +4,7 @@
 # >> DOCKER-BUILD-GLFTPD-V3 :: WEBUI
 ################################## ################################   ####  # ##
 #
-# BUILD-TIME VARIABLES:
-#
-# WEBUI_AUTH_MODE=<basic|glftpd|both>
-# WEBUI_AUTH_USER=MyUser             set basic auth username (default: shit)
-# WEBUI_AUTH_PASS=MyPw123            set basic auth password
-#
-# ARGS+= " --any-flags " add any other docker build options
+# ARGS+= " --any-flags " adds any docker build options
 #
 ##################################################################   ####  ## ##
 

@@ -12,7 +12,7 @@
 *-----------------------------------------------------------------------*/
 
 return $cfg = array(
-    'auth'                      => "both",
+    'auth'                      => "basic",
     'mode'                      => "docker",
     'show_more_opts'            => false,
     'show_alerts'               => true,

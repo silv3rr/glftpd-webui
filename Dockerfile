@@ -6,9 +6,6 @@
 
 ARG WEBUI_PORT
 ARG WEBUI_CERT
-ARG WEBUI_AUTH_MODE
-ARG WEBUI_AUTH_USER
-ARG WEBUI_AUTH_PASS
 FROM alpine:3.18
 HEALTHCHECK CMD wget -qO /dev/null http://127.0.0.1/health
 LABEL org.opencontainers.image.source=https://github.com/silv3rr/glftpd-webui
@@ -19,6 +16,9 @@ COPY --chown=0:0 bin/entrypoint.sh /
 COPY --chown=0:0 bin/auth.sh /
 COPY --chown=0:0 etc/sudoers.d/glftpd-web /etc/sudoers.d
 COPY --chown=0:0 etc/nginx /etc/nginx
+COPY --chown=0:0 etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/auth-server.conf
+COPY --chown=0:0 etc/nginx/auth.d/auth_pages.conf.template /etc/nginx/auth.d/auth_pages.conf
+COPY --chown=0:0 etc/nginx/auth.d/auth_basic.conf.template /etc/nginx/auth.d/auth_basic.conf
 COPY --chown=0:0 bin/gltool.sh bin/gotty bin/passchk bin/pywho bin/spy etc/spy.conf /usr/local/bin/
 #COPY --chown=0:0 etc/webspy/ /usr/local/bin/webspy/
 COPY --chown=100:101 assets/ /app/assets/

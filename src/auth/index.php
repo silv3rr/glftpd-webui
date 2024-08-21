@@ -3,7 +3,6 @@
 /*--------------------------------------------------------------------------*
  *   SHIT:FRAMEWORK auth index
  *--------------------------------------------------------------------------*/
-// TODO: add nginx htp auth digest / PHP_AUTH_DIGEST
 
 // XXX: index.php(302) -> /auth/login.php -> /auth/index.php(POST) -> /auth/login.php
 
