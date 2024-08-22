@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 ################################## ################################   ####  # ##
 # >> DOCKER-RUN-GLFTPD-V3 :: WEBUI
@@ -7,9 +7,9 @@
 #
 # GLDIR="<path>"                   basedir for bind mounts (default=./glftpd)
 #                                  ( to reuse existing install set to /glftpd )
-# WEBUI_LOCAL=1                    run commands on same host, no docker [0|1]
-# WEBUI_AUTH_MODE="basic"          auth mode [basic|glftpd|both|none]
-# NETWORK="host"                   docker network mode [host|bridge]
+# WEBUI_LOCAL=1                    run commands on same host, no gl docker [0|1]
+# WEBUI_AUTH_MODE="<mode>"         auth mode [basic|glftpd|both|none]  (basic)
+# NETWORK="<network>"              docker network mode [host|bridge]   (bridge)
 # FORCE=1                          remove any existing container first [0|1]
 #
 # WEBUI_ARGS+= " --any-other-flags "      add any other docker run options
@@ -18,12 +18,12 @@
 
 #DEBUG=0
 
-GLDIR="./glftpd"
+#GLDIR="./glftpd"
 GLFTPD=0
 
 WEBUI=1
-WEBUI_LOCAL=1
-WEBUI_AUTH_MODE="basic"
+#WEBUI_LOCAL=1
+#WEBUI_AUTH_MODE="basic"
 #NETWORK="host"
 
 DOCKER_REGISTRY="ghcr.io/silv3rr"

@@ -41,6 +41,7 @@ if [ "${BUILD_GLFTPD:-0}" -eq 1 ]; then
 fi
 
 if [ "${INSTALL_WEBUI:-1}" -eq 1 ]; then
+  echo "Build image 'docker-glftpd-web'"
   # shellcheck disable=SC2086
   docker build \
     $ARGS \
