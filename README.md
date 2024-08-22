@@ -119,6 +119,27 @@ Make sure your client's source ip is whitelisted. Default is 'allow' all private
 - logs: nginx logs to stderr/stdout
 - view access logs with `docker logs glftpd-web`
 
+## Variables
+
+Options can be set with environment variables, in docker-run.sh or docker-compose.yml.
+
+Example:
+
+env var in shell: `WEBUI_AUTH_MODE="both"`
+
+edit docker-run\.sh: `WEBUI_AUTH_MODE="both"`   _(default: "./glftpd")_
+
+docker compose:
+```
+# add to docker-compose.yml
+services:
+  web:
+    image: ghcr.io/silv3rr/docker-glftpd-web:latest
+    # <...>
+    environment:
+        WEBUI_AUTH_MODE="both"
+```
+
 ## Troubleshooting
 
 - "nothing happens", main page doesnt open, cant login etc
