@@ -60,15 +60,15 @@ server {
 	# spy
 
 	location = /static/style.css {
-		return 301 /assets/css/spy.css;
+		return 301 $scheme://$http_host/assets/css/spy.css;
 	}
 
 	location = "/static/g15950.svg" {
-		return 301 /assets/img/empty.svg;
+		return 301 $scheme://$http_host/assets/img/empty.svg;
 	}
 
 	location ~ ^/user/(.+)$ {
-		#return 301 /user.php?user=$1
+		#return 301 /user.php?user=$1;
 		return 301 /index.php?user=$1;
 	}
 
@@ -92,8 +92,8 @@ server {
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection "upgrade";
 		proxy_set_header Host $http_host;
-		#	error_page 403 404 = @error_4xx;
-		#	error_page 500 502 503 504 = @error_5xx;
+		# error_page 403 404 = @error_4xx;
+		# error_page 500 502 503 504 = @error_5xx;
 	}
 
 }
