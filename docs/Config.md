@@ -97,7 +97,7 @@ Without docker: run `./auth.sh basic <user> <password>`
 
 Besides gl user/pass, also checks userfile for '1' flag (SITEOP) and compares client ip to src ip/host mask(s) in X-Forwarded-For header.
 
-(tested with docker mode only but should also work witout)
+(tested with docker mode only but should also work without)
 
 #### both
 
@@ -107,7 +107,7 @@ Docker: set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to cha
 
 Without docker: run `./auth.sh both <user> <password>`
 
-(tested with docker mode only but should also work witout)
+(tested with docker mode only but should also work without)
 
 #### allow ip
 
