@@ -25,11 +25,15 @@ echo "----------------------------------------------"
 if [ "${BUILD_GLFTPD:-0}" -eq 1 ]; then
   echo "Build image: 'docker-glftpd'"
   echo "* you can ignore any cache errors"
+  TAG="latest"
+  if [ "${INSTALL_WEBUI:-0}" -eq 1 ] && [ "${INSTALL_ZS:-0}" -eq 1 ] && [ "${INSTALL_BOT:-0}" -eq 1 ]; then
+    TAG="full"
+  fi
   # shellcheck disable=SC2086
   docker build \
     $ARGS \
-    --cache-from "docker-glftpd:latest" \
-    --tag "docker-glftpd:latest" \
+    --cache-from "docker-glftpd:${TAG}" \
+    --tag "docker-glftpd:${TAG}" \
     --tag "docker-glftpd:${GLFTPD_VER:-2}" \
     --build-arg GLFTPD_URL="${GLFTPD_URL}" \
     --build-arg GLFTPD_SHA="${GLFTPD_SHA}" \
