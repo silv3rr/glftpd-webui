@@ -17,42 +17,34 @@
 ###################################################################   ####  # ##
 
 #DEBUG=0
-
 #GLDIR="./glftpd"
 GLFTPD=0
-
 WEBUI=1
 #WEBUI_LOCAL=1
 #WEBUI_AUTH_MODE="basic"
 #NETWORK="host"
-
 DOCKER_REGISTRY="ghcr.io/silv3rr"
-DOCKER_IMAGE_GLFTPD="docker-glftpd:latest"
+DOCKER_IMAGE_GLFTPD="docker-glftpd"
 DOCKER_IMAGE_WEBUI="docker-glftpd-web:latest"
+DOCKER_TAGS="full latest"
 
+SCRIPTDIR="$(dirname "$0")"
 GLFTPD_ARGS+="$*"
 WEBUI_ARGS+="$*"
-
 REMOVE_CT=1
-SCRIPTDIR="$(dirname "$0")"
 
-LOCAL_GLFTPD_IMAGE=$(
-  docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE_GLFTPD"
-)
-LOCAL_FULL_GLFTPD_IMAGE=$(
-  docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-)
-
-# check if we already have 'full' tagged image and keep using it if we do
-if [ -n "$LOCAL_FULL_GLFTPD_IMAGE" ]; then
-  DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD}:full"
-else
-  REGISTRY_FULL_GLFTPD_IMAGE=$(
-    docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-  )
-  if [ -n "$REGISTRY_FULL_GLFTPD_IMAGE" ] || [ "${USE_FULL:-0}" -eq 1 ]; then
-    DOCKER_IMAGE_GLFTPD="${REGISTRY_FULL_GLFTPD_IMAGE}:full"
+# check existing images. if we already have 'full' tag, keep using it
+for t in $DOCKER_TAGS; do
+  if [ -z "$GLFTPD_IMAGE" ]; then
+    for i in "${DOCKER_IMAGE_GLFTPD}:$t" "${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}:$t"; do
+      GLFTPD_IMAGE="$(docker image ls --format='{{.Repository}}{{if .Tag}}:{{.Tag}}{{end}}' --filter reference="$i")"
+      TAG="$t"
+      break
+    done
   fi
+done
+if [ -z "$GLFTPD_IMAGE" ] && [ "${USE_FULL:-0}" -eq 1 ]; then
+  GLFTPD_IMAGE="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}:full"
 fi
 
 # get external/public ip
@@ -83,7 +75,7 @@ if [ -s "$SCRIPTDIR/customizer.sh" ]; then
   IRC_SERVERS=$IRC_SERVERS IRC_CHANNELS=$IRC_CHANNELS \
   "$SCRIPTDIR/customizer.sh"
 else
-  echo "! Skipping custom config, 'customizer.sh' not found"
+  echo "Skipping custom config, 'customizer.sh' not found"
 fi
 
 echo "----------------------------------------------"
@@ -201,7 +193,12 @@ fi
 
 # remove existing container(s) which use local and/or registry images
 
-REGEX_GLFTPD="(glftpd| ${DOCKER_IMAGE_GLFTPD:-'docker-glftpd'}|${DOCKER_REGISTRY}/docker-glftpd)$"
+for i in "${DOCKER_IMAGE_GLFTPD}" "${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}"; do
+  for j in $(docker image ls --format='{{.Repository}}' --filter reference="$i" | sort -u); do
+    REGEX_PAT_GLFTPD+=" ${j}|"
+  done
+done
+REGEX_GLFTPD="(glftpd|${REGEX_PAT_GLFTPD/%|/})$"
 REGEX_WEBUI="(glftpd-web| ${DOCKER_IMAGE_WEBUI:-'docker-glftpd-web'})$"
 
 if [ "${GLFTPD:-0}" -eq 1 ]; then
@@ -232,16 +229,14 @@ fi
 
 # shellcheck disable=SC2086
 if [ "${GLFTPD:-1}" -eq 1 ]; then
-  if [ -n "$LOCAL_GLFTPD_IMAGE" ] && [ "${USE_FULL:-0}" -eq 0 ]; then
-    echo "* Found local image 'docker-glftpd'"
-  elif [ -n "$LOCAL_FULL_GLFTPD_IMAGE" ]; then
-    echo "* Using full docker image ${LOCAL_FULL_GLFTPD_IMAGE:-""})"
+  if ! echo "$GLFTPD_IMAGE" | grep -Eq "$DOCKER_REGISTRY"; then
+    echo "* Found local '${TAG}' image"
   else
-    echo "* Pulling image from registry '${DOCKER_IMAGE_GLFTPD}'"
-    docker pull "$DOCKER_IMAGE_GLFTPD"
+    echo "* Pulling '${TAG}' image from registry"
+    docker pull "$GLFTPD_IMAGE"
   fi
-  if [ -n "$DOCKER_IMAGE_GLFTPD" ]; then
-    printf "* Docker run '%s'... " "$DOCKER_IMAGE_GLFTPD"
+  if [ -n "$GLFTPD_IMAGE" ]; then
+    printf "* Docker run '%s'... " "$GLFTPD_IMAGE"
     docker run \
       $GLFTPD_ARGS \
       --name glftpd \
