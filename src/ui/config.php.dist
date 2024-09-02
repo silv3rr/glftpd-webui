@@ -28,16 +28,16 @@ return $cfg = array(
                                     COMMAND CENTER</span>',
     'docker' => array(
       'api'               => "http://localhost/v1.44",
-      'glftpd_container'  => "glftpd-webui-dev-glftpd-1",
+      'glftpd_container'  => "glftpd",
       'bin_dir'           => "/glftpd/bin",
     ),
     'local' => array(
       'runas_user'        => "root",
       'bin_dir'           => "/usr/local/bin",
-    ),
+    ),  
     'services' => array(
-      "ftpd" => ['host' => "localhost", 'port' => "1337"],
-      "sitebot" => ['host' => "localhost", 'port' => "3333"],
+      "sitebot" => ['host' => "localhost", 'port' => "1337"],
+      "ftpd" => ['host' => "localhost", 'port' => "3333"],
     ),
 );
 

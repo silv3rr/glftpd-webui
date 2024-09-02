@@ -24,6 +24,7 @@ COPY --chown=0:0 bin/gltool.sh bin/gotty bin/passchk bin/pywho bin/spy etc/spy.c
 COPY --chown=100:101 assets/ /app/assets/
 COPY --chown=100:101 lib/ui/ /app/lib/
 COPY --chown=100:101 src/ui /app/
+COPY --chown=100:101 src/ui/config.php.dist /app/config.php
 COPY --chown=100:101 templates/ /app/templates/
 COPY --chown=100:101 src/auth /auth/
 COPY --chown=100:101 lib/auth/ /auth/lib/
