@@ -122,7 +122,7 @@ WEBUI_ARGS+=" --ulimit nofile=1024:1024 "
 if [ "${GLFTPD_CONF:-0}" -eq 1 ] || [ "${ZS_STATUS:-0}" -eq 1 ]; then
   REMOVE_CT=0
   if [ -d glftpd/glftpd.conf ]; then
-    rmdir glftpd/glftpd.conf 2>/dev/null || { echo "ERROR: \"glftpd.conf\" is a directory, remove it manually"; }
+    rmdir glftpd/glftpd.conf 2>/dev/null || { echo "! ERROR: \"glftpd.conf\" is a directory, remove it manually"; }
   fi
   if [ -f glftpd/glftpd.conf ]; then
     GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/glftpd.conf,dst=/glftpd/glftpd.conf "
@@ -164,7 +164,7 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
   GLFTPD_ARGS+=" --publish ${IP_ADDR}:3333:3333 "
   for i in glftpd/sitebot/eggdrop.conf glftpd/sitebot/pzs-ng/ngBot.conf ; do
     if [ -d "$i" ]; then
-      rmdir "$i" 2>/dev/null || { echo "ERROR: \"$i\" is a directory, remove it manually"; }
+      rmdir "$i" 2>/dev/null || { echo "! ERROR: \"$i\" is a directory, remove it manually"; }
     fi
   done
   if [ -f glftpd/sitebot/eggdrop.conf ]; then
@@ -223,7 +223,7 @@ if [ -n "$REGEX" ]; then
       printf "* Removing existing container '%s'... " "$i"
       docker rm -f -v "$CONTAINER" 2>/dev/null
     else
-      echo "WARNING: container '$i' already exists, to remove it: 'FORCE=1 ./docker-run.sh'"
+      echo "! WARNING: container '$i' already exists, to remove it try: 'FORCE=1 ./docker-run.sh'"
     fi
   done
 fi
@@ -284,4 +284,6 @@ if [ "${WEBUI:-1}" -eq 1 ]; then
     echo "! Docker image not found"
     exit 1
   fi
+fi
+
 echo "* All done."
