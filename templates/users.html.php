@@ -59,7 +59,7 @@
   </div>
   <div class="form-row">
     <div class="col-5">
-      <label for="new_user_group">Group (<span class="col-form-label-sm text-muted">optional</span>)</label>
+      <label for="new_user_group">Group <span class="col-form-label-sm text-muted">(optional)</span></label>
       <select id="new_user_group" name="user_group" class='form-control'>
         <option selected class='form-control selected'>Select group...</option>
         <?php if (!empty($_SESSION['groups'])): ?>
@@ -70,7 +70,7 @@
       </select>
     </div>
   <div class="col-6">
-    <label for="new_user_ip">IP masks (<span class="col-form-label-sm text-muted">optional</span>)</label>
+    <label for="new_user_ip">IP masks <span class="col-form-label-sm text-muted">(optional)</span></label>
     <input type="text" id="new_user_ip" name="user_ip" placeholder="*@1.2.3.*" class="form-control">
   </div>
   <div class="col-auto ml-2">

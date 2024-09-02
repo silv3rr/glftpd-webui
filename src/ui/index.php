@@ -5,7 +5,6 @@
  *--------------------------------------------------------------------------*/
 
 // TODO:
-// auth: add nginx http auth digest, PHP_AUTH_DIGEST
 // fix del flags notifications
 // add self service for users (addip, invite), use gl auth
 // cleanup debug

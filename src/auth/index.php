@@ -58,7 +58,7 @@ if (!empty(($_SESSION['basic_auth_result'])) && !is_string($_SESSION['basic_auth
     unset($_SESSION['basic_auth_result']);
 }
 
-if (!empty(($_SESSION['glftpd_auth_result'])) &&  !is_string($_SESSION['glftpd_auth_result'])) {
+if (!empty(($_SESSION['glftpd_auth_result'])) && !is_string($_SESSION['glftpd_auth_result'])) {
     unset($_SESSION['glftpd_auth_result']);
 }
 
@@ -79,7 +79,8 @@ if (!empty($cfg['auth'])) {
 
     if ( ($cfg['auth'] === 'both') &&
         ((!empty($_SESSION['basic_auth_result']) && $_SESSION['basic_auth_result'] === "1") &&
-        (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) ) {
+        (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) )
+    {
         http_response_code(200);
         exit;
     }
@@ -91,12 +92,11 @@ if (!empty($cfg['auth'])) {
     //   3) try prompting user with browser pop up
 
     if ($cfg['auth'] === 'basic' || $cfg['auth'] === 'both') {
-        if (!isset($_SERVER["HTTP_AUTHORIZATION"]) || !isset($_SERVER["PHP_AUTH_USER"]) ||  !isset($_SERVER["PHP_AUTH_PW"]) ||
-             empty($_SERVER["HTTP_AUTHORIZATION"]) ||  empty($_SERVER["PHP_AUTH_USER"]) ||   empty($_SERVER["PHP_AUTH_PW"])) {
+        if (!isset($_SERVER["HTTP_AUTHORIZATION"]) || !isset($_SERVER["PHP_AUTH_USER"]) || !isset($_SERVER["PHP_AUTH_PW"]) ||
+             empty($_SERVER["HTTP_AUTHORIZATION"]) ||  empty($_SERVER["PHP_AUTH_USER"]) ||  empty($_SERVER["PHP_AUTH_PW"]))
+        {
             $_SESSION['basic_auth_result'] = "0";
         }
-        //if ( (!empty($cfg['http_auth']['username']) && !empty($cfg['http_auth']['password'])) &&
-        //     ( empty($_SESSION['basic_auth_result']) || (!empty($_SESSION['basic_auth_result'] && $_SESSION['basic_auth_result'] === "0")) ) ) {
         if (!empty($_SERVER["HTTP_AUTHORIZATION"])) {
             $http_auth = explode(" ", $_SERVER["HTTP_AUTHORIZATION"]);
             $http_auth = explode(":", base64_decode($http_auth[1]));
@@ -119,10 +119,11 @@ if (!empty($cfg['auth'])) {
             header('WWW-Authenticate: Basic realm="Authentication Required"');
             header("HTTP/1.0 401 Unauthorized");
         }
+
         // verify user/pass
         if ( (!empty($http_auth_username) && $http_auth_username === $cfg['http_auth']['username']) &&
-                (!empty($http_auth_password) && $http_auth_password === $cfg['http_auth']['password']) ) {
-
+             (!empty($http_auth_password) && $http_auth_password === $cfg['http_auth']['password']) )
+        {
             $_SESSION['basic_auth_result'] = '1';
             $_SESSION['basic_auth_username'] = $http_auth_username;
             if (!empty($auth_debug) && $auth_debug === 1) {
@@ -135,17 +136,14 @@ if (!empty($cfg['auth'])) {
                 }
             }
         }
-    //header('WWW-Authenticate: Basic realm="Authentication Required"');
-    //header("HTTP/1.0 401 Unauthorized");
-    //}
     }
 
     // check glftpd auth
 
     if ($cfg['auth'] === 'glftpd' || $cfg['auth'] === 'both') {
         if ( (!empty($_POST['glftpd_user']) && !empty($_POST['glftpd_password'])) &&
-              (empty($_SESSION['glftpd_auth_result']) || (!empty($_SESSION['glftpd_auth_result'] && $_SESSION['glftpd_auth_result'] === "1"))) ) {
-
+              (empty($_SESSION['glftpd_auth_result']) || (!empty($_SESSION['glftpd_auth_result'] && $_SESSION['glftpd_auth_result'] === "1"))) )
+        {
             // from https://github.com/mlocati/ip-lib
             require_once 'lib/ip-lib/ip-lib.php';
 
