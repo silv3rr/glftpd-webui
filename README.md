@@ -29,86 +29,148 @@ Pick one of these 3 options
 
 **2**) If you do not want to use glftpd in docker, use 'local' mode (glftpd-webui itself will still run in container)
 
-**3**) Install webui without using docker at all. Needs nginx with php-fpm8 or newer and requirements below. You'll have to do this manually, have a look at the Dockerfile and adapt to your specific environment.
+**3**) Install webui without using docker at all. Needs nginx with php-fpm8 or newer and requirements below. You'll have to do this manually, have a look at the Dockerfile and adapt to your specific environment
 
-- copy webui files to document root: assets, lib, templates and src dirs e.g. to /var/www/html
+- copy webui files to document root: assets, lib, templates and src dirs to e.g. /var/www/html
+- copy config.php.dist to config.php
 - copy nginx conf templates from etc
 - check 'bin_dir' under 'local' in config.php (default is '/usr/local/bin')
-- download/replace pyspy and pywho for your distro to 'bin_dir'
+- download/replace pyspy and pywho for your distro in 'bin_dir'
 - copy/compile other bins (gotty, hashgen, passchk)
 - copy etc/sudoers.d/glftpd-web
 
 ### Configuration
 
-Options such as webui-mode ('docker' or 'local'), 'auth', a custom html title and display settings can be changed in `config.php`.
+Options such as 'webui-mode', 'auth', a custom html title and display settings can be changed in `config.php`.
+
+
+#### webui-mode
+
+'docker':
+- 'api': `<url>`
+- 'glftpd_container' `<name>` (default: glftpd)
+- 'bin_dir': `<path>` to gltool.sh, gotty, pywho etc
+
+'local':
+- 'runas_user': `<user>` for sudo (default: root)
+- 'bin_dir': `<path>` to gltool.sh, gotty, pywho etc
+
+'services:'
+- ftpd:
+    - host: `<hostname or ip>` (default: localhost)
+    - port: `<port>` (default: 1337)
+- sitebot:
+    - host: `<hostname or ip>`  (default: localhost)
+    - port: `<port>` (default: 3333)
+
+used for UP/DOWN status
+
+##### docker
+
+By default the glftpd image from [docker-glftpd](https://github.com/silv3rr/docker-glftpd) is used. To use a different image change it in `docker-run.sh`, or to not run gl at all set `GLFTPD=0`.
+
+The default basedir on host for glftpd mounts is './glftpd', set `GLDIR` to change
+
+Both glftpd and webui use same docker network.
+
+##### local
+
+By default localhost is used to connect to glftpd, bot, spy and gotty.
+
+The quickest way to allow access to '/glftpd' dir is bind mounting in the webui container or document root.
 
 #### auth
 
-Set `WEBUI_AUTH_MODE=<mode>` or run `./auth.sh <mode>`
+Docker: set `WEBUI_AUTH_MODE=<mode>`
+
+Without docker: run `./auth.sh <mode>`
 
 _auth.sh makes any needed changes to nginx config and config.php and is be triggered by env var or run directly_
 
 auth modes:
 
-- basic: http authentication with standard browser pop up to login (default)
+- basic: http authentication with standard browser dialog to login (default)
 - glftpd: login with html user/pass form, checked against glftpd's userdb using `passchk` bin
 - both: combines glftpd and basic auth modes
 - none: disable auth
 
-additionally access is always limited to allowed ip ranges (see 'nginx' below)
+additionally access is always limited to allowed ip ranges
 
 ##### basic 
 
 Uses nginx and htpasswd to store user/password.
 
-In webui-mode docker mode,set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change credentials. This setting can also be (permanently) changed in docker-run.sh or docker-compose.yml.
+Docker: set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change credentials.
 
-In local mode, run: `./auth.sh basic <user> <password>`
+Without docker: run `./auth.sh basic <user> <password>`
 
 ##### glftpd
 
 Besides gl user/pass, also checks userfile for '1' flag (SITEOP) and compares client ip to src ip/host mask(s) in X-Forwarded-For header.
 
-(tested in 'docker' mode only but should also work for 'local')
+(tested with mode only but should also work witout)
 
 ##### both
 
 Combines 'basic' and 'glftpd' modes. For basic auth, php pops up an input window and compares username and password to 'http_auth' setting from config.php (instead of nginx/htpasswd). To force browser to relogin, try url http:/xxx@your.ip:4444
 
-In webui-mode docker mode, set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change http auth credentials. Can also be changed in docker-run.sh or docker-compose.yml.
+Docker: set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change http auth credentials. Can also be changed in docker-run.sh or docker-compose.yml.
 
-In local mode, run: `./auth.sh both <user> <password>`
+Without docker: run `./auth.sh both <user> <password>`
 
-(tested in 'docker' mode only but should also work for 'local')
+(tested with mode only but should also work witout)
 
-#### webui-modes
+##### allow ip
 
-docker mode:
+Make sure your client's source ip is whitelisted. Default is 'allow' all private ip ranges (rfc1918). To change, edit etc/nginx/auth.d/allow.conf.template (docker) or allow.conf and restart container or reload nginx.
 
-- by default, the glftpd image from https://github.com/silv3rr/docker-glftpd is used
-- to use a different image:
-    - change image in docker-run.sh, or dont run image at all: `GLFTPD=0`
-    - for compose: edit/remove services in docker-compose.yml
-- the default container name is "glftpd", to change set `'glftpd_container'` under 'docker' in config.php
-- the default basedir on host for glftpd mounts is './glftpd', set `GLDIR` to change
-- glftpd and webgui use same docker network
+#### display settings
 
-local mode:
+'show_more_opts':
+ - `true` always show all options
+ - `false` collapse with link "Show/hide more options"
 
-- by default, localhost is used to connect to gl/bot/spy/gotty
-- the quickest way to allow access to '/glftpd' dir is bind mounting in the webui container or document root
+'show_alerts':
+ - `true` show notifications
+ - `false` no notifications
 
-#### nginx
+'max_items': `<number>` of users and groups to show (without collapse)
 
-Make sure your client's source ip is whitelisted. Default is 'allow' all private ip ranges (rfc1918). To change, edit etc/nginx/auth.d/allow.conf and restart.
+'modal':
+ - 'pywho':
+    - `true` show pywho in dialog, `false`  output to bottom of page
+ - 'commands':
+    - `true` show (terminal) commands in dialog, `false` output to bottom of page
+
+'spy':
+ - 'enabled':
+    - `true` show online users
+    - `false` hide online users
+ - 'refresh':
+    - `true` auto refresh
+    - `false` no refresh
 
 ### Requirements
 
 - Network: webui needs to be able to connect to tcp ports 1337(glftpd), 3333(bot), 8080(gotty) and 5050(pyspy) 
 - User management: needs access to /glftpd dir, either in glftpd container or on same host
-- Stop/start glftpd: needs access to docker socket or systemd/service + sudo in local mode
-- Terminal commands: these need to run in glftpd container or on same host in local mode (php exec)
+- Stop/start glftpd: needs access to docker socket or systemd/service + sudo in local webui-mode
+- Terminal commands: these need to run in glftpd container or on same host in local webui-mode, local mode requires php 'exec'
 - Filemanager: needs access to config files and /glftpd/site
+
+## Compose
+
+Run pre-made images from github:
+
+`docker compose up --detach`
+
+Build and run local images:
+
+`docker compose --profile full up --build --detach local-web`
+
+(starts both webui and gl containers)
+
+Edit 'docker-compose.yml' to change mounts, ports, vars etc. If you dont want the docker-glftpd container, remove 'glftpd' service.
 
 ## Image
 
@@ -121,7 +183,7 @@ Make sure your client's source ip is whitelisted. Default is 'allow' all private
 
 ## Variables
 
-Options can be set with environment variables, in docker-run.sh or docker-compose.yml.
+Options can be set with environment variables, or (permanently) in docker-run.sh or docker-compose.yml.
 
 Example:
 
