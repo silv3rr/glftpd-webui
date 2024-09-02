@@ -36,8 +36,8 @@ return $cfg = array(
       'bin_dir'           => "/usr/local/bin",
     ),  
     'services' => array(
-      "sitebot" => ['host' => "localhost", 'port' => "1337"],
-      "ftpd" => ['host' => "localhost", 'port' => "3333"],
+      "ftpd" => ['host' => "localhost", 'port' => "1337"],
+      "sitebot" => ['host' => "localhost", 'port' => "3333"],
     ),
 );
 
