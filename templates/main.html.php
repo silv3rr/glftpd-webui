@@ -35,7 +35,7 @@
     </label>
     <div id="theme"><span>DARK THEME</span></div>
   </span>
-  <a href="https://github.com/silv3rr/glftpd-webui/blob/master/README.md"><button type="button" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
+  <a href="https://github.com/silv3rr/glftpd-webui/blob/main/README.md"><button type="button" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
     <em class="fa-solid fa-question"></em> help
   </button></a>
   <a href data-toggle="modal" data-target="#bsModal" data-type="html" data-path="/templates/about.html">

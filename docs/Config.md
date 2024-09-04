@@ -4,52 +4,52 @@
 
 #### webui-mode
 
-'docker':
+docker
+
 - 'api': `<url>`
 - 'glftpd_container' `<name>` (default: glftpd)
-- 'bin_dir': `<path>` to gltool.sh, gotty, pywho etc
+- 'bin_dir': `<path>` to binaries (gltool.sh, gotty, pywho etc)
 
-'local':
+local
+
 - 'runas_user': `<user>` for sudo (default: root)
-- 'bin_dir': `<path>` to gltool.sh, gotty, pywho etc
+- 'bin_dir': `<path>` to binaries (gltool.sh, gotty, pywho etc)
 
 #### display
 
-'show_more_opts':
+show_more_opts
+
  - `true` always show all options
  - `false` collapse with link "Show/hide more options"
 
-'show_alerts':
- - `true` show notifications
- - `false` no notifications
+show_alerts
 
-'max_items': `<number>` of users and groups to show (without collapse)
+ - `true` show notifications, `false` no notifications
 
-'modal':
+max_items: `<number>` of users and groups to show (without collapse)
+
+modal
+
  - 'pywho':
     - `true` show pywho in dialog, `false`  output to bottom of page
  - 'commands':
     - `true` show (terminal) commands in dialog, `false` output to bottom of page
 
-'spy':
- - 'enabled':
-    - `true` show online users
-    - `false` hide online users
- - 'refresh':
-    - `true` auto refresh
-    - `false` no refresh
+spy
 
-*used for UP/DOWN status*
+ - 'enabled': `true` show online users, `false` hide online users
+ - 'refresh': `true` auto refresh, `false` no refresh
 
 #### connections
 
-'services:'
+services
+
 - ftpd:
-    - host: `<hostname or ip>` (default: localhost)
-    - port: `<port>` (default: 1337)
+    - host: `<hostname or ip>` (default: localhost), port: `<num>` (default: 1337)
 - sitebot:
-    - host: `<hostname or ip>`  (default: localhost)
-    - port: `<port>` (default: 3333)
+    - host: `<hostname or ip>`  (default: localhost), port: `<num>` (default: 3333)
+
+*(used for UP/DOWN status)*
 
 ## Webui-mode
 
