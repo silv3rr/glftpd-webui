@@ -42,13 +42,14 @@ spy
 
 #### connections
 
-'services:'
+services
+
 - ftpd:
     - host: `<hostname or ip>` (default: localhost), port: `<port>` (default: 1337)
 - sitebot:
     - host: `<hostname or ip>`  (default: localhost), port: `<port>` (default: 3333)
 
-*used for UP/DOWN status*
+*(used for UP/DOWN status)*
 
 ## Webui-mode
 
