@@ -45,9 +45,9 @@ spy
 services
 
 - ftpd:
-    - host: `<hostname or ip>` (default: localhost), port: `<port>` (default: 1337)
+    - host: `<hostname or ip>` (default: localhost), port: `<num>` (default: 1337)
 - sitebot:
-    - host: `<hostname or ip>`  (default: localhost), port: `<port>` (default: 3333)
+    - host: `<hostname or ip>`  (default: localhost), port: `<num>` (default: 3333)
 
 *(used for UP/DOWN status)*
 
