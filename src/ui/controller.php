@@ -150,6 +150,7 @@ if (isset($_SESSION['postdata'])) {
                     $_SESSION['modal'] = array('func' => 'show', 'title' => "Output", 'text' => $cmd_out );
                 } else {
                     if (preg_match('/^glftpd_(start|stop|restart)$/', $value)) {
+                        $data->func($value);
                         $_SESSION['results'][$value] = "DONE: {$value}";
                     } else {   
                         $_SESSION['cmd_output'] = format_cmdout($data->func($value));
