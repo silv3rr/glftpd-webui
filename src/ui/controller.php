@@ -261,16 +261,9 @@ if (isset($_SESSION['postdata'])) {
                         '{$flags}' => implode(array_keys($flags_del))
                     );
                     $_result = $data->func(['flag_del', $replace_pairs]);
-                    // TODO:
-                    //if (!empty($matches['flag']) && empty($flags_add) && !empty($_result)) {
-                    //    set_cmd_result("DONE: deleted flags \"{$matches['flag']}\" from \"{$_SESSION['postdata']['select_user']}\"");
-                    //}
-                    //if ($flags_del = flags_list()) {
-                    //    set_cmd_result("DONE: user \"{$_SESSION['postdata']['select_user']}\" has no flags");
-                    //}
-                    // show actually deleted flags in notification
-                    if (($flags_del !== flags_list()) && empty($flags_add) && !empty($_result)) {
-                        set_cmd_result("DONE: deleted flags \"" . implode(array_keys($flags_del)) . "\" from \"{$_SESSION['postdata']['select_user']}\"");
+                    $_count = count(array_diff($flags_userfile, $flags_del)) - 1;
+                    if ($_count > 0 && empty($flags_add) && !empty($_result)) {
+                        set_cmd_result("DONE: deleted " . $_count . " flag(s) from \"{$_SESSION['postdata']['select_user']}\"");
                     }
                 }
                 if (!empty($flags_add)) {
