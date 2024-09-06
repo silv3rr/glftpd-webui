@@ -17,8 +17,9 @@
 // remove all non alpha chars:
 //   preg_replace('/[^a-zA-Z0-9_@#&%:\/\+\-\[\]\.\(\)\*\s]/s', '', $str);
 // trim the ASCII control characters at the beginning and end of $binary
-// (from 0 to 31 inclusive)
+//   (from 0 to 31 inclusive)
 //   $clean = trim($binary, "\x00..\x1F");
+
 
 function sanitize_string(string $str): string {
     if (!empty($str) && is_string($str)) {
@@ -113,29 +114,6 @@ function format_procs($json): string {
 
 function format_cmdout(mixed $result): mixed {
     $out = null;
-
-    // TODO: readd diff outputs
-    /*
-    if (is_array($result) && isset($result['action'])) {
-        $out = "INFO: running {$result['action']}" . PHP_EOL;
-        if (isset($result['output'])) {
-            if (cfg::get('debug') > 2) {
-                var_dump($result['output']);
-            }
-            $out .= format_msg_logs($result['output']);
-        }
-        if (isset($result['result_code']) && cfg::get('debug') > 3) {
-            if (!isset($_SESSION['DEBUG']['cmdout'])) {
-                $_SESSION['DEBUG']['cmdout'] = array();
-            }
-            array_push($_SESSION['DEBUG']['cmdout'],
-                "{$result['action']} {$result['result_code']} " .
-                ($result['result_code'] !== false) ? "(OK)" : "(ERR)" . PHP_EOL
-            );
-        }
-    }
-    */
-
     if (is_array($result)) {
         $out = implode(PHP_EOL, $result);
     }
@@ -154,11 +132,6 @@ function format_cmdout(mixed $result): mixed {
                 $out = format_json($json);
             }
         } else {
-            //$lines_sanitized = array();
-            //foreach (explode(PHP_EOL, $result) as $line) {
-            //    $clean_line = htmlspecialchars(sanitize_string(trim((substr($line, 8)))));
-            //    array_push($lines_sanitized, $clean_line);
-            //}
             $out = htmlspecialchars(sanitize_string(trim((substr($result, 8)))));
         }
     }

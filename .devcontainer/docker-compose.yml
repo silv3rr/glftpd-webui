@@ -55,7 +55,7 @@ services:
       #- ./etc/nginx/http.d:/etc/nginx/http.d:cached
       #- ./etc/nginx/auth.d:/etc/nginx/auth.d:cached
       - ./src/ui:/app:cached
-      - ./src/ui/config.php:/app/ui/config.php:cached
+      - ./src/ui/config.php:/app/config.php:cached
       - ./src/auth:/auth:cached
       - ./lib/ui:/app/lib:cached
       - ./lib/auth:/auth/lib:cached
@@ -64,19 +64,22 @@ services:
       # use local gldir
       # - /jail/glftpd:/glftpd:cached
       # XXX: (dev-test) use systemd from host
-      # - /run:/host-run
+      # - /run:/run
     ports:
       - 4444:443
     ulimits:
       nofile: { soft: 1024, hard: 1024 }
     #environment:
     #  - WEBUI_AUTH_MODE=both
-    # XXX: (dev-test) host systemd needs privileged mode
-    #  privileged: true
     # uncomment to use host instead of bridge
     #  network_mode: host
     hostname: glftpd-web
     depends_on: [dev-glftpd]
+
+    # XXX: (dev-test) host systemd needs privileged mode, needs e.g. debian image
+    #      SYSTEMCTL_FORCE_BUS=1 systemctl stop foo.service
+    #      https://medium.com/opsops/accessing-host-system-systemd-from-containers-systemctl-492a1a385102
+    #  privileged: true
 
 
   # use existing gl image from docker-glftpd
