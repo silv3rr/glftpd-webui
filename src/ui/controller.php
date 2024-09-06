@@ -242,7 +242,6 @@ if (isset($_SESSION['postdata'])) {
                 $flags_del = flags_list();
                 if (is_array($_SESSION['postdata']['flagCmd'])) {
                     $flags_userfile = !empty($_SESSION['userfile']['FLAGS']) ? str_split($_SESSION['userfile']['FLAGS']) : [];
-                    //$debug->print(pos: 'controller', flags_userfile: $flags_userfile);
                     foreach ($_SESSION['postdata']['flagCmd'] as $flagcmd) {
                         if (preg_grep('/^flag_add\|[0-9A-Z]+$/', $_SESSION['postdata']['flagCmd'])) {
                             preg_match('/flag_add\|(?<flag>[0-9A-Z]+)/', $flagcmd, $matches);
@@ -255,9 +254,6 @@ if (isset($_SESSION['postdata'])) {
                         }
                     }
                 }
-                //$debug->print(pre: true, pos: 'controller', _matches_flag: $matches['flag'], flags_userfile: $flags_userfile);
-                //$debug->print(pre: true, pos: 'controller', _flags_add_func: implode(array_values($flags_add)));
-                //$debug->print(pre: true, pos: 'controller', _flags_del_func: implode(array_keys($flags_del)));
                 // del all flags not selected in form and/or unused
                 if (!empty($flags_del)) {
                     $replace_pairs = array(
@@ -355,9 +351,9 @@ if (isset($_SESSION['postdata'])) {
             }
             unset($_SESSION['postdata']['applyBtn']);
         } //end applyBtn
-
+        //
         // submit cmds, without apply
-
+        //
         //$debug->print(pre: true, pos: 'controller-3', _SESSION_postdata: $_SESSION['postdata']);
         if ($name === 'userCmd') {
             if ($data->check_user() && $value === 'user_del') {

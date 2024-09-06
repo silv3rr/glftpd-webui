@@ -5,12 +5,13 @@
  *--------------------------------------------------------------------------*/
 
 // TODO:
-// fix del flags notifications
 // add self service for users (addip, invite), use gl auth
-// cleanup debug
 // switch to mvc framework (laravel|symfony)
 
-// DEBUG:
+
+/*--------------------------------------------------------------------------*/
+/* DEBUG
+/*--------------------------------------------------------------------------*/
 // reset session https://localhost/index.php?reset=1
 // var_dump(session_status());
 
@@ -35,6 +36,11 @@ if (cfg::get('debug') > 0) {
     ini_set('display_errors', 1);
     error_reporting(-1);
 }
+// TODO:
+// https://github.com/ozanhazer/PHP-Htpasswd
+// https://stackoverflow.com/questions/2994637/how-to-edit-htpasswd-using-php
+// $cfg::get('http_auth')['username'] $cfg::get('http_auth')['password']
+// file_put_contents("/etc/nginx/.htpasswd", $apr_md5)
 
 use shit\debug;
 use shit\data;
@@ -51,11 +57,13 @@ require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter
 $debug = new debug;
 $data = new data;
 
-// mode: docker or local, each has their own array in {docker,local}_commands.php with {$vars}
+// mode: docker(docker_commands.php) or local(local_commands.php)
+// arrays with strtr {$vars}
 // replace pairs: 
 //    params -u {$username} -p {$password} -g {$group}   -i {$mask}   -f {$flags} -a {$gadmin}
 //           -p {$pgroup}   -t {$tagline}  -k {$credits} -l {$logins} -r {$ratio}
 //    global {$bin_dir} {$gl_ct} 
+
 // docker: check for .dockerenv and disable service controls if webui is running in ct
 
 $docker_sock_exists = false;
@@ -161,37 +169,44 @@ if (cfg::get('debug') > 9 && !empty($_SESSION['postdata'])) {
     $debug->print(pos: 'index-2', count__SESSION_postdata: count($_SESSION['postdata']));
 }
 
-// test: uncomment for old non-recursive postdata handling
 
-/*
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $_SESSION['postData'] = array_map('htmlspecialchars', $_POST);
-    $_SESSION['postData'] = array_map('trim', $_POST);
-    if (array_sum(array_map('is_string', $_SESSION['postData'])) == count($_SESSION['postData'])) {
+/*--------------------------------------------------------------------------*/
+/* TGEST
+/*--------------------------------------------------------------------------*/
+
+$_test = null;
+
+// test: old = non-recursive postdata handling
+
+if ($__test == 'old') {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $_SESSION['postData'] = array_map('htmlspecialchars', $_POST);
+        $_SESSION['postData'] = array_map('trim', $_POST);
+        if (array_sum(array_map('is_string', $_SESSION['postData'])) == count($_SESSION['postData'])) {
+            unset($_POST);
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } else {
+            unset($_SESSION['postData']);
+        }
+    }
+}
+
+// test: post = set postdata to POST
+
+if ($__test == 'post') {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $query_params = "";
+        if (!empty($_SESSION['postdata']['select_user']) && $_SESSION['postdata']['select_user'] !== "Select username...") {
+            $query_params = "?user={$_SESSION['postdata']['select_user']}";
+        }
+        $_SESSION['postdata'] = $_POST;
         unset($_POST);
-        header("Location: " . $_SERVER['PHP_SELF']);
+        print $_SERVER['PHP_SELF'];
+        header("Location: " . $_SERVER['PHP_SELF'] . $query_params);
         exit;
-    } else {
-        unset($_SESSION['postData']);
     }
 }
-*/
-
-// test: uncomment to set postdata to POST
-
-/*
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $query_params = "";
-    if (!empty($_SESSION['postdata']['select_user']) && $_SESSION['postdata']['select_user'] !== "Select username...") {
-        $query_params = "?user={$_SESSION['postdata']['select_user']}";
-    }
-    $_SESSION['postdata'] = $_POST;
-    unset($_POST);
-    print $_SERVER['PHP_SELF'];
-    header("Location: " . $_SERVER['PHP_SELF'] . $query_params);
-    exit;
-}
-*/
 
 // test: uncomment to force user 'glftpd'
 
@@ -207,8 +222,7 @@ if ((cfg::get('debug') > 1) && (isset($_SESSION['postdata']))) {
     $debug->print(pre: true, pos: 'index', _SESSION_postdata: $_SESSION['postdata']);
 }
 
-//$debug->print(pre: true, pos: 'index', _SESSION_results: $_SESSION['results']);
-//$debug->print(pre: true, pos: 'index', _SESSION_cmd_output: $_SESSION['cmd_output']);
+//$debug->print(pre: true, pos: 'index', _SESSION_results: $_SESSION['results'], , _SESSION_cmd_output: $_SESSION['cmd_output']);
 //$debug->print(pre: true, pos: 'index', _SESSION: $_SESSION);
 
 // get data from glftpd files
