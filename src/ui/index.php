@@ -174,7 +174,7 @@ if (cfg::get('debug') > 9 && !empty($_SESSION['postdata'])) {
 /* TGEST
 /*--------------------------------------------------------------------------*/
 
-$_test = null;
+$__test = null;
 
 // test: old = non-recursive postdata handling
 
