@@ -12,17 +12,17 @@
         </div>
         <div class="col-auto">
         <span class=" col-form-label-sm text-muted">
-          <button type="submit" name="grpCmd" value="sort_users_groups|a-z" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-down-a-z"></em></button>
+          <button type="submit" name="sortList" value="sort_users_groups|a-z" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-down-a-z"></em></button>
         </span>
       </div>
       <div class="col-auto">
         <span class=" col-form-label-sm text-muted">
-          <button type="submit" name="grpCmd" value="sort_users_groups|z-a" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-up-a-z"></em></button>
+          <button type="submit" name="sortList" value="sort_users_groups|z-a" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-up-a-z"></em></button>
         </span>
       </div>
       <div class="col-auto">
         <span class=" col-form-label-sm text-muted">
-          <button type="submit" name="grpCmd" value="sort_users_groups|group" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-people-group"></em></button>
+          <button type="submit" name="sortList" value="sort_users_groups|group" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-people-group"></em></button>
         </span>
       </div>
     </div>
