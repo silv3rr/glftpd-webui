@@ -78,7 +78,7 @@
     </div>
     <div class="col-auto">
       <button type="submit" name="gltoolCmd" value="show_user_stats" class="btn btn-outline-primary mr-2 mb-1">
-          <em class='fa-solid fa-chart-simple'></em> Show
+        <em class='fa-solid fa-chart-simple'></em> Show
       </button>
       <span class='border border-warning rounded p-2'>
         Reset all
@@ -110,7 +110,7 @@
 <div class="form-row mb-4">
   <div class="col-auto">
     <a class='btn btn-link color-custom' data-toggle="collapse" href="#colMoreOpts" role="button" aria-expanded="false" aria-controls="colMoreOpts">
-      <em class="border border-primary rounded p-1 fa-solid fa-arrows-up-down"></em>
+      <em class="border border-primary rounded p-2 fa-solid fa-arrows-up-down"></em>
       Show/hide more options
     </a>
   </div>

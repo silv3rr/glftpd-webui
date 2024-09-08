@@ -6,8 +6,8 @@
       <div class="form-row align-items-center border rounded p-2">
         <div class="col-auto">
           <a class="btn btn-link color-custom" data-toggle="collapse" href="#colUsersGroups" role="button" aria-expanded="false" aria-controls="colUsersGroups">
-            <em class="border border-primary rounded p-1 fa-solid fa-arrows-up-down"></em>
-              Show/hide <strong><?= count($_SESSION['users_groups']) ?></strong> users...
+            <em class="border border-primary rounded p-2 fa-solid fa-arrows-up-down"></em>
+            Show/hide <strong><?= count($_SESSION['users_groups']) ?></strong> users...
           </a>
         </div>
         <div class="col-auto">
