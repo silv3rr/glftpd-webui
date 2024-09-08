@@ -100,16 +100,16 @@ if (isset($_SESSION['postdata'])) {
     foreach ($_SESSION['postdata'] as $name => $value) {
         if (cfg::get('debug') > 9) {
             if (is_scalar($name)) {
-                debug->print(pos: 'controller scalar', name: $name);
+                $debug->print(pos: 'controller scalar', name: $name);
             }
             if (is_array($name)) {
-                debug->print(pos: 'controller array', name: $name);
+                $debug->print(pos: 'controller array', name: $name);
             }
             if (is_scalar($value) && !empty($value)) {
-               debug->print(pos: 'controller scalar', value: $name);
+               $debug->print(pos: 'controller scalar', value: $name);
             }
             if (is_array($value)) {
-                debug->print(pos: 'controller array', value: $name);
+                $debug->print(pos: 'controller array', value: $name);
             }
         }
         // sitewho, tty, other cmds
