@@ -479,18 +479,6 @@ if (isset($_SESSION['postdata'])) {
             unset($_SESSION['postdata']['userGrpCmd']);
         } //end userGrpCmd
         if ($name === 'grpCmd') {
-            $debug->print(pos: 'controller', msg: 'got grpCmd');
-            // sort users and groups arrays
-            if (preg_match('/^sort_.+\|.+$/', $value)) {
-                preg_match('/sort_(?<list>.+)\|(?<order>(?:a-z|z-a|group))/', $value, $sort_matches);
-                if (isset($sort_matches)) {
-                    if (!empty($sort_matches['list']) && !empty($sort_matches['order'])) {
-                        sort_array($sort_matches);
-                    } else {
-                        unset($_SESSION['display_sort']);
-                    }
-                }
-            }
             $debug->print(pos: 'controller', msg: 'grpCmd', _SESSION_postdata: $_SESSION['postdata']);
             if ($value === 'group_add' && !empty($_SESSION['postdata']['group_add'])) {
                 $debug->print(pos: 'controller', msg: 'got group_add');
@@ -507,7 +495,21 @@ if (isset($_SESSION['postdata'])) {
             $_SESSION['update']['groups'] = true;
             unset($_SESSION['postdata']['grpCmd']);
         } //end grpCmd
-
+        // sort users and groups arrays
+        if ($name === 'sortList') {
+            $debug->print(pos: 'controller', msg: 'got grpCmd');
+            if (preg_match('/^sort_.+\|.+$/', $value)) {
+                preg_match('/sort_(?<list>.+)\|(?<order>(?:a-z|z-a|group))/', $value, $sort_matches);
+                $debug->print(pre: true, pos: 'controller', msg: 'grpCmd', sort_matches: $sort_matches);
+                if (isset($sort_matches)) {
+                    if (!empty($sort_matches['list']) && !empty($sort_matches['order'])) {
+                        sort_array($sort_matches);
+                    } else {
+                        unset($_SESSION['display_sort']);
+                    }
+                }
+            }
+        } //end sortList
         /*
         if (!empty($name)) {
             unset($_SESSION['postdata'][$name]);
