@@ -1,3 +1,0 @@
-[submodule "lib/auth/ip-lib"]
-	path = lib/auth/ip-lib
-	url = https://github.com/mlocati/ip-lib

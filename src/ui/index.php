@@ -36,11 +36,7 @@ if (cfg::get('debug') > 0) {
     ini_set('display_errors', 1);
     error_reporting(-1);
 }
-// TODO:
-// https://github.com/ozanhazer/PHP-Htpasswd
-// https://stackoverflow.com/questions/2994637/how-to-edit-htpasswd-using-php
-// $cfg::get('http_auth')['username'] $cfg::get('http_auth')['password']
-// file_put_contents("/etc/nginx/.htpasswd", $apr_md5)
+
 
 use shit\debug;
 use shit\data;
@@ -53,9 +49,22 @@ require_once 'format.php';
 require_once 'get_data.php';
 require_once 'show.php';
 require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter.php';
+require_once 'lib/PHP-Htpasswd/Htpasswd.php';
 
 $debug = new debug;
 $data = new data;
+$htpasswd = new Htpasswd('/etc/nginx/.htpasswd');
+
+
+// TODO: update http auth user/pass using php
+/*
+} if (cfg::get('http_auth')['username'] !== 'shit') {
+    $htpasswd->addUser(cfg::get('http_auth')['username'], cfg::get('http_auth')['password'], Htpasswd::ENCTYPE_APR_MD5);   
+} elseif (cfg::get('http_auth')['username'] == 'shit' && cfg::get('http_auth')['password'] !== 'EatSh1t') {
+    $htpasswd->updateUser('shit', cfg::get('http_auth')['password'], Htpasswd::ENCTYPE_APR_MD5);
+}
+*/
+
 
 // mode: docker(docker_commands.php) or local(local_commands.php)
 // arrays with strtr {$vars}

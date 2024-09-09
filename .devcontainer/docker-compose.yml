@@ -57,8 +57,8 @@ services:
       - ./src/ui:/app:cached
       - ./src/ui/config.php:/app/config.php:cached
       - ./src/auth:/auth:cached
-      - ./lib/ui:/app/lib:cached
-      - ./lib/auth:/auth/lib:cached
+      - ./lib:/app/lib:cached
+      - ./lib/ip-lib/:/auth/lib/ip-lib:cached
       - ./templates:/app/templates:cached
       - ./assets:/app/assets:cached
       # use local gldir
