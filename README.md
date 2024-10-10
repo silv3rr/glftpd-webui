@@ -24,8 +24,8 @@ Pick one of these 3 options
 
 **1**) The easiest and preferred way to use glftpd-webui is to run both glftpd and webui in 2 docker containers.
 
-> Oh, look -- here's a *Ready-to-go **complete glftpd install**, including webui:
-> <https://github.com/silv3rr/docker-glftpd>*
+> Oh, look -- here's a *Ready-to-go **complete glftpd install**, including webui:*
+> <https://github.com/silv3rr/docker-glftpd>
 
 **2**) If you do not want to use glftpd in docker, use 'local' mode (glftpd-webui itself will still run in container)
 
