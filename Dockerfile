@@ -2,33 +2,41 @@
 # >>  DOCKERFILE-GLFTPD-WEBUI :: WEBUI
 ###################################################################   ####  # ##
 
+# alpine (default)
+# user: nginx uid=100 gid=101 home=/var/lib/nginx
+
 # install nginx, php and gl webui app
 
 ARG WEBUI_PORT
 ARG WEBUI_CERT
 FROM alpine:3.18
-HEALTHCHECK CMD wget -qO /dev/null http://127.0.0.1/health
+HEALTHCHECK CMD busybox wget -qO /dev/null http://127.0.0.1/health
 LABEL org.opencontainers.image.source=https://github.com/silv3rr/glftpd-webui
 LABEL org.opencontainers.image.description="Web-gui to manage glftpd"
 EXPOSE ${WEBUI_PORT:-443}
 WORKDIR /app
+# nginx=100:101 nobody=65534:65534 ping=999:999
 COPY --chown=0:0 bin/entrypoint.sh /
 COPY --chown=0:0 bin/auth.sh /
-COPY --chown=0:0 etc/sudoers.d/glftpd-web /etc/sudoers.d
+COPY --chown=0:0 etc/sudoers.d/glftpd-web /etc/sudoers.d/
 COPY --chown=0:0 etc/nginx /etc/nginx
+COPY --chown=0:0 etc/nginx/http.d/webui.conf.template /etc/nginx/http.d/webui.conf
 COPY --chown=0:0 etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/auth-server.conf
 COPY --chown=0:0 etc/nginx/auth.d/auth_off.conf.template /etc/nginx/auth.d/auth_off.conf
 COPY --chown=0:0 etc/nginx/auth.d/auth_basic.conf.template /etc/nginx/auth.d/auth_basic.conf
-COPY --chown=0:0 bin/gltool.sh bin/gotty bin/passchk bin/pywho bin/spy etc/spy.conf /usr/local/bin/
+COPY --chown=0:0 bin/gltool.sh bin/gotty bin/alpine/passchk bin/alpine/pywho bin/alpine/spy etc/pywho.conf etc/spy.conf /usr/local/bin/
+COPY --chown=0:0 etc/dot_gotty /var/lib/nginx/.gotty
 #COPY --chown=0:0 etc/webspy/ /usr/local/bin/webspy/
 COPY --chown=100:101 assets/ /app/assets/
 #COPY --chown=100:101 --exclude=ip-lib lib/ /app/lib/
 COPY --chown=100:101 lib/ /app/lib/
 COPY --chown=100:101 src/ui /app/
-COPY --chown=100:101 src/ui/config.php.dist /app/config.php
+COPY --chown=100:101 src/config.php.dist /app/config.php
 COPY --chown=100:101 templates/ /app/templates/
 COPY --chown=100:101 src/auth /auth/
-COPY --chown=100:101 lib/ip-lib/ /auth/lib/ip-lib/
+#COPY --chown=100:101 lib/apr1-md5 lib/ip-lib lib/PHP-Htpasswd /auth/lib/
+COPY --chown=100:101 lib/ip-lib /auth/lib/
+COPY --chown=100:101 README.md docs /app/templates/
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # hadolint ignore=SC2016,SC2086,DL3018
 RUN test -n "$http_proxy" && { \
@@ -74,5 +82,6 @@ RUN test -n "$http_proxy" && { \
   echo 'shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740' > /etc/nginx/.htpasswd && \
   chown 65534:root /etc/nginx/.htpasswd && \
   addgroup nobody ping && \
-  rm -rf /tmp/* /var/tmp/*
+  #rm -rf /tmp/* /var/tmp/* /app/lib/apr1-md5 /app/lib/ip-lib app/lib/PHP-Htpasswd
+  rm -rf /tmp/* /var/tmp/* /app/lib/ip-lib
 ENTRYPOINT [ "/entrypoint.sh" ]
