@@ -37,54 +37,126 @@ if (cfg::get('debug') > 0) {
     error_reporting(-1);
 }
 
+require_once 'helpers.php';
 
 use shit\debug;
 use shit\data;
 use shit\docker;
 use shit\local;
-use shit\controller;
+//use shit\controller;
 
 require_once 'debug.php';
 require_once 'format.php';
 require_once 'get_data.php';
 require_once 'show.php';
 require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter.php';
-require_once 'lib/PHP-Htpasswd/Htpasswd.php';
+require_once 'lib/parsedown-1.7.4/Parsedown.php';
 
 $debug = new debug;
 $data = new data;
-$htpasswd = new Htpasswd('/etc/nginx/.htpasswd');
+$Parsedown = new Parsedown();
 
+// TODO: change config with form and or env vars
 
-// TODO: update http auth user/pass using php
-/*
-} if (cfg::get('http_auth')['username'] !== 'shit') {
-    $htpasswd->addUser(cfg::get('http_auth')['username'], cfg::get('http_auth')['password'], Htpasswd::ENCTYPE_APR_MD5);   
-} elseif (cfg::get('http_auth')['username'] == 'shit' && cfg::get('http_auth')['password'] !== 'EatSh1t') {
-    $htpasswd->updateUser('shit', cfg::get('http_auth')['password'], Htpasswd::ENCTYPE_APR_MD5);
-}
+/* change config, example:
+$config = cfg::load();
+$config = cfg::set($config, 'auth', 'none');
+$config = cfg::set($config, 'mode', 'docker');
+cfg::save($config);
 */
 
+if (cfg::get('auth') === 'basic') {
+    //copy('/etc/nginx/auth.d/auth_basic.conf.template', '/etc/nginx/auth.d/auth_basic.conf');
+    if (!file_exists('/etc/nginx/.htpasswd')) {
+        header("HTTP/1.0 404 Not Found", true, 404);
+        readfile('templates/error_404.html');
+        print("<pre><center><font color='red'>ERROR:</font> missing /etc/nginx/.htpasswd, <b>run 'auth.sh'</b></font></center></pre>");
+        exit;
+    }
+    if (!file_exists('/etc/nginx/auth.d/auth_basic.conf')) {
+        readfile('templates/error_404.html');
+        header("HTTP/1.0 404 Not Found", true, 404);
+        print("<pre><center><font color='red'>ERROR:</font> missing /etc/nginx/auth.d/auth_basic.conf, <b>run 'auth.sh'</b></font></center></pre>");
+        exit;
+    }
+}
 
-// mode: docker(docker_commands.php) or local(local_commands.php)
-// arrays with strtr {$vars}
-// replace pairs: 
-//    params -u {$username} -p {$password} -g {$group}   -i {$mask}   -f {$flags} -a {$gadmin}
-//           -p {$pgroup}   -t {$tagline}  -k {$credits} -l {$logins} -r {$ratio}
-//    global {$bin_dir} {$gl_ct} 
+if (cfg::get('auth') === 'both' || cfg::get('auth') === 'glftpd') {
+    //unlink(('/etc/nginx/auth.d/auth_basic.conf'));
+    //copy('/etc/nginx/auth.d/auth_basic.conf.template', '/etc/nginx/auth.d/auth_request.conf');
+    if (file_exists('/etc/nginx/auth.d/auth_basic.conf')) {
+        header("HTTP/1.0 500 Internal Server Error", true, 404);
+        readfile('templates/error_500.html');
+        print("<pre><center><font color='red'>ERROR:</font> misplaced /etc/nginx/auth.d/auth_basic.conf, <b>run 'auth.sh'</b></font></center>");
+        exit;
+    }
+    if (!file_exists('/etc/nginx/auth.d/auth_request.conf')) {
+        header("HTTP/1.0 404 Not Found", true, 404);
+        readfile('templates/error_404.html');
+        print("<pre><center><font color='red'>ERROR:</font> missing /etc/nginx/auth.d/auth_request.conf, <b>run 'auth.sh'</b></font></center></pre>");
+        exit;
+    }
+}
 
-// docker: check for .dockerenv and disable service controls if webui is running in ct
 
-$docker_sock_exists = false;
-$local_dockerenv_exists = false;
+if (cfg::get('debug') > 1) {
+    if (!empty($_POST)) {
+        $debug->print(pre: true, pos: 'index', _POST: $_POST);
+    }
+}
 
-if (cfg::get('mode') || cfg::get('mode') === "docker") {
-    $docker = new docker;
-    $docker_sock_exists = @fsockopen('unix:///run/docker.sock');
-} else {
+if (cfg::get('debug') > 0) {
+    ini_set('display_startup_errors', 1);
+    ini_set('display_errors', 1);
+    error_reporting(-1);
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* MODE
+/*--------------------------------------------------------------------------*/
+
+// docker : docker_commands.php / docker_api.php
+// local  : local_commands.php  / local_exec.php
+//          ( systemd dbus broker )
+//
+// the arrays with commands can contain {$vars} which get replaced using strtr
+//
+// Note: there's an additional setup option where systemd uses '{$env_bus} systemctl'
+// in container to stop|start glftpd on host, this only works with debian image
+//
+// use 'replace_pairs' to set params:
+//   -u {$username} -p {$password} -g {$group}   -i {$mask}   -f {$flags} -a {$gadmin}
+//   -p {$pgroup}   -t {$tagline}  -k {$credits} -l {$logins} -r {$ratio} ...
+//   + global {$bin_dir} {$gl_ct} {$runas}
+
+// docker mode: check docker socket
+// local mode : check dockerenv - if it exists assume webui runs in container,
+//                                but glftpd does not -> disable term cmds
+
+$docker_sock_exists = @fsockopen('unix:///run/docker.sock') ? true : false;
+$local_dockerenv_exists = is_file("/.dockerenv") ? true : false;
+$gldata_dir_exists = is_dir("./glftpd") ? true : false;
+$mode_config_set = cfg::get('mode') ? true : false;
+
+//$local_dbus_sock_exists = @fsockopen('unix:///run/dbus/system_bus_socket') ? true : false;
+//$local_systemctl_exists = is_file("/bin/systemctl")  ? true : false;
+
+// set fm paths
+
+$filemanager = array(
+    'dirs' => '',
+    'files' => '',
+);
+
+if (cfg::get('mode') === "local") {
     $local = new local;
-    $dockerenv = is_file("/.dockerenv");
-    $local_dockerenv_exists = ($dockerenv ? $dockerenv : false);
+    $filemanager = cfg::get('filemanager')['local'];
+} else {
+    $docker = new docker;
+    if ($gldata_dir_exists) {
+        $filemanager = cfg::get('filemanager')['docker'];
+    }
 }
 
 if (cfg::get('debug')) {
