@@ -1,7 +1,7 @@
 #!/bin/bash
-
+VERSION=V4
 ################################## ################################   ####  # ##
-# >> DOCKER-BUILD-GLFTPD-V3 :: WEBUI
+# >> DOCKER-BUILD-GLFTPD :: WEBUI
 ################################## ################################   ####  # ##
 #
 # ARGS+= " --any-flags " adds any docker build options
@@ -19,7 +19,7 @@ GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*
 ARGS+="$*"
 
 echo "----------------------------------------------"
-echo "DOCKER-GLFTPD-BUILD-V3"
+echo "DOCKER-GLFTPD-BUILD-${VERSION}"
 echo "----------------------------------------------"
 
 if [ "${BUILD_GLFTPD:-0}" -eq 1 ]; then
@@ -51,6 +51,17 @@ if [ "${INSTALL_WEBUI:-1}" -eq 1 ]; then
     $ARGS \
     --file Dockerfile \
     --cache-from "docker-glftpd-web:latest" \
+    --tag "docker-glftpd-web:latest" \
+    --build-arg WEBUI_CERT="${WEBUI_CERT:-1}" \
+    --build-arg http_proxy="${http_proxy:-$HTTP_PROXY}" \
+    .
+elif [ "${INSTALL_WEBUI:-1}" -eq 2 ]; then
+  echo "Build image 'docker-glftpd-web-debian'"
+  # shellcheck disable=SC2086
+  docker build \
+    $ARGS \
+    --file Dockerfile-debian \
+    --no-cache \
     --tag "docker-glftpd-web:latest" \
     --build-arg WEBUI_CERT="${WEBUI_CERT:-1}" \
     --build-arg http_proxy="${http_proxy:-$HTTP_PROXY}" \
