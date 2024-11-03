@@ -32,11 +32,11 @@ services:
   # always build dev web
 
   dev-web:
-    profiles: [dev]
+    #profiles: [dev]
     build:
       context: .
-      cache_from:
-        - docker-glftpd-web:latest
+      #cache_from:
+      #  - docker-glftpd-web:latest
       dockerfile: Dockerfile
       # uncomment to set port, auth mode, htpasswd etc
       # args:
@@ -55,16 +55,16 @@ services:
       #- ./etc/nginx/http.d:/etc/nginx/http.d:cached
       #- ./etc/nginx/auth.d:/etc/nginx/auth.d:cached
       - ./src/ui:/app:cached
-      - ./src/ui/config.php:/app/config.php:cached
+      - ./src/config.php:/app/config.php:cached
       - ./src/auth:/auth:cached
       - ./lib:/app/lib:cached
-      - ./lib/ip-lib/:/auth/lib/ip-lib:cached
+      #- ./lib/apr1-md5:/auth/lib/apr1-md5:cached
+      #- ./lib/PHP-Htpasswd:/auth/lib/PHP-Htpasswd:cached
+      - ./lib/ip-lib:/auth/lib/ip-lib:cached
       - ./templates:/app/templates:cached
       - ./assets:/app/assets:cached
       # use local gldir
       # - /jail/glftpd:/glftpd:cached
-      # XXX: (dev-test) use systemd from host
-      # - /run:/run
     ports:
       - 4444:443
     ulimits:
@@ -74,18 +74,69 @@ services:
     # uncomment to use host instead of bridge
     #  network_mode: host
     hostname: glftpd-web
-    depends_on: [dev-glftpd]
+    ##depends_on: [dev-glftpd]
 
-    # XXX: (dev-test) host systemd needs privileged mode, needs e.g. debian image
-    #      SYSTEMCTL_FORCE_BUS=1 systemctl stop foo.service
-    #      https://medium.com/opsops/accessing-host-system-systemd-from-containers-systemctl-492a1a385102
-    #  privileged: true
+
+  # debian image, systemd (dbus broker)
+  # https://medium.com/opsops/accessing-host-system-systemd-from-containers-systemctl-492a1a385102
+
+  dev-web-debian:
+    #profiles: [dev]
+    build:
+      context: .
+      #cache_from:
+      #  - docker-glftpd-web-debian:latest
+      dockerfile: Dockerfile-debian
+      args:
+        - WEBUI_PORT=4444
+    volumes:
+      - ./glftpd/glftpd.conf:/app/glftpd/glftpd.conf
+      - ./glftpd/sitebot/eggdrop.conf:/app/glftpd/sitebot/eggdrop.conf
+      - ./glftpd/sitebot/pzs-ng/ngBot.conf:/app/glftpd/sitebot/pzs-ng/ngBot.conf
+      - ./glftpd/site:/app/glftpd/site
+      # devcontainer
+      - /var/run/docker.sock:/var/run/docker.sock
+      #- ./etc/nginx/http.d:/etc/nginx/http.d:cached
+      #- ./etc/nginx/auth.d:/etc/nginx/auth.d:cached
+      - ./src/ui:/app:cached
+      - ./src/config.php:/app/config.php:cached
+      - ./src/auth:/auth:cached
+      - ./lib:/app/lib:cached
+      - ./lib/apr1-md5:/auth/lib/apr1-md5:cached
+      - ./lib/ip-lib:/auth/lib/ip-lib:cached
+      - ./lib/PHP-Htpasswd:/auth/lib/PHP-Htpasswd:cached
+      - ./templates:/app/templates:cached
+      - ./assets:/app/assets:cached
+      # use local gldir
+      - /jail/glftpd:/glftpd:cached
+      # XXX: (dev-test) systemd dbus broker
+      - /run/systemd:/run/systemd
+      - /run/dbus:/run/dbus
+      # not needed
+      #- /run:/run
+      #- /run/user:/run/user
+      #- /run/credentials:/run/credentials
+      #- /run/udev:/run/udev
+      #- /run/initctl:/run/initctl
+    #ports:
+    #  - 4444:443
+    ulimits:
+      nofile: { soft: 1024, hard: 1024 }
+    network_mode: host
+    hostname: glftpd-web
+    environment:
+      - WEBUI_PORT=4444
+    ##depends_on: [dev-glftpd]
+    # XXX: (dev-test) systemd dbus broker needs privileged mode
+    privileged: true
+    ipc: host
 
 
   # use existing gl image from docker-glftpd
 
   dev-glftpd:
-    profiles: [dev]
+    #profiles: [dev]
+    profiles: [SKIP]
     image: docker-glftpd:full
     volumes:
       - source: ./glftpd/site
@@ -128,18 +179,17 @@ services:
 
 
   # workaround to skip profiles from root docker-compose.yml
-
-  #glftpd:
-  #  profiles: ['SKIP']
-  #  image: ghcr.io/silv3rr/docker-glftpd:full
-  #  container_name: skip-glftpd
-  #web:
-  #  profiles: ['SKIP']
-  #  image: ghcr.io/silv3rr/docker-glftpd-web:latest
-  #  container_name: skip-glftpd-web
-
   # skip local-web, use devcontainer instead
 
-  #local-web:
-  #  image: docker-glftpd-web:latest
-  #  container_name: skip-local-web
+  glftpd:
+    profiles: ['SKIP']
+    image: ghcr.io/silv3rr/docker-glftpd:full
+    container_name: skip-glftpd
+  web:
+    profiles: ['SKIP']
+    image: ghcr.io/silv3rr/docker-glftpd-web:latest
+    container_name: skip-glftpd-web
+  local-web:
+    profiles: ['SKIP']
+    image: docker-glftpd-web:latest
+    container_name: skip-local-web
