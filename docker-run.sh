@@ -5,7 +5,7 @@
 ################################## ################################   ####  # ##
 # ENVIRONMENT VARIABLES:
 #
-# GLDIR="<path>"                   basedir for bind mounts (default=./glftpd)
+# GL_DATA="<path>"                 basedir for gl bind mounts (default=./glftpd)
 #                                  ( to reuse existing install set to /glftpd )
 # WEBUI_LOCAL=1                    run commands on same host, no gl docker [0|1]
 # WEBUI_AUTH_MODE="<mode>"         auth mode [basic|glftpd|both|none]  (basic)
@@ -17,7 +17,8 @@
 ###################################################################   ####  # ##
 
 #DEBUG=0
-#GLDIR="./glftpd"
+#GL_DATA="./glftpd"
+#GL_DIR="/glftpd"
 GLFTPD=0
 WEBUI=1
 #WEBUI_LOCAL=1
@@ -117,8 +118,8 @@ if [ "${GLFTPD_CONF:-0}" -eq 1 ] || [ "${ZS_STATUS:-0}" -eq 1 ]; then
     rmdir glftpd/glftpd.conf 2>/dev/null || { echo "! ERROR: \"glftpd.conf\" is a directory, remove it manually"; }
   fi
   if [ -f glftpd/glftpd.conf ]; then
-    GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/glftpd.conf,dst=/glftpd/glftpd.conf "
-    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/glftpd.conf,dst=/app/glftpd/glftpd.conf"
+    GLFTPD_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/glftpd.conf,dst=/glftpd/glftpd.conf "
+    WEBUI_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/glftpd.conf,dst=/app/glftpd/glftpd.conf"
   fi
 fi
 
@@ -137,22 +138,22 @@ fi
 
 if [ "${GLFTPD_PERM_UDB:-0}" -eq 1 ]; then
   REMOVE_CT=0
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/ftp-data/users,dst=/glftpd/ftp-data/users "
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/ftp-data/groups,dst=/glftpd/ftp-data/groups"
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/etc,dst=/glftpd/etc "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/ftp-data/users,dst=/glftpd/ftp-data/users "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/ftp-data/groups,dst=/glftpd/ftp-data/groups"
+  GLFTPD_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/etc,dst=/glftpd/etc "
 fi
 
 # shellcheck disable=SC2174
 if [ "${GLFTPD_SITE:-0}" -eq 1 ]; then
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/site,dst=/glftpd/site:rw "
-  WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/site,dst=/app/glftpd/site "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/site,dst=/glftpd/site:rw "
+  WEBUI_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/site,dst=/app/glftpd/site "
 else
   WEBUI_ARGS+=" --mount type=tmpfs,dst=/app/glftpd/site/NO_BIND_MOUNT "
 fi
 
 if [ "${BOT_STATUS:-0}" -eq 1 ]; then
   REMOVE_CT=0
-  GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/sitebot,dst=/glftpd/sitebot "
+  GLFTPD_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/sitebot,dst=/glftpd/sitebot "
   GLFTPD_ARGS+=" --publish ${IP_ADDR}:3333:3333 "
   for i in glftpd/sitebot/eggdrop.conf glftpd/sitebot/pzs-ng/ngBot.conf ; do
     if [ -d "$i" ]; then
@@ -160,22 +161,22 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
     fi
   done
   if [ -f glftpd/sitebot/eggdrop.conf ]; then
-    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/sitebot/eggdrop.conf,dst=/app/glftpd/sitebot/eggdrop.conf "
+    WEBUI_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/sitebot/eggdrop.conf,dst=/app/glftpd/sitebot/eggdrop.conf "
   fi
   if [ -f glftpd/sitebot/pzs-ng/ngBot.conf ]; then
-    WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/sitebot/pzs-ng/ngBot.conf,dst=/app/glftpd/sitebot/pzs-ng/ngBot.conf "
+    WEBUI_ARGS+=" --mount type=bind,src=${GL_DATA:-./glftpd}/sitebot/pzs-ng/ngBot.conf,dst=/app/glftpd/sitebot/pzs-ng/ngBot.conf "
   fi
 fi
 
 WEBUI_ARGS+=" --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock "
 WEBUI_ARGS+=" --env WEBUI_AUTH_MODE=${WEBUI_AUTH_MODE:-basic} "
 
-# custom glftpd commands
+# custom runtime scripts and glftpd commands
 
 if [ -d entrypoint.d ]; then
   REMOVE_CT=0
   GLFTPD_ARGS+=" --mount type=bind,src=$(pwd)/entrypoint.d,dst=/entrypoint.d "
-  echo "* Mount 'entrypoint.d' dir for custom commands"
+  echo "* Mount 'entrypoint.d' dir for custom scripts"
 fi
 
 if [ -d custom ]; then
