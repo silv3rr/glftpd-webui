@@ -7,12 +7,14 @@
 // TODO:
 // add self service for users (addip, invite), use gl auth
 // switch to mvc framework (laravel|symfony)
+// change config.php with env vars
 
 
 /*--------------------------------------------------------------------------*/
 /* DEBUG
 /*--------------------------------------------------------------------------*/
 // reset session https://localhost/index.php?reset=1
+// print('<pre>' . print_r(get_declared_classes(), true) . '</pre>');
 // var_dump(session_status());
 
 
@@ -35,11 +37,9 @@ require_once 'format.php';
 require_once 'get_data.php';
 require_once 'show.php';
 require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter.php';
-require_once 'lib/parsedown-1.7.4/Parsedown.php';
 
 $debug = new debug;
 $data = new data;
-$Parsedown = new Parsedown();
 
 // TODO: change config with form and or env vars
 
@@ -149,8 +149,7 @@ if (cfg::get('debug')) {
     $debug->print(
         pos: 'index',
         debug_lvl: "<strong>" . cfg::get('debug') . "</strong>",
-        debug_mode: "'<strong>" . cfg::get('mode') . "</strong>'",
-        local_dockerenv_exists: "'<strong>" . $local_dockerenv_exists . "</strong>'",
+        mode: "'<strong>" . cfg::get('mode') . "</strong>'",
         auth: "'<strong>" . cfg::get('auth') . "</strong>'",
         file: __FILE__
     );
@@ -166,14 +165,8 @@ if (cfg::get('debug') > 9) {
         _SERVER_HTTP_X_FORWARDED_FOR: $_SERVER['HTTP_X_FORWARDED_FOR'],
         _SERVER_REQUEST_METHOD: $_SERVER['REQUEST_METHOD'],
     );
-    $debug->print(pos: 'index', pre: true, _SERVER: $_SERVER);
+    //$debug->print(pos: 'index', pre: true, _SERVER: $_SERVER);
     print "</span></small><br>" . PHP_EOL;
-}
-
-if (cfg::get('debug') > 1) {
-    if (!empty($_POST)) {
-        $debug->print(pre: true, pos: 'index', _POST: $_POST);
-    }
 }
 
 
@@ -233,11 +226,12 @@ if (cfg::get('debug') > 9 && !empty($_SESSION['postdata'])) {
     $debug->print(pos: 'index-2', array_sum__array_map__is_array__SESSION_postdata: array_sum(array_map('is_array', $_SESSION['postdata'])));
     $debug->print(pos: 'index-2', array_sum__array_map__is_object__SESSION_postdata: array_sum(array_map('is_object', $_SESSION['postdata'])));
     $debug->print(pos: 'index-2', count__SESSION_postdata: count($_SESSION['postdata']));
+    $debug->print(pos: 'index-2', _SESSION_status: $_SESSION['status']);
 }
 
 
 /*--------------------------------------------------------------------------*/
-/* TGEST
+/* TEST
 /*--------------------------------------------------------------------------*/
 
 $__test = null;
@@ -291,6 +285,11 @@ if ((cfg::get('debug') > 1) && (isset($_SESSION['postdata']))) {
 //$debug->print(pre: true, pos: 'index', _SESSION_results: $_SESSION['results'], , _SESSION_cmd_output: $_SESSION['cmd_output']);
 //$debug->print(pre: true, pos: 'index', _SESSION: $_SESSION);
 
+
+/*--------------------------------------------------------------------------*/
+/* DATA
+/*--------------------------------------------------------------------------*/
+
 // get data from glftpd files
 
 $_SESSION['update'] = array(
@@ -310,7 +309,7 @@ foreach (['tagline', 'credits', 'logins', 'ratio'] as $field) {
 }
 $data->get_users();
 $data->get_groups();
-$data->get_pgroups();   
+$data->get_pgroups();
 $data->get_users_groups();
 $data->get_status();
 
@@ -351,8 +350,9 @@ if (isset($_SESSION['update']['user_group']) && $_SESSION['update']['user_group'
 }
 
 show_notifications(
+    mode_config_set: $mode_config_set,
     docker_sock_exists: $docker_sock_exists,
-    local_dockerenv_exists: $local_dockerenv_exists
+    local_dockerenv_exists: $local_dockerenv_exists,
 );
 
 unset($_SESSION['results']);
