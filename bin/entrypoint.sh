@@ -17,5 +17,11 @@ cp -f /etc/nginx/http.d/webui.conf.template /etc/nginx/http.d/webui.conf
 sed -i "s/\( *listen\) .* ssl;$/\1 ${WEBUI_PORT:-443} ssl;/" /etc/nginx/http.d/webui.conf
 test -x /auth.sh && /auth.sh
 
+if [ ! -S /var/run/php/php-fpm.sock ]; then
+    { sleep 2; \
+        PHP_FPM_SOCK=$(echo /var/run/php/php*-fpm.sock); \
+        test -S "$PHP_FPM_SOCK" && ln -s "$PHP_FPM_SOCK" /var/run/php/php-fpm.sock
+    } &
+fi
 $(echo /usr/sbin/php-fpm*) -F &
 nginx -g "daemon off;"
