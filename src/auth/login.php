@@ -33,9 +33,22 @@ require_once '/app/config.php';
             </form>
         </div>
     <?php endif ?>
-    <?php if ($cfg['auth'] === "basic"): ?>
+
+    <?php if (!empty($_SESSION['auth_mode_result']) && $_SESSION['auth_mode_result'] === "1" ): ?>
         <div class="alert alert-info" role="alert">
-            Goto <a href='/' class="alert-link">main page</a>
+           Auth mode changed
+           <?php unset($_SESSION['auth_mode_result']); ?>
+        </div>
+    <?php endif ?>
+    <?php if (!empty($_SESSION['http_passwd_result']) && $_SESSION['http_passwd_result'] === "1" ): ?>
+        <div class="alert alert-info" role="alert">
+           Http auth password changed
+           <?php unset($_SESSION['http_passwd_result']); ?>
+        </div>
+    <?php endif ?>
+    <?php if (!isset($cfg['auth']) || empty($cfg['auth'])): ?>
+        <div class="alert alert-danger" role="alert">
+            <strong>Auth mode not set in config.php</strong>
         </div>
     <?php elseif ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both"): ?>
         <?php if (empty($_SESSION['glftpd_auth_result'])): ?>
@@ -118,10 +131,38 @@ require_once '/app/config.php';
                         <input type="text" id="glftpd_user" name="glftpd_user" placeholder="my-glftpd-username" class="form-control">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="glftpd_password" class="ml-2">Password:</label>
-                    <div class="col-3">
-                        <input type="password" id="glftpd_password" name="glftpd_password" placeholder="secr3t" class="form-control">
+
+                <?php if ((!empty($_SESSION['http_auth_result']) && ($_SESSION['http_auth_result'] === "1")) || (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")): ?>
+                    <div class="group">
+                    <h5 class="text-muted">Change settings</h5>
+                        <div class="form-group">
+                            <div class="form-row align-items-center mb-1">
+                                <label for="auth_mode" class="form-text text-muted ml-2">Auth method:</label>
+                                <div class="col-auto ml-5">
+                                    <select class="form-control form-control" id="auth_mode" name="auth_mode">
+                                        <?php foreach (['basic', 'glftpd', 'both', 'none'] as $mode ): ?>
+                                            <option <?= ($cfg['auth'] == $mode ? 'selected class="selected"' : '') ?> value="<?= $mode ?>"><?= $mode ?></option>
+                                        <?php endforeach ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row align-items-center mb-1">
+                                <label for="http_user" class="form-text text-muted ml-2">HTTP auth user:</label>
+                                <div class="col-auto ml-4">
+                                    <input type="input" class="form-control" id="http_user" name="http_user" placeholder="my-user" value=<?= (!empty($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : "" ?>>
+                                </div>
+                            </div>
+                            <div class="form-row align-items-center mb-1">
+                                <label for="http_passwd" class="form-text text-muted ml-2">HTTP auth password:</label>
+                                <div class="col-auto">
+                                    <input type="password" class="form-control" id="http_passwd" name="http_passwd" placeholder="my-http-p4sswd"/>
+                                </div>
+                            </div>
+                            <div id="help" class="form-text text-muted small mt-1 ml-1">In case of issues run '<strong>auth.sh</strong>' (e.g. reset password or rollback auth method)</div>
+                            <p></p>
+                            <button type="submit" formaction="/auth/index.php" class="btn btn-outline-secondary">Apply</button>
+                            <p></p>
+                        </div>
                     </div>
                 </div>
                 <input type="submit" value="Login" class="btn btn-primary"/>

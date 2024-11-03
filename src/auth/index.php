@@ -54,8 +54,8 @@ if(!empty($auth_debug) && $auth_debug === 1) {
     print "<pre>DEBUG: auth/index.php \$_SERVER['PHP_AUTH_PW']={$_SERVER['PHP_AUTH_PW']}</pre>";
 }
 
-if (!empty(($_SESSION['basic_auth_result'])) && !is_string($_SESSION['basic_auth_result'])) {
-    unset($_SESSION['basic_auth_result']);
+if (!empty(($_SESSION['http_auth_result'])) && !is_string($_SESSION['http_auth_result'])) {
+    unset($_SESSION['http_auth_result']);
 }
 
 if (!empty(($_SESSION['glftpd_auth_result'])) && !is_string($_SESSION['glftpd_auth_result'])) {
@@ -64,13 +64,77 @@ if (!empty(($_SESSION['glftpd_auth_result'])) && !is_string($_SESSION['glftpd_au
 
 // auth disabled
 
-if (empty($cfg['auth']) || ($cfg['auth'] === 'none')) {
-    http_response_code(200);
-    exit;
+unset($_SESSION['http_passwd_result']);
+
+if (!empty($auth_debug) && $auth_debug === 1) {
+    print("<pre>DEBUG: auth index.php \$_POST['auth_mode']=" . $_POST['auth_mode'] . " \$_POST['http_passwd']=" . $_POST['http_passwd'] . "</pre>");
+    print("<pre>DEBUG: auth index.php \$_SESSION_['http_auth_result']=" . $_SESSION['http_auth_result'] . " \$_SESSION['glftpd_auth_result']=" . $_SESSION['glftpd_auth_result'] . "</pre>");
 }
 
-if (empty($cfg['auth']) || ($cfg['auth'] === 'glftpd')) {
-    unset($_SESSION['basic_auth_result']);
+if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1") &&
+    (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) {
+
+    $auth_mode = (isset($_POST['auth_mode'])) ? htmlspecialchars(trim($_POST['auth_mode'])) : NULL;
+    $http_user = (isset($_POST['http_user'])) ? htmlspecialchars(trim($_POST['http_user'])) : NULL;
+    $http_passwd = (isset($_POST['http_passwd'])) ? htmlspecialchars(trim($_POST['http_passwd'])) : NULL;
+
+    print("<pre>DEBUG: auth index.php \$auth_mode={$auth_mode}</pre>");
+    if (!empty($auth_mode)) {
+        $replace_pairs = array('{$mode}' => $auth_mode);
+        if (isset($docker)) {
+            $result = call_user_func_array([$docker, 'func'], array(['auth_mode', $replace_pairs]));
+        } elseif (isset($local)) {
+            $result = call_user_func_array([$local, 'func'], array(['auth_mode', $replace_pairs]));
+        }
+        //print("<pre>DEBUG: auth index.php auth_mode result=" . print_r($result, true) . "</pre>");
+        unset($auth_mode);
+        unset($_POST['auth_mode']);
+        unset($_SESSION['http_auth_result']);
+        unset($_SESSION['userfile']);
+        unset($_SESSION['glftpd_auth_result']);
+        unset($_SESSION['glftpd_auth_user']);
+
+        //logout
+        if (isset($_SERVER['HTTP_COOKIE'])) {
+            $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+            foreach($cookies as $cookie) {
+                $parts = explode('=', $cookie);
+                $name = trim($parts[0]);
+                setcookie($name, '', time()-1000);
+                setcookie($name, '', time()-1000, '/');
+            }
+        }
+        unset($_GET);
+        unset($_POST);
+        if (isset($_SESSION)) {
+            unset($_SESSION);
+            session_destroy();
+        }
+
+        $_SESSION['auth_mode_result'] = "1";
+        exit;
+        //if(!empty($auth_debug) && $auth_debug !== 1) {
+        //    header("Location: /auth/login.php", 200);
+        //    exit;
+        //}
+    }
+
+    if (!empty($http_user) || !empty($http_passwd)) {
+        $contents = file_get_contents('/app/config.php');
+        $search = "/('http_auth'.*=>.*)\['username'.*=>.*'password'.*=>.*\],/";
+        $replace = "$1" . "['username' => '" . $http_user . "' , 'password' => '". $http_passwd . "'],";
+        $result = preg_replace($search, $replace, $contents);
+        //print('<pre>DEBUG: auth index.php http_passwd \$result=' . print_r($result, true) . '</pre>');
+        unset($http_user);
+        unset($http_passwd);
+        unset($_POST['http_passwd']);
+        unset($_SESSION['http_auth_result']);
+        $_SESSION['http_passwd_result'] = "1";
+        file_put_contents('/app/config.php', $result);
+        //header("Location: /auth/login.php", 200);
+        http_response_code(200);
+        exit;
+    }
 }
 
 if (!empty($cfg['auth'])) {
