@@ -6,32 +6,31 @@
 
 namespace shit;
 
+use \cfg;
 use shit\debug;
 
 require_once 'local_exec.php';
 require_once 'debug.php';
 
 class local {
-    private $cfg;
     private array $commands;
+    private $debug;
 
     function __construct() {
-        $this->cfg = require 'config.php';
         $this->commands = require 'local_commands.php';
         $this->debug = new debug;
         $this->debug->count = 0;
-         
     }
 
     public function test_ftp(string $host, string $port): bool {
-        if (@ftp_connect($host, $port, 3)) {
+        if (@ftp_connect($host, (int)$port, 3)) {
             return true;
         }
         return false;
     }
 
     public function test_port(string $host, string $port): bool {
-        if (@fsockopen($host, $port, $errno, $errstr, 3)) {
+        if (@fsockopen($host, (int)$port, $errno, $errstr, 3)) {
             return true;
         }
         return false;
@@ -71,8 +70,12 @@ class local {
         $command = $this->commands[$action];
         if (isset($command)) {
             $replace_pairs = array(
-                '{$bin_dir}' => $this->cfg['local']['bin_dir'],
-                '{$runas}' => $this->cfg['local']['runas_user'],
+                '{$runas}' => cfg::get('local')['runas'],
+                '{$bin_dir}' => cfg::get('local')['bin_dir'],
+                '{$gl_dir}' => cfg::get('local')['glftpd_dir'],
+                '{$gl_etc}' => cfg::get('local')['glftpd_etc'],
+                '{$sitebot_port}' => cfg::get('services')['sitebot']['port'],
+                '{$env_bus}' => (isset(cfg::get('local')['env_bus']) ? cfg::get('local')['env_bus'] : ""),
             );
             if (is_array($args)) {
                 $args[1] = array_merge($args[1], $replace_pairs);
@@ -80,10 +83,9 @@ class local {
             } else {
                 $command = strtr($command, $replace_pairs);
             }
-            $result = call_user_func_array(['self', 'exec'], [$command]);
+            $result = call_user_func_array(self::class . '::exec', [$command]);
             return $result;
         }
         return false;
     }
-
 }
