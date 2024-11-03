@@ -2,21 +2,25 @@
     --font-color: #424242;
     --bg-color: white;
 }
+
 body {
     background-color: var(--bg-color);
     color: var(--font-color);
     margin-left: 6px;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
+
 iframe {
     display: block;
     margin: 0 auto;
     border: 0;
 }
+
 h1 {
     text-decoration: underline;
     text-decoration-color: lightblue;
 }
+
 h6 {
     color: black;
     background-color: #dfdddd;
@@ -25,11 +29,13 @@ h6 {
     margin-top: 1px;
     margin-bottom: 8px;
 }
+
 h6.out {
     margin-left: 16px;
-    margin-bottom:0px !important;
+    margin-bottom: 0px !important;
     width: 900px;
 }
+
 pre.out {
     display: inline-block;
     background: black;
@@ -37,11 +43,13 @@ pre.out {
     width: 900px;
     margin-left: 16px;
 }
+
 #spy_api_result {
     display: inline-block;
     margin-left: 16px;
     width: auto;
 }
+
 pre.about {
     display: inline-block;
     width: 750px;
@@ -53,6 +61,7 @@ pre.about {
     padding-top: 50px;
     padding-bottom: 50px;
 }
+
 .subcat {
     font-size: 1.1rem;
     font-weight: 500;
@@ -65,17 +74,21 @@ pre.about {
     margin-bottom: 8px;
     background-color: #dfdddd;
 }
+
 .log_tmpl {
     display: block !important;
 }
+
 body.log {
     width: 90%;
 }
+
 h6.log {
-    margin-bottom:0px !important;
+    margin-bottom: 0px !important;
     width: auto;
     margin-left: 16px;
 }
+
 pre.log {
     display: inline-block;
     background: black;
@@ -83,23 +96,33 @@ pre.log {
     width: auto;
     margin-left: 16px;
 }
-button, input, optgroup, select, textarea {
+
+button,
+input,
+optgroup,
+select,
+textarea {
     border-radius: 6px;
 }
+
 .btn-custom {
     color: #fff;
     background-color: #9b9b9b;
     border-color: #9b9b9b;
 }
+
 .btn-custom:hover {
     color: #ccc;
     background-color: #6c757d;
     border-color: #6f757d;
 }
-.btn-back, .btn-top, .btn-end {
+
+.btn-back,
+.btn-top,
+.btn-end {
     left: 85%;
     font-size: 1.2em;
-    background-color :#eaeaeacc;
+    background-color: #eaeaeacc;
     padding-top: 3px;
     padding-bottom: 3px;
     padding-left: 5px;
@@ -107,40 +130,52 @@ button, input, optgroup, select, textarea {
     font-weight: bolder;
     color: #007bff;
 }
+
 .btn-back {
     top: 5%;
 }
+
 .btn-top {
     bottom: 15%;
 }
+
 .btn-end {
     bottom: 5%;
 }
-.btn-top:hover, .btn-end:hover {
+
+.btn-top:hover,
+.btn-end:hover {
     color: #0056b3;
     text-decoration: underline;
 }
-.btn-link, .btn-txt {
-    background: none!important;
+
+.btn-link,
+.btn-txt {
+    background: none !important;
     border: none;
     padding: 0px;
     margin: 0px;
     font-size: 1rem;
     cursor: pointer;
 }
-.btn-link:hover, .btn-txt:hover {
-    color: #37374b!important;
+
+.btn-link:hover,
+.btn-txt:hover {
+    color: #37374b !important;
 }
+
 .btn-txt {
     text-decoration: none;
 }
+
 .btn-txt:hover {
     /* font-weight: bolder; */
     /* text-decoration: underline; */
-    background-color: #ccc!important;
+    background-color: #ccc !important;
 }
 
-.btn-collapse, .btn-refresh {
+.btn-collapse,
+.btn-refresh {
     font-size: 1.25rem;
     color: black;
     background-color: #b8d7df;
@@ -150,31 +185,40 @@ button, input, optgroup, select, textarea {
     border-color: gray;
     border: 10px;
 }
+
 .btn-collapse .fa-chevron-up {
     display: none;
 }
+
 .btn-collapse:hover {
     color: white;
     background-color: #1f7cd3;
 }
+
 .btn-refresh {
     font-size: 1rem;
     padding: 6px;
     background-color: #cfdee2;
 }
-.btn-refresh:hover, .btn-refresh a:hover {
+
+.btn-refresh:hover,
+.btn-refresh a:hover {
     color: white;
 }
+
 .btn-refresh a {
     color: inherit;
     text-decoration: none;
     background-color: inherit;
 }
+
 label {
     margin-bottom: 0px;
     margin-right: 8px;
 }
-input, button {
+
+input,
+button {
     margin-left: 5px;
 }
 
@@ -198,22 +242,29 @@ input, button {
     display: inline-block;
     width: 1000px;
 }
+
 .status a {
     color: black;
 }
+
 .status a:hover {
     color: #0056b3;
 }
-.status #up, #down, #open, #ts {
+
+.status #up,
+#down,
+#open,
+#ts {
     display: inline-block;
     margin-left: 3px;
     margin-right: 3px;
     padding-left: 3px;
     padding-right: 3px;
 }
+
 .status #mode {
-    display:inline-block;
-    background-color:#ccc;
+    display: inline-block;
+    background-color: #ccc;
     /*font-size: 1.25rem;*/
     font-weight: 600;
     margin-left: 13px;
@@ -222,6 +273,7 @@ input, button {
     padding-left: 8px;
     padding-right: 8px;
 }
+
 .status #label {
     display: inline-block;
     margin-left: 4px;
@@ -229,15 +281,19 @@ input, button {
     font-size: 1.2em;
     text-decoration: underline;
 }
+
 .status #up {
     background-color: lightgreen;
 }
+
 .status #down {
     background-color: red;
 }
+
 .status #open {
     background-color: orange;
 }
+
 .status #theme {
     display: inline-block;
     width: 40px;
@@ -245,6 +301,7 @@ input, button {
     font-size: 0.9em;
     line-height: 12px;
 }
+
 .status #theme span {
     display: inline-flex;
     vertical-align: text-bottom;
@@ -254,22 +311,26 @@ input, button {
     padding-left: 6px;
 }
 
-.cmd {
+.group {
     padding: 15px;
     border: 1px dotted black;
     border-radius: 8px;
     width: 900px;
     margin-bottom: 40px;
 }
-.cmd #iptip {
+
+.group #iptip {
     width: 150px;
 }
-.cmd #iptip:hover {
+
+.group #iptip:hover {
     border: 2px solid gray;
 }
-.cmd #ip {
+
+.group #ip {
     margin-top: 10px;
 }
+
 .cbview {
     border: 2px solid gray;
     border-color: orangered;
@@ -277,9 +338,11 @@ input, button {
     width: 900px;
     text-align: center;
 }
+
 span.small {
     font-size: smaller;
 }
+
 hr.vsep {
     margin-left: 10px;
     margin-right: 10px;
@@ -287,21 +350,26 @@ hr.vsep {
     border-left: 2px dotted black;
     display: inline
 }
+
 .hspace {
     margin-bottom: 30px;
 }
+
 .fas {
     margin-right: 6px;
 }
+
 .fa-chevron-right {
     margin-right: 12px;
 }
+
 .enabled-group {
-    display:block;
-    margin-left:16px
+    display: block;
+    margin-left: 16px
 }
+
 .disabled-group {
-    display:none;
+    display: none;
 }
 
 .users {
@@ -309,6 +377,7 @@ hr.vsep {
     column-gap: 0%;
     column-span: none;
 }
+
 #api_result {
     display: none;
     position: fixed;
@@ -318,6 +387,7 @@ hr.vsep {
     padding: 10px;
     transform: translate(200px, 150px);
 }
+
 #api_result pre {
     color: white;
 }
@@ -345,22 +415,22 @@ button .btn-refresh {
 }
 
 .deluser {
-    cursor: unset!important;
+    cursor: unset !important;
 }
 
 a:focus {
-    color: purple!important;
+    color: purple !important;
 }
 
 .icon {
-    border: solid 1px!important;
-    border-radius:3px!important;
-    padding: 3px!important;
+    border: solid 1px !important;
+    border-radius: 3px !important;
+    padding: 3px !important;
 }
 
 .spy_menu {
     float: right;
-    background-color:var(--bg-color);
+    background-color: var(--bg-color);
 }
 
 /* THEME SWITCH */
@@ -372,9 +442,11 @@ a:focus {
     width: 38px;
     margin-bottom: -1px;
 }
+
 .theme-switch input {
-    display:none;
+    display: none;
 }
+
 .slider {
     background-color: #ccc;
     bottom: 0;
@@ -384,8 +456,9 @@ a:focus {
     right: 0;
     top: 0px;
     transition: .4s;
-    margin-bottom:-4px;
+    margin-bottom: -4px;
 }
+
 .slider:before {
     background-color: #fff;
     bottom: 0px;
@@ -397,16 +470,20 @@ a:focus {
     width: 16px;
     top: 4px;
 }
-input:checked + .slider {
+
+input:checked+.slider {
     background-color: #66bb6a;
-    margin-bottom:-4px;
+    margin-bottom: -4px;
 }
-input:checked + .slider:before {
+
+input:checked+.slider:before {
     transform: translateX(16px);
 }
+
 .slider.round {
     border-radius: 17px;
 }
+
 .slider.round:before {
     border-radius: 50%;
 }

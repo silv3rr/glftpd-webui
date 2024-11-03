@@ -698,22 +698,26 @@ input, button {
     padding-left: 6px;
 }
 
-.cmd {
+.group {
     padding: 15px;
     border: 1px dotted black;
     border-radius: 8px;
     width: 900px;
     margin-bottom: 40px;
 }
-.cmd #iptip {  
+.group #auth {
+    margin-bottom: 50px !important;
+}
+.group #iptip {
     width: 150px;
 }
-.cmd #iptip:hover {
+.group #iptip:hover {
     border: 2px solid gray;
 }
-.cmd #ip {
+.group #ip {
     margin-top: 10px;
 }
+
 .cbview {
     border: 2px solid gray;
     border-color: orangered;
