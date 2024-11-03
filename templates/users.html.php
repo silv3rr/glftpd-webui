@@ -1,4 +1,4 @@
-<!-- users.html.php: User Management, part of main.html.php -->
+<!-- user management, included in main.html.php -->
 
 <div class="col-auto">
   <?php if (!empty($_SESSION['users_groups'])): ?>

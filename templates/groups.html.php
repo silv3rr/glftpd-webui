@@ -1,4 +1,4 @@
-<!-- groups.html.php: User Management, part of main.html.php -->
+<!-- user management - groups, included in main.html.php -->
 
 <div class="col-auto">
   <p></p>

@@ -1,4 +1,4 @@
-<!-- more_options.html.php: User Management, part of main.html.php -->
+<!-- user management more_options, included in main.html.php -->
 
 <div class="<?= ((cfg::get('show_more_opts')) ? 'show' : 'collapse') ?>" id="colMoreOpts">
   <div class="card card-body bg-custom">
@@ -6,7 +6,7 @@
       <div class="col-1">
         <label for="flag_add" class="col-form-label">Flags:</label>
       </div>
-    <?php if (!empty($data->get_user()) && $data->check_user() && isset($_SESSION['userfile'])): ?>
+  <?php if (!empty($data->get_user()) && $data->check_user() && isset($_SESSION['userfile'])): ?>
       <input type="hidden" name="flagCmd" value="flag_del" />
       <?php $userfile_flags = ((!empty($_SESSION['userfile'] && !empty($_SESSION['userfile']['FLAGS']))) ? str_split($_SESSION['userfile']['FLAGS']) : []); ?> 
         <div class="col-4">
@@ -24,10 +24,10 @@
           </span>
         </div>
     </div>
-  <p></p>
+    <p></p>
   <?php else: ?>
-  <span class='col-form-label-sm text-muted'>&lt;user:none&gt;</span>
-  </div>
+    <span class='col-form-label-sm text-muted'>&lt;user:none&gt;</span>
+    </div>
   <?php endif ?>
   <p></p>
   <div class="form-row">
@@ -56,7 +56,7 @@
       <div class="form-inline">
         <input type="text" id="credits" name="credsCmd" <?= (!empty($data->get_user()) && $data->check_user() && !empty($_SESSION['credits']) ? 'value="' . $_SESSION['credits'] . '"' : 'placeholder="0"') ?> size="22" class="form-control">
         <span class="ml-2">
-          (<?= (!empty($data->get_user()) && $data->check_user() && !empty($_SESSION['credits']) && $_SESSION['credits'] > 0) ? fmt_bytes((int)$_SESSION['credits']) : "0b" ?>)
+          (def section: <strong><?= (!empty($data->get_user()) && $data->check_user() && !empty($_SESSION['credits']) && $_SESSION['credits'] > 0) ? format_bytes((int)$_SESSION['credits']) : "0b" ?></strong>)
         </span>
       </div>
     </div>
@@ -85,7 +85,7 @@
         <input type='checkbox' id='reset_user_stats' name='userCmd' value='reset_user_stats'>
       </span>
     </div>
-    <?php endif ?>
+  <?php endif ?>
   </div>
   <p></p>
   <div class="form-row align-items-center">
@@ -101,7 +101,7 @@
           <input type='checkbox' id='user_del' name='userCmd' value='user_del'>
         </span>
       </div>
-      <?php endif ?>
+    <?php endif ?>
     </div>
   </div>
 <p></p>
@@ -110,7 +110,7 @@
 <div class="form-row mb-4">
   <div class="col-auto">
     <a class='btn btn-link color-custom' data-toggle="collapse" href="#colMoreOpts" role="button" aria-expanded="false" aria-controls="colMoreOpts">
-      <em class="border border-primary rounded p-2 fa-solid fa-arrows-up-down"></em>
+      <em class="border border-primary rounded ml-3 p-2 fa-solid fa-arrows-up-down"></em>
       Show/hide more options
     </a>
   </div>
