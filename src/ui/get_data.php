@@ -6,6 +6,7 @@
 
 namespace shit;
 
+use \cfg;
 use shit\debug;
 use shit\local;
 use shit\docker;
@@ -15,9 +16,8 @@ require_once 'local_exec.php';
 require_once 'docker_api.php';
 
 class data {
-    private array $cfg;
+    private $debug;
     public function __construct() {
-        $this->cfg = require 'config.php';
         $this->get_user();
         $this->debug = new debug;
     }
@@ -30,43 +30,48 @@ class data {
     public function func($args): mixed {
         $result = "";
         $func_get_args = func_get_args();
-        $argv = $func_get_args;    
-   
-        if ($this->cfg['debug'] > 9) {
-            //$vars = [];
-            //$this->cfg = $args;
-            //$this->cfg = array_splice($func_get_args, 0, 1)[0];
-            //$argv = array_splice($func_get_args, 0, 1)[0];
-            $this->debug->print(pre: true, pos: 'get_data func', args: $args);
-            $this->debug->print(pre: true, pos: 'get_data func', func_get_args: $func_get_args);
-            $this->debug->print(pre: true, pos: 'get_data func', _this_cfg: var_dump($this->cfg));
-            $this->debug->print(pre: true, pos: 'get_data func', _args: var_dump($args));
-            $this->debug->print(pre: true, pos: 'get_data func', _argv: var_dump($argv));
-            //exit;
+        $argv = $func_get_args;
+
+        if (cfg::get('debug') > 8) {
+            $this->debug->print(pos: 'get_data func', args: $args);
         }
-        
+
+        // TODO: cleanup
+        /*
+        if (cfg::get('debug') > 9) {
+            $this->cfg = $args;
+            $this->cfg = array_splice($func_get_args, 0, 1)[0];
+            $argv = array_splice($func_get_args, 0, 1)[0];
+            $this->debug->print(pre: true, pos: 'get_data func', func_get_args: $func_get_args);
+            $this->debug->print(pre: true, pos: 'get_data func cfg::load()', _this_cfg: var_dump(cfg::load()));
+            $this->debug->print(pre: true, pos: 'get_data func args', _args: var_dump($args));
+            $this->debug->print(pre: true, pos: 'get_data func argv', _argv: var_dump($argv));
+            exit;
+        }
+        */
+
         // TODO: use reflection instead of call_user_func_array?
         //       https://www.php.net/manual/en/reflectionfunction.invokeargs.php
 
-        if ($this->cfg['mode'] == "local") {
+        if (cfg::get('mode') == "local") {
             $local = new local;
             switch ($argv[0]) {
-                case "ftpd":
+                case "glftpd":
                     $result = $local->test_ftp(
-                        $this->cfg['services']['ftpd']['host'],
-                        $this->cfg['services']['ftpd']['port']
+                        cfg::get('services')['glftpd']['host'],
+                        cfg::get('services')['glftpd']['port']
                     );
                     break;
                 case "irc":
                     $result = $local->test_port(
-                        $this->cfg['services']['irc']['host'],
-                        $this->cfg['services']['irc']['port']
+                        cfg::get('services')['irc']['host'],
+                        cfg::get('services')['irc']['port']
                     );
                     break;
                 case "sitebot":
                     $result = $local->test_port(
-                        $this->cfg['services']['sitebot']['host'],
-                        $this->cfg['services']['sitebot']['port']
+                        cfg::get('services')['sitebot']['host'],
+                        cfg::get('services')['sitebot']['port']
                     );
                     break;
                 default:
@@ -75,24 +80,28 @@ class data {
 
                     $result = call_user_func_array([$local, 'func'], $argv);
             }
-        } elseif ($this->cfg['mode'] == "docker") {
+        } elseif (cfg::get('mode') == "docker") {
             $docker = new docker;
             switch ($argv[0]) {
-                case "ftpd":
+                case "glftpd":
                     $result = $docker->test_port(
-                        $this->cfg['docker']['glftpd_container'],$this->cfg['services']['ftpd']['host'], $this->cfg['services']['ftpd']['port']
+                        cfg::get('docker')['glftpd_container'],
+                        cfg::get('services')['glftpd']['host'],
+                        cfg::get('services')['glftpd']['port']
                     );
                     break;
                 case "irc":
                     $result = $docker->test_port(
-                        $this->cfg['docker']['glftpd_container'],
-                        $this->cfg['services']['irc']['host'], $this->cfg['services']['irc']['port']
+                        cfg::get('docker')['glftpd_container'],
+                        cfg::get('services')['irc']['host'],
+                        cfg::get('services')['irc']['port']
                     );
                     break;
                 case "sitebot":
                     $result = $docker->test_port(
-                        $this->cfg['docker']['glftpd_container'],
-                        $this->cfg['services']['sitebot']['host'], $this->cfg['services']['sitebot']['port']
+                        cfg::get('docker')['glftpd_container'],
+                        cfg::get('services')['sitebot']['host'],
+                        cfg::get('services')['sitebot']['port']
                     );
                     break;
                 default:
@@ -149,7 +158,7 @@ class data {
         $users_groups_all = [];
         $result = $this->func('usersgroups_raw');
         //$this->debug->print(pos: 'get_data get_usersgroups', result: $result);
-        if(is_array($result)) {
+        if (is_array($result)) {
             foreach ($result as $get_user_group) {
                 //$get_user_group = trim(sanitize_string($get_user_group));
                 if (!empty($get_user_group)) {
@@ -170,7 +179,7 @@ class data {
             if (!empty($result)) {
                 foreach ($result as $line) {
                     $fields = explode(' ', $line, 2);
-                    if(empty($userfile[$fields[0]])) {
+                    if (empty($userfile[$fields[0]])) {
                         $userfile[$fields[0]] = $fields[1];
                     } else {
                         if (!is_array($userfile[$fields[0]])) {
@@ -192,7 +201,7 @@ class data {
         if ($this->check_user() && isset($_SESSION['userfile'])) {
             if (!empty($_SESSION['userfile'] && !empty($_SESSION['userfile']['GROUP']))) {
                 if (is_array($_SESSION['userfile']['GROUP'])) {
-                    foreach($_SESSION['userfile']['GROUP'] as $group_line) {
+                    foreach ($_SESSION['userfile']['GROUP'] as $group_line) {
                         $group_field = explode(' ', $group_line, 2);
                         if ($group_field[0] !== "NoGroup") {
                             $user_groups[$group_field[0]] = (($group_field[1]) ? ($group_field[1]) : "0");
@@ -224,11 +233,11 @@ class data {
         if ($this->check_user() && isset($_SESSION['userfile'])) {
             if (isset($_SESSION['userfile']['PRIVATE'])) {
                 if (is_array($_SESSION['userfile']['PRIVATE'])) {
-                    foreach($_SESSION['userfile']['PRIVATE'] as $pgroup) {
+                    foreach ($_SESSION['userfile']['PRIVATE'] as $pgroup) {
                         array_push($user_pgroups, $pgroup);
                     }
                 } else {
-                    $user_pgroups = [ $_SESSION['userfile']['PRIVATE'] ];
+                    $user_pgroups = [$_SESSION['userfile']['PRIVATE']];
                 }
             }
         }
@@ -239,7 +248,7 @@ class data {
         $masks = "";
         if ($this->check_user() && isset($_SESSION['userfile'])) {
             if (!empty($_SESSION['userfile'] && !empty($_SESSION['userfile']['IP']))) {
-                $masks = (is_array($_SESSION['userfile']['IP'])) ? $_SESSION['userfile']['IP'] : [ $_SESSION['userfile']['IP'] ];
+                $masks = (is_array($_SESSION['userfile']['IP'])) ? $_SESSION['userfile']['IP'] : [$_SESSION['userfile']['IP']];
             }
         }
         return $masks;
@@ -254,8 +263,8 @@ class data {
 
     public function get_status() {
         $_SESSION['status'] = null;
-        foreach (array_keys($this->cfg['services']) as $service) {
-            $_SESSION['status'][$service] = (($this->func($service)) ? "up" : "down") ;
+        foreach (array_keys((cfg::get('services')) ? cfg::get('services') : array()) as $service) {
+            $_SESSION['status'][$service] = (($this->func($service)) ? "up" : "down");
         }
         $result = $this->func('ps_gotty');
         if ((is_array($result)) && (!empty($result)) && (!preg_grep('/is not running/i', $result))) {
@@ -263,5 +272,4 @@ class data {
         }
         //$_SESSION['update']['status'] = true;
     }
-
 }

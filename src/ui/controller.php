@@ -23,12 +23,14 @@ function reset_session() {
 }
 
 function set_cmd_result($cmd_out) {
+    $re = '/.*((?:DONE|INFO|WARN|ERROR): .*)/';
+    $result = NULL;
     if (is_string($cmd_out)) {
-        $result .= preg_replace('/.*((?:DONE|INFO|WARN|ERROR): .*)/', '\1<br>', $cmd_out);
+        $result .= preg_replace($re, '\1<br>', $cmd_out);
     } elseif (is_array($cmd_out)) {
         $result = "";
         foreach ($cmd_out as $line) {
-            $result .= preg_replace('/.*((?:DONE|INFO|WARN|ERROR): .*)/', '\1<br>', $line);
+            $result .= preg_replace($re, '\1<br>', $line);
         }
     }
     if (!isset($_SESSION['results'])) {
@@ -42,9 +44,7 @@ function set_cmd_result($cmd_out) {
 // debug: reset session
 if (isset($_GET['reset']) && $_GET['reset']) {
     reset_session();
-    print "<div style='color:red;border:2px solid'><h2>DEBUG: RESET</h2>" . PHP_EOL;
-    print "<h2>Session was reset<br>" . PHP_EOL;
-    print "Remove query param and reload, exiting...</h2><div>" . PHP_EOL;
+    print "<div style='color:red;border:2px solid'><h2>DEBUG: Session reset</h2><br>Removed query param and reloaded, exiting...</h2></div>" . PHP_EOL;
     exit;
 }
 
@@ -56,14 +56,14 @@ if (isset($_SESSION['postdata'])) {
     //}
     // 'xxCmd' buttons for logs etc
     if (!empty($_SESSION['postdata']['dockerCmd'])) {
-        if ($_SESSION['postdata']['dockerCmd'] === 'glftpd_logs') {
+        if ($_SESSION['postdata']['dockerCmd'] === 'docker_logs_glftpd') {
             include_once 'templates/logs.html';
             print $data->func($_SESSION['postdata']['dockerCmd']);
             unset($_SESSION['postdata']['dockerCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
             exit;
         }
-        if ($_SESSION['postdata']['dockerCmd'] === 'glftpd_inspect') {
+        if ($_SESSION['postdata']['dockerCmd'] === 'docker_inspect_glftpd') {
             include_once 'templates/logs.html';
             print format_cmdout($data->func($_SESSION['postdata']['dockerCmd']));
             unset($_SESSION['postdata']['dockerCmd']);
@@ -81,7 +81,7 @@ if (isset($_SESSION['postdata'])) {
         }
         if ($_SESSION['postdata']['gltoolCmd'] === "show_user_stats") {
             if ($data->check_user() && isset($_SESSION['userfile'])) {
-                $html = htmlspecialchars(addslashes(fmt_user_stats()));
+                $html = htmlspecialchars(addslashes(format_user_stats()));
             } else {
                 $html = "&lt;user:none&gt;";
             }
@@ -93,6 +93,12 @@ if (isset($_SESSION['postdata'])) {
         if ($_SESSION['postdata']['user_group'] === "Select group...") {
             unset($_SESSION['postdata']['user_group']);
         }
+    }
+    if (isset($_SESSION['postdata']['help'])) {
+        include_once 'templates/help.html';
+        print(parse_markdown("templates/README.md"));
+        unset($_SESSION['postdata']['help']);
+        exit;
     }
 
     // loop over postdata to get remaining inputs
@@ -115,7 +121,7 @@ if (isset($_SESSION['postdata'])) {
         // sitewho, tty, other cmds
         if (is_scalar($value)) {
             // sitewho
-            if ($name === "glCmd" && !empty($value) && $value === "pywho") {
+            if ($name === "termCmd" && !empty($value) && $value === "pywho") {
                 $text = "";
                 $result = $data->func($value);
                 if (is_array($result)) {
@@ -129,7 +135,7 @@ if (isset($_SESSION['postdata'])) {
                     }
                     $highlighter = new \AnsiEscapesToHtml\Highlighter();
                     $html = $highlighter->toHtml($text);
-                    if (cfg::get('modal')['pywho']) {
+                    if (cfg::get('modal')['sitewho']) {
                         $format_html = htmlspecialchars(addslashes('<pre>' . $html . '</pre>'));
                         $_SESSION['modal'] = array('func' => 'show', 'title' => "Glftpd Sitewho (by pywho)", 'text' => $format_html);
                     } else {
@@ -143,6 +149,11 @@ if (isset($_SESSION['postdata'])) {
                 } else {
                     set_cmd_result($data->func($value));
                     $_SESSION['modal'] = array('func' => 'tty');
+                }
+                if (preg_match('/^kill_gotty$/', $value)) {
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    //header("refresh:1;url=" . $_SERVER['PHP_SELF']);
+                    //exit;
                 }
                 unset($_SESSION['postdata']['termCmd']);
             } elseif (preg_match('/^(glCmd|dockerCmd|gltoolCmd)$/', $name) && !empty($value)) {
@@ -240,6 +251,7 @@ if (isset($_SESSION['postdata'])) {
                 }
                 $flags_add = [];
                 $flags_del = flags_list();
+                $flags_userfile = [];
                 if (is_array($_SESSION['postdata']['flagCmd'])) {
                     $flags_userfile = !empty($_SESSION['userfile']['FLAGS']) ? str_split($_SESSION['userfile']['FLAGS']) : [];
                     foreach ($_SESSION['postdata']['flagCmd'] as $flagcmd) {

@@ -12,23 +12,26 @@
 
 namespace shit;
 
+
+use \cfg;
 use shit\debug;
+
+require_once 'helpers.php';
 require_once 'docker_api.php';
 require_once 'debug.php';
 
 class docker {
-    private array $cfg;
     private array $commands;
+    private $debug;
     
     public function __construct() {
-        $this->cfg = require 'config.php';
         $this->commands = require 'docker_commands.php';
         $this->debug = new debug;
         $this->debug->count = 0;
     }
 
     public function api(string $http_method, string $endpoint, $postfields=null): string|bool {
-        $url = $this->cfg['docker']['api'] . $endpoint;
+        $url = cfg::get('docker')['api'] . $endpoint;
         $this->debug->trace(count: $this->debug->count++, trace: 'docker-api-1', url: $url, postfields: $postfields);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -36,7 +39,7 @@ class docker {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_VERBOSE, true);
-        if ($this->cfg['debug'] > 2) {
+        if (cfg::get('debug') > 2) {
             $fp = fopen('/tmp/curl_err.log', 'a+');
             curl_setopt($ch, CURLOPT_STDERR, $fp);
         }
@@ -117,6 +120,18 @@ class docker {
                 if (!preg_match('/exec failed/i', $result)) {
                     $this->debug->trace(trace: 'docker-exec-3', result: $result);
                     $json_result = json_decode($result);
+                    // exec ok, but error in cmd output 
+                    /*
+                    if (preg_match('/operation not permitted/i', $result)) {
+                        return 'Error: EPERM';
+                    }
+                    if (preg_match('/permission denied/i', $result)) {
+                        return 'Error: EACCES';
+                    }
+                    */
+                    if (preg_match('/no such file or directory/i', $result)) {
+                        return 'Error: ENOENT';
+                    }
                     return (json_last_error() === JSON_ERROR_NONE) ? $json_result : $this->format($result);
                 }
             }
@@ -136,12 +151,15 @@ class docker {
         return $return;
     }
 
-    public function create(array $hostconfig): object {
+    // disabled
+    //public function create(array $hostconfig=[]): object {
+    public function create(): bool {
+        return false;
         return json_decode(
             self::api(
                 strtr(
                     "POST",
-                    "/containers/create?name={$hostconfig['name']}",
+                    '/containers/create?name={$gl_ct_name}',
                     '{
                         "Image": "{$image",
                         "Hostname": "{$name}",
@@ -160,8 +178,8 @@ class docker {
                                 "{$network}": { }
                             }
                         }
-                    }', $hostconfig
-                )
+                    }'
+                ), $hostconfig
             )
         );
     }
@@ -179,8 +197,9 @@ class docker {
         $command = $this->commands[$action];
         if (isset($command)) {
             $replace_pairs = array(
-                '{$bin_dir}' => $this->cfg['docker']['bin_dir'],
-                '{$gl_ct}' => $this->cfg['docker']['glftpd_container'],
+                '{$bin_dir}' => cfg::get('docker')['bin_dir'],
+                '{$gl_ct_name}' => cfg::get('docker')['glftpd_container'],
+                '{$web_ct_name}' => cfg::get('docker')['web_container'],
             );
             $command[1] = strtr($command[1], $replace_pairs);
             if (is_array($args)) {
@@ -191,7 +210,7 @@ class docker {
             }
             //$this->debug->print(pre: true, pos: 'docker_api', action: $action, _command_2: $command[2], command: $command, args: $args );
             $this->debug->trace(trace: 'docker-func-1', action: $action, command: $command);
-            $result = call_user_func_array(['self', array_shift($command)], $command);
+            $result = call_user_func_array(self::class . '::' . array_shift($command), $command);
             $this->debug->trace(trace: 'docker-func-2', result: $result);
             return $result;
         }
