@@ -4,59 +4,6 @@
  *   SHIT:FRAMEWORK formatting
  *--------------------------------------------------------------------------*/
 
-// TODO:
-// htmlspecialchars(), addslashes(), recursive/array:
-//    htmlspecialchars(trim(substr($str, 8)));
-//    htmlspecialchars(trim(preg_replace("/[[:cntrl:]]+/", PHP_EOL, $str)));
-//    trim(preg_replace("/[[:cntrl:]]+/", PHP_EOL, $str));
-//    preg_replace("/[[:cntrl:]]/", PHP_EOL, $str);
-// remove control chars from docker output
-//   - U+0001 U+0000 U+0000 U+0000 U+0000 U+0000 U+0000 U+0006
-//   - U+002B
-//   - chars: + ! & (?)
-// remove all non alpha chars:
-//   preg_replace('/[^a-zA-Z0-9_@#&%:\/\+\-\[\]\.\(\)\*\s]/s', '', $str);
-// trim the ASCII control characters at the beginning and end of $binary
-//   (from 0 to 31 inclusive)
-//   $clean = trim($binary, "\x00..\x1F");
-
-
-function sanitize_string(string $str): string {
-    if (!empty($str) && is_string($str)) {
-        // remove control chars
-        return preg_replace("/([[:cntrl:]\+]{8,}|[[:cntrl:]]+)/", PHP_EOL, $str);
-    }
-    return false;
-}
-
-function htmlspecialchars_recursive ($input, int $flags = ENT_COMPAT | ENT_HTML401, string $encoding = 'UTF-8', bool $double_encode = false): mixed {
-//function htmlspecialchars_recursive ($input, int $flag, string $encoding, bool $double_encode): mixed {    
-    //static $flags, $encoding, $double_encode;
-    if (is_array($input)) {
-        return array_map('htmlspecialchars_recursive', $input);
-    }
-    elseif (is_scalar($input)) {
-        //$flags = ((!empty($flags) && is_int($flags)) ? $flags : 0);
-        //$double_encode = ((!empty($double_encode) && is_bool($flags)) ? $double_encode : false);
-        return htmlspecialchars($input, $flags, $encoding, $double_encode);
-    }
-    else {
-        return $input;
-    }
-}
-
-function trim_recursive ($input): mixed {
-    if (is_array($input)) {
-        return array_map('trim', $input);
-    }
-    elseif (is_scalar($input)) {
-        return trim($input);
-    }
-    else {
-        return $input;
-    }
-}
-
 // ghetto json parsing and fmt'ing :)
 
 function format_json($json): string {
@@ -138,24 +85,7 @@ function format_cmdout(mixed $result): mixed {
     return $out;
 }
 
-function sort_array(array $matches) {
-    $_SESSION['display_sort'][$matches['list']] = true;
-    switch ($matches['order']) {
-        case "a-z":
-            ksort($_SESSION[$matches['list']], SORT_STRING | SORT_FLAG_CASE);
-            break;
-        case "z-a":
-            krsort($_SESSION[$matches['list']], SORT_STRING | SORT_FLAG_CASE);
-            break;
-        case "group":
-            asort($_SESSION[$matches['list']], SORT_STRING | SORT_FLAG_CASE);
-            break;
-        default:
-            $_SESSION['display_sort'][$matches['list']] = false;
-    }
-}
-
-function fmt_bytes(int $size, int $precision = 2): string {
+function format_bytes(int $size, int $precision = 2): string {
     if ($size > 0) {
         $base = log($size, 1024);
         $suffixes = array('', 'K', 'M', 'G', 'T');
@@ -164,7 +94,7 @@ function fmt_bytes(int $size, int $precision = 2): string {
     return "0KB";
 }
 
-function fmt_lastlogin(): string {
+function format_lastlogin(): string {
     if (!empty($_SESSION['userfile']) && !empty($_SESSION['userfile']['TIME'])) {
         $epoch  = explode(' ', $_SESSION['userfile']['TIME'])[1];
         $dt = new DateTime("@$epoch");
@@ -198,12 +128,12 @@ function format_stats(string $field): array {
     return $section;
 }
 
-function fmt_user_stats(): string {
+function format_user_stats(): string {
     $all_fields = array('DAYUP', 'WKUP ', 'MONTHUP', 'ALLUP', '', 'DAYDN', 'WKDN', 'MONTHDN', 'ALLDN', '', 'NUKE', '');
     $out = "<pre><div style='color:lightgreen'><br>";
     $out .= "Showing stats for <strong>{$_SESSION['postdata']['select_user']}</strong><br>";
     if (!empty($_SESSION['userfile']) && !empty($_SESSION['userfile']['TIME'])) {
-        $out .= "LAST LOGIN: " . fmt_lastlogin();
+        $out .= "LAST LOGIN: " . format_lastlogin();
     } else {
         $out .= "&lt;none&gt;";
     }
@@ -224,9 +154,9 @@ function fmt_user_stats(): string {
                             $dt = new DateTime("@$epoch");
                             $last = $dt->format('y-m-d H:i');
                         }
-                        $out .= "{$stats[$i][1]} " . fmt_bytes((int)$stats[$i][2]) . " ({$last})<br>" ;
+                        $out .= "{$stats[$i][1]} " . format_bytes((int)$stats[$i][2]) . " ({$last})<br>" ;
                     } else {
-                        $out .= "{$stats[$i][0]}f/" . fmt_bytes((int)$stats[$i][1]) . "<br>";
+                        $out .= "{$stats[$i][0]}f/" . format_bytes((int)$stats[$i][1]) . "<br>";
                     }
                 }
             }
@@ -234,31 +164,4 @@ function fmt_user_stats(): string {
     }
     $out .= "<br></div></pre>";
     return $out;
-}
-
-function flags_list(): array {
-    return array(
-        "1" => "SITEOP",
-        "2" => "GADMIN",
-        "3" => "GLOCK",
-        "4" => "EXEMPT",
-        "5" => "COLOR",
-        "6" => "DELETED",
-        "7" => "USEREDIT",
-        "8" => "ANONYMOUS",
-        "A" => "NUKE",
-        "B" => "UNNUKE",
-        "C" => "UNDUPE",
-        "D" => "KICK",
-        "E" => "KILL",
-        "F" => "TAKE",
-        "G" => "GIVE",
-        "H" => "USERS",
-        "I" => "IDLER",
-        "J" => "CUSTOM1",
-        "K" => "CUSTOM2",
-        "L" => "CUSTOM3",
-        "M" => "CUSTOM4",
-        "N" => "CUSTOM5"
-    );
 }

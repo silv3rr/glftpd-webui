@@ -16,25 +16,10 @@
 // var_dump(session_status());
 
 
-/*--------------------------------------------------------------------------*/
-/* GET CONFIG
-/*--------------------------------------------------------------------------*/
-
 if (!file_exists("config.php")) {
-    header("Location: " . "error_4xx.html");
-}
-
-class cfg {
-    public static function get($key) {
-        $config = require 'config.php';
-        return (isset($key) ? $config[$key] : false);
-    }
-}
-
-if (cfg::get('debug') > 0) {
-    ini_set('display_startup_errors', 1);
-    ini_set('display_errors', 1);
-    error_reporting(-1);
+    header("HTTP/1.0 404 Not Found", true, 404);
+    readfile('templates/error_404.html');
+    exit;
 }
 
 require_once 'helpers.php';
