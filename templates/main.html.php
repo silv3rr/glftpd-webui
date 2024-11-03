@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <title>GLFTPD:WEBUI</title>
@@ -16,6 +16,7 @@
   <script type="text/javascript" src="assets/js/modal_func.js"></script>
 </head>
 <body>
+
 <div class="title"><?= cfg::get('title') ?>
 </div>
 <div class="status">
@@ -35,16 +36,21 @@
     </label>
     <div id="theme"><span>DARK THEME</span></div>
   </span>
-  <a href="https://github.com/silv3rr/glftpd-webui/blob/main/README.md"><button type="button" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
-    <em class="fa-solid fa-question"></em> help
-  </button></a>
+  <form id="form" action="/" method="POST" class="form-inline d-inline">
+    <button type="submit" name="help" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
+      <em class="fa-solid fa-question"></em> help
+    </button>
+  </form>
   <a href data-toggle="modal" data-target="#bsModal" data-type="html" data-path="/templates/about.html">
     <button type="button" id="about" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2">
-    <em class="fa-solid fa-poo"></em> about
-  </button></a>
-  <a href="/auth/login.php"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2" <?= (cfg::get('auth') !== 'none' ? "" : "disabled") ?>>
-    <em class="fa-solid fa-id-card"></em> login
-  </button></a>
+      <em class="fa-solid fa-poo"></em> about
+    </button>
+  </a>
+  <a href="/auth/login.php">
+    <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2" <?= (cfg::get('auth') !== 'none' ? "" : "disabled") ?>>
+      <em class="fa-solid fa-id-card"></em> login
+    </button>
+  </a>
 </div>
 
 <div class="modal fade" id="bsModal" tabindex="F1" aria-labelledby="bsModalLabel" aria-hidden="true">
@@ -77,62 +83,68 @@
 <p></p>
 
 <?php if (cfg::get('spy')['enabled']): ?>
-<div class="enabled-group">
-  <p>
-    <a class="btn-collapse" data-toggle="collapse" href="#colSpy" role="button" aria-expanded="false" aria-controls="colSpy">
-      <em class="fa-solid fa-chevron-up" id="colSpyUp"></em> 
-      <em class="fa-solid fa-chevron-right" id="colSpyRight"></em>Spy
-    </a>
-  </p>
-  <div class="cmd collapse multi-collapse" id="colSpy">
-    <p></p>
+  <div class="enabled-group">
+    <p>
+      <a class="btn-collapse" data-toggle="collapse" href="#colSpy" role="button" aria-expanded="false" aria-controls="colSpy">
+        <em class="fa-solid fa-chevron-up" id="colSpyUp"></em>
+        <em class="fa-solid fa-chevron-right" id="colSpyRight"></em>Spy
+      </a>
+    </p>
+    <div class="group collapse multi-collapse" id="colSpy">
+      <p></p>
 
-    <div class="spy_menu">
-      &nbsp;
-      <a href="<?php $_SERVER['PHP_SELF'] ?>"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2">
-        <em class="fa-solid fa-sync"></em>
-      </button></a>
-      <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh(3000);">
-        <em class="fa-solid fa-pause-circle"></em>
-      </button>
-      &nbsp;
-      <a href="/spy"><button type="button" class="btn btn-sm btn-custom mb-1 mr-2 ">
-        <em class="fa-solid fa-up-right-and-down-left-from-center icon"></em>
-      </button></a>
-    </div>
+      <div class="spy_menu">
+        &nbsp;
+        <a href="<?php $_SERVER['PHP_SELF'] ?>"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2">
+          <em class="fa-solid fa-sync"></em>
+        </button></a>
+        <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh(3000);">
+          <em class="fa-solid fa-pause-circle"></em>
+        </button>
+        &nbsp;
+        <a href="/spy"><button type="button" class="btn btn-sm btn-custom mb-1 mr-2 ">
+          <em class="fa-solid fa-up-right-and-down-left-from-center icon"></em>
+        </button></a>
+      </div>
 
-    <div id="include_spy_totals" class="totals">
+      <div id="include_spy_totals" class="totals">
+      </div>
+      <p></p>
+      <div class="subcat">Online users</div>
+      <div id="include_spy_users" class="users ml-2">&lt;none&gt;</div>
+      <div id="spy_api_result"></div>
     </div>
-    <p></p>
-    <div class="subcat">Online users</div>
-    <div id="include_spy_users" class="users ml-2">&lt;none&gt;</div>
-    <div id="spy_api_result"></div>
   </div>
-</div>
-<p></p>
+  <p></p>
 <?php endif ?>
 
 <div class="hspace"></div>
-<div class="enabled-group">
-  <p>
-    <a class="btn-collapse" data-toggle="collapse" href="#colFileMan" role="button" aria-expanded="false" aria-controls="colFileMan">
-      <em class="fa-solid fa-chevron-up" id="colFileManUp"></em> 
-      <em class="fa-solid fa-chevron-right" id="colFileManRight"></em>File Manager
-    </a>
-  </p>
-  <div class="cmd collapse multi-collapse" id="colFileMan">
-    Browse:
-    <button type="button" data-toggle="modal" data-target="#bsModal" data-type="dir"  data-path="glftpd/site" class="btn btn-sm btn-custom">Glftpd Site</button>
-    <button type="button" data-toggle="modal" data-target="#bsModal" data-type="dir"  data-path="" class="btn btn-sm btn-custom">Web Files</button>
-    <hr class="vsep"/>
-    Edit:
-    <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="" data-edit="config.php" class="btn btn-sm btn-custom">config.php</button>
-    <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="glftpd" data-edit="glftpd.conf" class="btn btn-sm btn-custom">glftpd.conf</button>
-    <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="glftpd/sitebot" data-edit="eggdrop.conf" class="btn btn-sm btn-custom">eggdrop.conf</button>
-    <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="glftpd/sitebot/pzs-ng" data-edit="ngBot.conf" class="btn btn-sm btn-custom">ngBot.conf</button>
-  </div>
-</div>
 
+<?php if (!empty($filemanager)): ?>
+  <div class="enabled-group">
+    <p>
+      <a class="btn-collapse" data-toggle="collapse" href="#colFileMan" role="button" aria-expanded="false" aria-controls="colFileMan">
+        <em class="fa-solid fa-chevron-up" id="colFileManUp"></em>
+        <em class="fa-solid fa-chevron-right" id="colFileManRight"></em>File Manager
+      </a>
+    </p>
+    <div class="group collapse multi-collapse" id="colFileMan">
+      <?php if (!empty($filemanager['dirs']) && count($filemanager['dirs']) > 0): ?>
+        Browse:
+        <?php foreach ($filemanager['dirs'] as $name => $path): ?>
+          <button type="button" data-toggle="modal" data-target="#bsModal" data-type="dir" data-path="<?= $path ?>" class="btn btn-sm btn-custom"><?= $name ?></button>
+          <hr class="vsep"/>
+          <?php endforeach ?>
+      <?php endif?>
+      <?php if (!empty($filemanager['files']) && count($filemanager['files']) > 0): ?>
+        Edit:
+        <?php foreach ($filemanager['files'] as $file => $path): ?>
+          <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $path ?>" data-edit="<?= $file ?>" class="btn btn-sm btn-custom"><?= $file ?></button>
+        <?php endforeach ?>
+      <?php endif?>
+    </div>
+  </div>
+<?php endif?>
 
 
 <div class="hspace"></div>
@@ -140,16 +152,16 @@
 <form id="form" action="/" method="POST">
 
   <div class="enabled-group">
-  <div class="hspace"></div>
+    <div class="hspace"></div>
     <p>
       <label for="userCmd">
         <a class="btn-collapse" data-toggle="collapse" href="#colUserMgmt" role="button" aria-expanded="false" aria-controls="colUserMgmt">
-          <em class="fa-solid fa-chevron-up" id="colUserMgmtUp"></em> 
+          <em class="fa-solid fa-chevron-up" id="colUserMgmtUp"></em>
           <em class="fa-solid fa-chevron-right" id="colUserMgmtRight"></em>User Management
         </a>
       </label>
     </p>
-    <div class="cmd collapse multi-collapse" id="colUserMgmt">
+    <div class="group collapse multi-collapse" id="colUserMgmt">
 
       <!-- main: begin includes -->
 
@@ -169,97 +181,75 @@
 
       <!-- main: end includes -->
 
-      </div>
       <p></p>
       <div class="subcat">Action log</div>
         <button type="submit" name="gltoolCmd" value="gltool_tail" class="btn btn-sm btn-custom">Last 10</button>
         <button type="submit" name="gltoolCmd" value="gltool_log" class="btn btn-sm btn-custom">View all</button>
       </div>
+    </div>
   </div>
 
-
-  </div>
-
-
-  <?php if (!$local_dockerenv_exists): ?>
-  <div class="enabled-group">
-    <div class="hspace"></div>
-    <p>
-      <label for="glCmd">
-        <a class="btn-collapse" data-toggle="collapse" href="#colGlftpd" role="button" aria-expanded="false" aria-controls="colGlftpd">
-          <em class="fa-solid fa-chevron-up" id="colGlftpdUp"></em> 
-          <em class="fa-solid fa-chevron-right" id="colGlftpdRight"></em>Glftpd
-        </a>
-      </label>
-    </p>
-    <div class="cmd collapse multi-collapse" id="colGlftpd">
-        <button type="submit" name="glCmd" value="glftpd_status" class="btn btn-sm btn-custom">Status</button>
-        <button type="submit" name="glCmd" value="glftpd_start" class="btn btn-sm btn-custom">Start</button>
-        <button type="submit" name="glCmd" value="glftpd_stop" class="btn btn-sm btn-custom">Stop</button>
-        <button type="submit" name="glCmd" value="glftpd_restart" class="btn btn-sm btn-custom">Restart</button>
-   </div>
-  </div>
-  <?php endif ?>
-
-  <?php if (cfg::get('mode') == "local"): ?>
-    <div class="disabled-group">
+  <?php if (!empty(cfg::get('ui_buttons')['glftpd']) && count(cfg::get('ui_buttons')['glftpd']) > 0): ?>
+    <div class="enabled-group">
       <div class="hspace"></div>
-        <p>
-        <label for="sdCmd">
-          <a class="btn-collapse" data-toggle="collapse" href="#colSystemd" role="button" aria-expanded="false" aria-controls="colSystemd">
-            <em class="fa-solid fa-chevron-up" id="colSystemdUp"></em> 
-            <em class="fa-solid fa-chevron-right" id="colSystemdRight"></em>System
+      <p>
+        <label for="glCmd">
+          <a class="btn-collapse" data-toggle="collapse" href="#colGlftpd" role="button" aria-expanded="false" aria-controls="colGlftpd">
+            <em class="fa-solid fa-chevron-up" id="colGlftpdUp"></em>
+            <em class="fa-solid fa-chevron-right" id="colGlftpdRight"></em>Glftpd
           </a>
-        </label> 
+        </label>
       </p>
-      <span class="text-muted">Controls glftpd service</span>
+      <div class="group collapse multi-collapse" id="colGlftpd">
+        <?php foreach (cfg::get('ui_buttons')['glftpd'] as $key => $value): ?>
+          <button type="submit" name="glCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+        <?php endforeach ?>
+        <?php if (cfg::get('mode') == "local" && !empty(cfg::get('local')['env_bus'])): ?>
+          <div id="help" class="form-text text-muted ml-2">
+            <small><em>connecting to host using systemd dbus broker</em></small>
+          </div>
+        <?php endif ?>
+      </div>
     </div>
   <?php endif ?>
 
-  <?php if (cfg::get('mode') == "docker"): ?>
+  <?php if (cfg::get('mode') == "docker" && !empty(cfg::get('ui_buttons')['docker']) && count(cfg::get('ui_buttons')['docker']) > 0): ?>
     <div class="enabled-group">
       <div class="hspace"></div>
       <p>
         <label for="dockerCmd">
           <a class="btn-collapse" data-toggle="collapse" href="#colDocker" role="button" aria-expanded="false" aria-controls="colDocker">
-            <em class="fa-solid fa-chevron-up" id="colDockerUp"></em> 
+            <em class="fa-solid fa-chevron-up" id="colDockerUp"></em>
             <em class="fa-solid fa-chevron-right" id="colDockerRight"></em>Docker
           </a>
         </label> 
       </p>
-      <div class="cmd collapse multi-collapse" id="colDocker">  
-        <button type="button" name="dockerCmd" value="glftpd_create" class="btn btn-sm btn-custom disabled">Create</button>
-        <button type="submit" name="dockerCmd" value="glftpd_inspect" class="btn btn-sm btn-custom">Inspect</button>
-        <button type="submit" name="dockerCmd" value="glftpd_top" class="btn btn-sm btn-custom">Top</button>
-        <button type="submit" name="dockerCmd" value="glftpd_kill" class="btn btn-sm btn-custom">Kill</button>
-        <button type="submit" name="dockerCmd" value="glftpd_tail" class="btn btn-sm btn-custom">Tail log</button>
-        <button type="submit" name="dockerCmd" value="glftpd_logs" class="btn btn-sm btn-custom">View log</button>
+      <div class="group collapse multi-collapse" id="colDocker">
+        <?php foreach (cfg::get('ui_buttons')['docker'] as $key => $value): ?>
+          <button type="submit" name="dockerCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom <?=isset($value['disabled']) ? 'disabled' : ''?>"><?= $key ?></button>
+        <?php endforeach ?>
       </div>
     </div>
   <?php endif ?>
-  
-  <div class="enabled-group">
-    <div class="hspace"></div>
-    <p>
-      <label for="termCmd">
-        <a class="btn-collapse" data-toggle="collapse" href="#colTerm" role="button" aria-expanded="false" aria-controls="colTerm">
-          <em class="fa-solid fa-chevron-up" id="colTermUp"></em> 
-          <em class="fa-solid fa-chevron-right" id="colTermRight"></em>Terminal
-        </a>
-      </label>
-    </p>
-    <div class="cmd collapse multi-collapse" id="colTerm">
-        <button type="submit" name="glCmd" value="pywho" class="btn btn-sm btn-custom">sitewho</button>
-        <hr class="vsep"/>
-        <button type="submit" name="termCmd" value="tty_eggdrop" id="tty_eggdrop" class="btn btn-sm btn-custom">telnet bot</button>
-        <hr class="vsep"/>
-        <button type="submit" name="termCmd" value="tty_useredit" id="tty_useredit" class="btn btn-sm btn-custom">useredit</button>
-        <button type="submit" name="termCmd" value="tty_glspy" id="tty_glspy" class="btn btn-sm btn-custom">gl_spy</button>
-        <button type="submit" name="termCmd" value="tty_pyspy" id="tty_pyspy" class="btn btn-sm btn-custom">pyspy</button>
-        <hr class="vsep"/>
-        <button type="submit" name="termCmd" value="kill_gotty" id="kill_gotty" class="btn btn-sm btn-custom">close tty</button>
-        <hr class="vsep"/>
-        <a class=" btn btn-sm btn-custom" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
+
+  <?php //if ((cfg::get('mode') == "docker") || (cfg::get('mode') == "local" && !$local_dockerenv_exists)): ?>
+  <?php if (!empty(cfg::get('ui_buttons')['term']) && count(cfg::get('ui_buttons')['term']) > 0): ?>
+    <div class="enabled-group">
+      <div class="hspace"></div>
+      <p>
+        <label for="termCmd">
+          <a class="btn-collapse" data-toggle="collapse" href="#colTerm" role="button" aria-expanded="false" aria-controls="colTerm">
+            <em class="fa-solid fa-chevron-up" id="colTermUp"></em>
+            <em class="fa-solid fa-chevron-right" id="colTermRight"></em>Terminal
+          </a>
+        </label>
+      </p>
+      <div class="group collapse multi-collapse" id="colTerm">
+        <?php foreach (cfg::get('ui_buttons')['term'] as $key => $value): ?>
+            <button type="submit" name="termCmd" value="<?= $value['cmd'] ?>" id="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+            <?= (isset($value['sep'])) ? '<hr class="vsep"/>' : '' ?>
+        <?php endforeach ?>
+        <a class="btn-txt" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
           <em class="fa-solid fa-circle-info"></em>
         </a>
         <div class="collapse" id="colTermInfo">
@@ -270,8 +260,9 @@
             </div>
           </div>
         </div>
-      </div>
+     </div>
     </div>
+  <?php endif ?>
 
 </form>
 
