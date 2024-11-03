@@ -4,11 +4,12 @@ auth_request /auth;
 
 location /auth {
 	internal;
-	proxy_pass				https://auth-server/index.php;
+	proxy_pass	https://auth-server/index.php;
+	proxy_ssl_protocols TLSv1.3;
 	proxy_pass_request_body off;
-	proxy_set_header		Content-Length "";
-	proxy_set_header		X-Original-URI $request_uri;
-	proxy_ssl_verify		off;
+	proxy_set_header	Content-Length "";
+	proxy_set_header	X-Original-URI $request_uri;
+	proxy_ssl_verify	off;
 	proxy_set_header Host $host;
 	limit_except GET {
 		deny all;
@@ -19,7 +20,7 @@ location / {
     auth_request /auth;
 }
 
-location @error_auth_5xx {
+location @error_auth_500 {
 	add_header 'Content-Type' 'text/plain';
 	return 302 $scheme://$http_host/;
 }

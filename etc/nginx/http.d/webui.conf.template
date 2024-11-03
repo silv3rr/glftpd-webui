@@ -13,8 +13,8 @@ server {
 	ssl_session_timeout 10m;
 	ssl_session_tickets off;
 	access_log	/var/log/nginx/access.log;
-	#error_log	/var/log/nginx/error.log error;
-	error_log	/var/log/nginx/error.log debug;
+	error_log	/var/log/nginx/error.log error;
+	#error_log	/var/log/nginx/error.log debug;
 	server_tokens off;
 	satisfy all;
 	root /app;
@@ -28,19 +28,21 @@ server {
 	}
 
 	location = /favicon.ico {
+		auth_basic off;
+		auth_request off;
 		try_files $uri $uri/ =404;
 	}
 
-	location @error_4xx {
-		index /templates/error_4xx.html;
-	}
+	#location @error_404 {
+	#	index /templates/error_404.html;
+	#}
 
-	location @error_5xx {
-		index /templates/error_5xx.html;
-	}
+	#location @error_500 {
+	#	index /templates/error_500.html;
+	#}
 
-	#location @error_spy_502 {
-	#	index /templates/spy_502.html;
+	#location @error_502_spy {
+	#	index /templates/error_502_spy.html;
 	#}
 
 	include auth.d/*.conf;
@@ -53,7 +55,7 @@ server {
 		deny all;
 	}
 
-	location ~ /(LICENSE|README|README.md|SECURITY.md|config.php|screenshot.gif)$ {
+	location ~ /(LICENSE|README|README.md|SECURITY.md|config.php.*|screenshot.gif)$ {
 		deny all;
 	}
 
@@ -76,12 +78,12 @@ server {
 
 	location ~ "^/(users.*|totals.*|kick/.*|static/g[0-9]{4,6}\.svg)$" {
 		proxy_pass http://spy/$1;
-		#error_page 502 = @error_spy_502;
+		#error_page 502 = @error_502_spy;
 	}
 
 	location /spy {
 		proxy_pass http://spy;
-		#error_page 502 = @error_spy_502;
+		#error_page 502 = @error_502_spy;
 	}
 
 	# gotty
@@ -92,8 +94,9 @@ server {
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection "upgrade";
 		proxy_set_header Host $http_host;
-		# error_page 403 404 = @error_4xx;
-		# error_page 500 502 503 504 = @error_5xx;
+		# error_page 403 = @error_403;
+		# error_page 404 = @error_404;
+		# error_page 500 502 503 504 = @error_500;
 	}
 
 }
