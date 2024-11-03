@@ -5,8 +5,8 @@
 *---------------------------------------------------------------------------*/
 
 return $cfg = array(
-    'auth'                      => "both",
-    'mode'                      => "docker",
+    'auth'                      => "basic",
+    'mode'                      => "local",
     'show_more_opts'            => false,
     'show_alerts'               => true,
     'max_items'                 => 10,
@@ -21,13 +21,13 @@ return $cfg = array(
 
     'services' => array(
         "glftpd" => ['host' => "localhost", 'port' => "1337"],
-        "sitebot" => ['host' => "localhost", 'port' => "80"],
+        "sitebot" => ['host' => "localhost", 'port' => "3333"],
     ),
 
     'docker' => array(
         'api'               => "http://localhost/v1.44",
-        'glftpd_container'  => "glftpd-webui-dev-glftpd-1",
-        'web_container'     => "glftpd-webui-dev-glftpd-web-1",
+        'glftpd_container'  => "glftpd",
+        'web_container'     => "glftpd-web"
         'bin_dir'           => "/glftpd/bin",
     ),
 
@@ -37,7 +37,7 @@ return $cfg = array(
         'glftpd_dir'        => "/glftpd",
         'glftpd_etc'        => "/etc",
         'glftpd_conf'       => "glftpd.conf",
-        'env_bus'           => "",
+        'env_bus'           => "",  /* "/usr/bin/env SYSTEMCTL_FORCE_BUS=1" */
     ),
 
     'filemanager' => array(
