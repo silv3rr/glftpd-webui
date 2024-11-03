@@ -11,6 +11,25 @@ fi
 default_htpasswd='shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740'
 modes="basic|glftpd|both|none"
 
+if [ -z "$APPDIR" ]; then
+  for i in /app /var/www/glftpd-webui; do
+    if [ -d "$i" ]; then
+      APPDIR="$i"
+      break
+    fi
+  done
+fi
+
+if [ -z "$AUTHDIR" ]; then
+  for i in /auth /var/www/glftpd-webui-auth; do
+    if [ -d "$i" ]; then
+      AUTHDIR="$i"
+      break
+    fi
+  done
+fi
+
+
 if [ -n "$WEBUI_AUTH_USER" ]; then
   USERNAME="$WEBUI_AUTH_USER"
 fi
@@ -31,10 +50,10 @@ if [ -z "$PASSWORD" ] && [ -n "$3" ]; then
   PASSWORD="$3"
 fi
 
-cp -f /etc/nginx/auth.d/allow_conf.template /etc/nginx/auth.d/allow.conf
+cp -f /etc/nginx/auth.d/allow.conf.template /etc/nginx/auth.d/allow.conf
 
 if echo "$AUTH" | grep -Eq "^($modes)$"; then
-  echo "Setting webgui auth mode to '$AUTH'..."
+  echo "$(date '+%F %T') Setting webgui auth mode to '$AUTH'..." | logger -s
   case $AUTH in
     basic)
       if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
@@ -42,19 +61,22 @@ if echo "$AUTH" | grep -Eq "^($modes)$"; then
       else
         echo "$default_htpasswd" > /etc/nginx/.htpasswd
       fi
+      rm -f /etc/nginx/auth.d/auth_request.conf
       cp -f /etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/auth-server.conf
       cp -f /etc/nginx/auth.d/auth_off.conf.template /etc/nginx/auth.d/auth_off.conf
       cp -f /etc/nginx/auth.d/auth_basic.conf.template /etc/nginx/auth.d/auth_basic.conf
     ;;
     glftpd)
+      rm -f /etc/nginx/.htpasswd
+      rm -f /etc/nginx/auth.d/auth_basic.conf
       cp -f /etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/auth-server.conf
       cp -f /etc/nginx/auth.d/auth_off.conf.template /etc/nginx/auth.d/auth_off.conf
       cp -f /etc/nginx/auth.d/auth_request.conf.template /etc/nginx/auth.d/auth_request.conf
-      echo "auth_basic off;" > /etc/nginx/auth.d/auth_basic.conf
+      #echo "auth_basic off;" > /etc/nginx/auth.d/auth_basic.conf
     ;;
     both)
       if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
-        sed -i "s|^\(.*'http_auth'\s*=>\).*$|\1 \['username\' => '$USERNAME', 'password' => '$PASSWORD'\],|" /app/config.php;
+        sed -i "s|^\(.*'http_auth'\s*=>\).*$|\1 \['username\' => '$USERNAME', 'password' => '$PASSWORD'\],|" "${APPDIR:-/app}/config.php";
       fi
       rm -f /etc/nginx/.htpasswd
       rm -f /etc/nginx/auth.d/auth_basic.conf
@@ -68,9 +90,20 @@ if echo "$AUTH" | grep -Eq "^($modes)$"; then
       rm -f /etc/nginx/auth.d/auth_off.conf
       rm -f /etc/nginx/auth.d/auth_basic.conf
       rm -f /etc/nginx/auth.d/auth_request.conf
+      rm -f /etc/nginx/sites-enabled/auth-server
     ;;
   esac
-  sed -i -r "s/^(.*'auth'\s*=>\s*\")($modes|)(\",.*)$/\1$AUTH\3/" /app/config.php
+
+  if [ ! -f /.dockerenv ] && [ -n "$APPDIR" ] && [ -n "$AUTHDIR" ]; then
+    sed -i 's|/app/config.php|'"${APPDIR}/config.php"'|g' "${AUTHDIR}/index.php" "${AUTHDIR}/login.php"
+    sed -i "s|'/app/|'${APPDIR}/|g" "${AUTHDIR}/index.php"
+    sed -i 's|root /app;|root '"${APPDIR}"';|g' /etc/nginx/http.d/webui.conf
+    sed -i 's|root /auth;|root '"${AUTHDIR}"';|g' /etc/nginx/http.d/auth-server.conf
+  fi
+  out=$(sed -r "s/^(.*'auth'\s*=>\s*\")($modes|)(\",.*)$/\1$AUTH\3/" "${APPDIR:-/app}/config.php")
+  if [ -n "$out" ]; then
+    echo "$out" > "${APPDIR:-/app}/config.php"
+  fi
   pgrep nginx >/dev/null 2>&1 && /usr/sbin/nginx -s reload
 elif [ -n "$1" ]; then
   echo "$0 <$modes> [username] [password]"
