@@ -4,7 +4,11 @@
  *   SHIT:FRAMEWORK auth index
  *--------------------------------------------------------------------------*/
 
-// XXX: index.php(302) -> /auth/login.php -> /auth/index.php(POST) -> /auth/login.php
+if (!file_exists("/app/config.php")) {
+    http_response_code(404);
+    exit;
+    // $cfg = array('auth' => 'basic, 'mode' => 'docker');
+}
 
 if (empty($_SESSION)) {
     session_start();
@@ -13,25 +17,16 @@ if (empty($_SESSION)) {
 unset($_SESSION['DEBUG']);
 $_SESSION['DEBUG'] = array();
 
-// do not leave debug on, it breaks auth flow and allows any user without logging in
+// do not leave debug on, it breaks auth flow and could allow any user without logging in
 //$auth_debug = 1;
-
-if (!file_exists("/app/config.php")) {
-    $cfg['auth'] = 'basic';
-    $cfg['http_auth'] = array('username' => null, 'password' => null);
-    $cfg['mode'] = 'docker';
-}
 
 require_once '/app/config.php';
 require_once '/app/format.php';
 
-//use shit\data;
-//require_once '/app/get_data.php';
-//$data = new data;
-//var_dump($data);
-
 use shit\docker;
 use shit\local;
+//use WhiteHat101\Crypt\APR1_MD5;
+
 require_once '/app/docker_api.php';
 require_once '/app/local_exec.php';
 
