@@ -7,8 +7,16 @@
 if (empty($_SESSION)) {
     session_start();
 }
+if (!file_exists("/app/config.php")) {
+    header("HTTP/1.0 404 Not Found", true, 404);
+    readfile('templates/error_404.html');
+    exit;
+}
+
 require_once '/app/config.php';
-//$login_debug = 1;
+$debug_vars = 1;
+$debug_buttons = 0;
+
 ?>
 
 
