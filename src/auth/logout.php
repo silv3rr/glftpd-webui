@@ -3,23 +3,30 @@
  *   SHIT:FRAMEWORK auth logout
  *--------------------------------------------------------------------------*/
 
-    if ($_POST['basic_auth']) {
-        unset($_SESSION['basic_auth_result']);
-    } else {
-        if (isset($_SERVER['HTTP_COOKIE'])) {
-            $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
-            foreach($cookies as $cookie) {
-                $parts = explode('=', $cookie);
-                $name = trim($parts[0]);
-                setcookie($name, '', time()-1000);
-                setcookie($name, '', time()-1000, '/');
-            }
-        }
-        unset($_GET);
-        unset($_POST);
-        unset($_SESSION);
-        session_destroy();
+/*
+if (!empty($_POST['http_auth']) && ($_POST['http_auth_logout'] === "1")) {
+    unset($_POST['http_auth_logout']);
+    unset($_SESSION['http_auth_result']);
+    header("Location: /index.php", 200);
+        exit;
+} else {
+*/
+if (isset($_SERVER['HTTP_COOKIE'])) {
+    $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+    foreach($cookies as $cookie) {
+        $parts = explode('=', $cookie);
+        $name = trim($parts[0]);
+        setcookie($name, '', time()-1000);
+        setcookie($name, '', time()-1000, '/');
     }
+}
+unset($_GET);
+unset($_POST);
+if (isset($_SESSION)) {
+    unset($_SESSION);
+    session_destroy();
+}
+//}
 ?>
 <!DOCTYPE html>
 <html lang="en">
