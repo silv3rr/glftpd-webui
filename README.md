@@ -1,4 +1,4 @@
-# glftpd-webui (v3)
+# glftpd-webui (v4)
 
 ## /gl wɛb ʊi/
 
@@ -18,7 +18,7 @@ Start: `./docker-run.sh` or `docker run ghcr.io/silv3rr/glftpd-webui`
 
 Open url: https://your.ip:4444 and login: `shit/EatSh1t`  (basic web auth).
 
-## Setup
+## Installation
 
 Pick one of these 3 options
 
@@ -29,21 +29,13 @@ Pick one of these 3 options
 
 **2**) If you do not want to use glftpd in docker, use 'local' mode (glftpd-webui itself will still run in container)
 
-**3**) Install webui without using docker at all. Needs nginx with php-fpm8 or newer and requirements below. You'll have to do this manually, have a look at the Dockerfile and adapt to your specific environment
-
-- copy webui files to document root: assets, lib, templates and src dirs to e.g. /var/www/html
-- copy config.php.dist to config.php
-- copy nginx conf templates from etc
-- check 'bin_dir' under 'local' in config.php (default is '/usr/local/bin')
-- download/replace pyspy and pywho for your distro in 'bin_dir'
-- copy/compile other bins (gotty, hashgen, passchk)
-- copy etc/sudoers.d/glftpd-web
+**3**) Install webui, without using docker at all. Ether try running [local-install.sh](local-install.sh) or [manually](docs/Setup.md)
 
 ### Configuration
 
 Options such as 'webui-mode', 'auth', a custom html title and display settings can be changed in `config.php`.
 
-For details about all settings see [docs/Config.md](docs/Config.md)
+For details about installation and settings see [docs/Setup.md](docs/Setup.md)
 
 ### Requirements
 
@@ -105,13 +97,15 @@ See [docs/Troubleshooting.md](docs/Troubleshooting.md)
 
 Cutting-edge tech used:
 
-- PHP, some JQuery and Bootstrap4
+- PHP, some JQuery, Bootstrap4 and fontawesome
 - Webserver: nginx and php-fpm
 - User management: [gltool.sh](https://github.com/silv3rr/scripts/blob/master/gltool.sh) wrapper (Bash)
-- Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/)
+- Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/) (offline)
 - Web Terminal: [GoTTY](https://github.com/sorenisanerd/gotty)
 - Spy: [pyspy](https://github.com/silv3rr/pyspy) (flask)
-- Pywho: uses [ansi-escapes-to-html](https://github.com/neilime/ansi-escapes-to-html)
+- Sitewho: [pywho](https://github.com/silv3rr/pywho), [ansi-escapes-to-html](https://github.com/neilime/ansi-escapes-to-html)
+- Markdown: [parsedown](https://github.com/erusev/parsedown)
+- Auth: [apr1-md5](https://github.com/whitehat101/apr1-md5), [ip-lib](https://github.com/mlocati/ip-lib), [PHP-Htpasswd](https://github.com/ozanhazer/PHP-Htpasswd)
 
 # Screenshots 
 

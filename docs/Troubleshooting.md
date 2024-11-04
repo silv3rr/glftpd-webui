@@ -17,9 +17,11 @@
 - status incorrectly shows glftpd/bot down 
     - check ports in `services` option in config.php
 
+- i can't get manual setup option (3) work
+    - it does require the most effort to get working, maybe you should give up and try docker.. ;x
+
 - i want to add a new button to run a command
-    - sure, good luck with that :P ... 
-    - ok, ok. to get you started: edit main html template and {docker,local}_commands.php
+    - sure, good luck with that :P ... ok, ok. to get you started: edit main html template and {docker,local}_commands.php
 
 -  why is this using docker / stupid php / not react / todays js framework / not properly written OOP code 
     - coz of ur mom
