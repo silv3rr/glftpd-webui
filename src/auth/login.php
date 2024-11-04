@@ -32,12 +32,13 @@ $debug_buttons = 0;
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <?php if (!empty($login_debug) && $login_debug === 1): ?>
+
+<?php if (!empty($debug_buttons) && $debug_buttons === 1): ?>
         <div>
-            <form id="form"  method="POST">
+            <form id="debug" method="POST">
                 <button type="submit" formaction="/auth/index.php" class="btn btn-secondary">Test Login</button>
                 <button type="submit" formaction="/auth/logout.php" class="btn btn-secondary">Test Logout</button>
-                <button type="submit" formaction="/auth/logout.php" name="basic_auth" value="1" class="btn btn-outline-secondary">Test BasicAuth Reset</button>
+                <button type="submit" formaction="/auth/logout.php" name="http_auth_logout" value="1" class="btn btn-outline-secondary">Test BasicAuth Reset</button>
             </form>
         </div>
     <?php endif ?>
@@ -58,86 +59,106 @@ $debug_buttons = 0;
         <div class="alert alert-danger" role="alert">
             <strong>Auth mode not set in config.php</strong>
         </div>
-    <?php elseif ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both"): ?>
-        <?php if (empty($_SESSION['glftpd_auth_result'])): ?>
-            <div class="alert alert-secondary" role="alert">
-                You are <strong>not</strong> logged in
+    <?php endif ?>
+    <?php if (!empty($cfg['auth'])): ?>
+        <?php if ($cfg['auth'] === "basic"): ?>
+            <div class="alert alert-info" role="alert">
+                Basic auth ok, goto <a href='/' class="alert-link">main page</a>
             </div>
-        <?php endif ?>
-        <?php if (!empty($_SESSION['basic_auth_result']) && !empty($_SESSION['glftpd_auth_result'])): ?>
-            <?php if ($_SESSION['basic_auth_result'] === "1" && $_SESSION['glftpd_auth_result'] === "1"): ?>
-                <div class="alert alert-success" role="alert">
-                    You are logged in, goto <a href='/' class="alert-link">main page</a>
+        <?php elseif ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both"): ?>
+            <?php if (empty($_SESSION['glftpd_auth_result'])): ?>
+                <div class="alert alert-secondary" role="alert">
+                    You are <strong>not</strong> logged in
                 </div>
             <?php endif ?>
-        <?php endif ?>
-    <?php endif ?>
-    <h1 style="display:inline">COMMAND CENTER</h1> <h1 style="display:inline;text-decoration:none">&nbsp;| LOGIN</h1>
-    <p></p>
-    <?php if (!empty($cfg['auth'])): ?>
-        <div class="form-group mb-1">
-            <small id="help" class="form-text text-muted">Configured auth method is set to: <strong><?= $cfg['auth'] ?></strong></small>
-        </div>
-        <div class="form-group mb-1">
-            <small id="help" class="form-text text-muted">Using ip address: <strong><?= $_SERVER['HTTP_X_FORWARDED_FOR'] ?></strong></small>
-        </div>
-        <?php if ($cfg['auth'] === "basic" || $cfg['auth'] === "both"): ?>
-            <div class="form-group mb-1">
-                <?php if (!empty($_SERVER['PHP_AUTH_USER'])): ?>
-                    <small id="help" class="form-text text-muted">Basic auth user from browser: <strong><?= $_SERVER['PHP_AUTH_USER'] ?></strong></small>
-                    <?php if ($cfg['auth'] === "both" && !empty($_SESSION['basic_auth_result'])): ?>
-                        <span id="help" class="form-text text-muted">
-                            <small>
-                                Basic authentication:
-                                <?= ($_SESSION['basic_auth_result'] === "1") ? '<span class="text-success">successful</span>' : '<span class="text-danger">failed</span>' ?>
-                            </small>
-                        </span>
-                    <?php endif ?>
-                <?php else: ?>
-                    <div class="form-group mb-1">
-                        <small id="help" class="form-text text-danger"><strong>No basic authentication from browser</small></strong>
-                        <div>
-                            <form id="form"  method="POST">
-                                <button type="submit" formaction="/auth/index.php" class="btn btn-sm btn-outline-danger">Login</button>
-                            </form>
-                        </div>
+            <?php if (empty($_SESSION['http_auth_result']) || (!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] !== "1") || empty($_SERVER['PHP_AUTH_USER'])): ?>
+                <div class="alert alert-danger" role="alert">
+                    No http authentication from browser, try
+                    <form id="form" method="POST" class="d-inline">
+                        <button type="submit" formaction="/auth/index.php" value="Login" class="btn btn-link pb-1"><strong>Login</strong></button>
+                    </form>
+                </div>
+            <?php endif ?>
+            <?php if (!empty($_SESSION['http_auth_result']) && !empty($_SESSION['glftpd_auth_result'])): ?>
+                <?php if ($_SESSION['http_auth_result'] === "1" && $_SESSION['glftpd_auth_result'] === "1"): ?>
+                    <div class="alert alert-success" role="alert">
+                        You are logged in, <a href='/' class="alert-link">goto main page</a>
                     </div>
                 <?php endif ?>
             <?php endif ?>
-            </span>
-        </div>
         <?php endif ?>
-    <?php if (!empty($cfg['auth']) && ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both")): ?>
-        <div class="pt-1"><hr></div>
-        <form id="form" action="/auth/index.php" method="POST" class="d-inline">
-            <?php if (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1"): ?>
-                <div class="form-group">
-                   <h5>Currently logged in as glftpd user</h5>
-                    <?php if (!empty($_SESSION['glftpd_auth_user'])): ?>
-                        <div class="col-3">
-                            User: <strong><?= $_SESSION['glftpd_auth_user'] ?></strong>
+    <?php endif ?>
+
+    <div class="mb-4">
+        <h1 style="display:inline">COMMAND CENTER</h1> <h1 style="display:inline;text-decoration:none">&nbsp;| LOGIN</h1>
+    </div>
+    <p></p>
+    <?php if (!empty($cfg['auth'])): ?>
+        <div class="group" id="auth">
+            <div class="form-group">
+                <div id="help" class="form-text text-muted small">Configured auth method is: <strong><?= $cfg['auth'] ?></strong></div>
+            </div>
+            <div class="form-group mb-1">
+                <div id="help" class="form-text text-muted small">Allowed ip address: <strong><?= $_SERVER['HTTP_X_FORWARDED_FOR'] ?></strong></div>
+            </div>
+        </div>
+        <?php if ($cfg['auth'] === "both"): ?>
+            <div class="group" id="auth">
+            <h5>HTTP authentication: <?= ($_SESSION['http_auth_result'] === "1") ? '<span class="text-success">successful' : '<span class="text-danger">failed' ?></span></h5>
+            <div id="help" class="ml-2">Client browser user: <strong><?= (!empty($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : "&lt;none&gt;" ?></strong></div>
+            <?php if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SESSION['http_auth_result']) || (!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] !== "1")): ?>
+                <div id="help" class="ml-2">User is not verified</div>
+                <div id="help" class="text-muted small ml-2">Try logging in (again), this should popup a browser window to input user and password (then go back to this page)</div>
+            <?php endif ?>
+            </div>
+        <?php endif ?>
+        <?php if ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both"): ?>
+            <form id="form" method="POST" class="d-inline">
+                <div class="group" style="margin-bottom:20px;">
+                    <?php if (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1"): ?>
+                        <div class="form-group">
+                            <h5>Currently logged in as glftpd user</h5>
+                            <?php if (!empty($_SESSION['glftpd_auth_user'])): ?>
+                                <div class="col-3">
+                                    Username: <strong><?= $_SESSION['glftpd_auth_user'] ?></strong>
+                                </div>
+                            <?php endif ?>
+                            <?php if (!empty($_SESSION['glftpd_auth_mask'])): ?>
+                                <div class="col-3">
+                                    Mask: <strong><?= $_SESSION['glftpd_auth_mask'] ?></strong>
+                                </div>
+                            <?php endif ?>
+                            <?php if (!empty($_SESSION['glftpd_auth_flag'])): ?>
+                                <div class="col-3">
+                                    Flags: <strong><?= $_SESSION['glftpd_auth_flag'] ?></strong>
+                                </div>
+                            <?php endif ?>
                         </div>
-                    <?php endif ?>
-                    <?php if (!empty($_SESSION['glftpd_auth_mask'])): ?>
-                        <div class="col-3">
-                            Mask: <strong><?= $_SESSION['glftpd_auth_mask'] ?></strong>
+                    <?php else: ?>
+                        <div class="form-group">
+                            <h5>Login with glftpd account</h5>
                         </div>
-                    <?php endif ?>
-                    <?php if (!empty($_SESSION['glftpd_auth_flag'])): ?>
-                        <div class="col-3">
-                            Flags: <strong><?= $_SESSION['glftpd_auth_flag'] ?></strong>
+                        <div class="form-row align-items-center">
+                            <label for="glftpd_user" class="ml-2">Username:</label>
+                            <div class="col-auto">
+                                <input type="text" id="glftpd_user" name="glftpd_user" placeholder="my-glftpd-username" class="form-control">
+                            </div>
+                        </div>
+                        <p></p>
+                        <div class="form-row align-items-center">
+                            <label for="glftpd_password" class="ml-2">Password:</label>
+                            <div class="col-auto">
+                                <input type="password" id="glftpd_password" name="glftpd_password" placeholder="super-secr3t" class="form-control">
+                            </div>
                         </div>
                     <?php endif ?>
                 </div>
-            <?php else: ?>
-                <div class="form-group">
-                    <h5>Login with glftpd account</h5>
-                </div>
-                <div class="form-group">
-                    <label for="glftpd_user" class="ml-2">User:</label>
-                    <div class="col-3">
-                        <input type="text" id="glftpd_user" name="glftpd_user" placeholder="my-glftpd-username" class="form-control">
-                    </div>
+
+                <div class="ml-2 mb-5">
+                    <?php if (!empty($_SESSION['glftpd_auth_result']) || (empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] !== "1")): ?>
+                        <input type="submit" formaction="/auth/index.php" value="Login" class="btn btn-primary"/>
+                    <?php endif ?>
+                    <input type="submit" formaction="/auth/logout.php" value="Logout" class="btn btn-outline-primary"/>
                 </div>
 
                 <?php if ((!empty($_SESSION['http_auth_result']) && ($_SESSION['http_auth_result'] === "1")) || (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")): ?>
@@ -172,29 +193,25 @@ $debug_buttons = 0;
                             <p></p>
                         </div>
                     </div>
-                </div>
-                <input type="submit" value="Login" class="btn btn-primary"/>
-            <?php endif ?>
-        </form>
-        <form id="form" action="/auth/logout.php" method="POST" class="d-inline">
-            <input type="submit" value="Logout" class="btn btn-outline-primary"/>
-        </form>
+                <?php endif ?>
+            </form>
+        <?php endif ?>
     <?php endif ?>
 
-<?php if (!empty($login_debug) && $login_debug === 1): ?>
-    <div class="pt-3 pb-3"><hr></div>
-    <pre><strong>DEBUG:</strong></pre>
-    <?= (!empty($_SESSION['basic_auth_result']) ? "<pre>\$_SESSION['basic_auth_result']={$_SESSION['basic_auth_result']}</pre>" : '' ) ?>
-    <?= (!empty($_SESSION['glftpd_auth_result']) ? "<pre>\$_SESSION['glftpd_auth_result']={$_SESSION['glftpd_auth_result']}</pre>" : '' ) ?>
-    <?= (!empty($_SESSION['glftpd_auth_user']) ? "<pre>\$_SESSION['glftpd_auth_user']={$_SESSION['glftpd_auth_user']}</pre>" : '' ) ?>
-    <?= (!empty($_SERVER['PHP_AUTH_USER']) ? "<pre>\$_SERVER['PHP_AUTH_USER']={$_SERVER['PHP_AUTH_USER']}</pre>" : '' ) ?>
-    <pre>$_SERVER['REMOTE_ADDR']=<?= $_SERVER['REMOTE_ADDR'] ?></pre>
-    <pre>$_SERVER['HTTP_CLIENT_IP']=<?= $_SERVER['HTTP_CLIENT_IP'] ?></pre>
-    <pre>$_SERVER['HTTP_X_FORWARDED_FOR']=<?= $_SERVER['HTTP_X_FORWARDED_FOR'] ?></pre>
-    <pre>$_POST=<?= print_r($_POST, true)?></pre>
-    <pre>$_SERVER=<?= print_r($_SERVER, true) ?></pre>
-    <pre>$_SESSION=<?= print_r($_SESSION, true)?></pre>
-<?php endif ?>
+    <?php if (!empty($debug_vars) && $debug_vars === 1): ?>
+        <div class="pt-3 pb-3"><hr></div>
+        <pre><strong>DEBUG:</strong></pre>
+        <?= (!empty($_SESSION['http_auth_result']) ? "<pre>\$_SESSION['http_auth_result']={$_SESSION['http_auth_result']}</pre>" : '' ) ?>
+        <?= (!empty($_SESSION['glftpd_auth_result']) ? "<pre>\$_SESSION['glftpd_auth_result']={$_SESSION['glftpd_auth_result']}</pre>" : '' ) ?>
+        <?= (!empty($_SESSION['glftpd_auth_user']) ? "<pre>\$_SESSION['glftpd_auth_user']={$_SESSION['glftpd_auth_user']}</pre>" : '' ) ?>
+        <?= (!empty($_SERVER['PHP_AUTH_USER']) ? "<pre>\$_SERVER['PHP_AUTH_USER']={$_SERVER['PHP_AUTH_USER']}</pre>" : '' ) ?>
+        <?= (!empty($_SERVER['HTTP_CLIENT_IP']) ? "<pre>\$_SERVER['HTTP_CLIENT_IP']={$_SERVER['HTTP_CLIENT_IP']}</pre>" : '' ) ?>
+        <pre>$_SERVER['REMOTE_ADDR']=<?= $_SERVER['REMOTE_ADDR'] ?></pre>
+        <pre>$_SERVER['HTTP_X_FORWARDED_FOR']=<?= $_SERVER['HTTP_X_FORWARDED_FOR'] ?></pre>
+        <pre>$_POST=<?= print_r($_POST, true)?></pre>
+        <pre>$_SERVER=<?= print_r($_SERVER, true) ?></pre>
+        <pre>$_SESSION=<?= print_r($_SESSION, true)?></pre>
+    <?php endif ?>
 
 </body>
 </html>
