@@ -4,6 +4,27 @@
  *   SHIT:FRAMEWORK auth index
  *--------------------------------------------------------------------------*/
 
+// Needs nginx auth_request module:
+//
+//   From https://nginx.org/en/docs/http/ngx_http_auth_request_module.html
+//
+// " If the subrequest returns a 2xx response code, the access is allowed.
+//   If it returns 401 or 403, the access is denied with the corresponding error code.
+//   Any other response code returned by the subrequest is considered an error.
+//   For the 401 error, the client also receives the "WWW-Authenticate" header from the subrequest response. "
+//
+
+// Auth flow:
+//
+//        .--------------------------------------.
+//        |  (200)                               |
+//       \/                            .---> already logged in
+// /index.php ---> auth/index.php -> auth/login.php
+//           (302)                     `---> auth/login.php(POST) ---> auth/index.php(200) ---> /index.php
+//                                                         |                                     ^ 
+//                                                         '---  (login: 'both' or 'glftpd')  ---'
+//
+
 if (!file_exists("/app/config.php")) {
     http_response_code(404);
     exit;
