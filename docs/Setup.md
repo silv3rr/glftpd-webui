@@ -160,7 +160,7 @@ _auth.sh makes any needed changes to nginx config and config.php and is be trigg
 
 #### basic
 
-Uses nginx and htpasswd to store user/password.
+Uses nginx and htpasswd to store user/password (in /etc/nginx/.htpasswd).
 
 Docker: set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change credentials.
 
@@ -172,7 +172,7 @@ Besides gl user/pass, also checks userfile for '+1' flag (SITEOP) and compares a
 
 #### both
 
-Combines 'basic' and 'glftpd' modes. For basic auth, php handles browser input window and compares `username` and password to `'http_auth'` setting from config.php (instead of nginx/htpasswd). To force browser to relogin, try url http:/xxx@your.ip:4444
+Combines 'basic' and 'glftpd' modes. For basic auth, php handles browser input window and compares `username` and password to `'http_auth'` setting from config.php (**instead** of nginx/htpasswd). To force browser to relogin, try url http:/xxx@your.ip:4444
 
 Docker: set `WEBUI_AUTH_MODE` and `WEBUI_AUTH_USER` and `WEBUI_AUTH_PASS` to change http auth credentials. Can also be changed in docker-run.sh or docker-compose.yml.
 
