@@ -99,8 +99,37 @@ if [ -z "$NETWORK" ]; then
   fi
 fi
 
+
+# local: check for existing glftpd install on host
 if [ "${WEBUI_LOCAL:-0}" -eq 1 ]; then
-  WEBUI_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd},dst=/glftpd "
+  if [ -z "$GL_DIR" ]; then
+    for i in /jail/glftpd /glftpd; do
+      if [ -d "$i/site" ] && [ -f "$i/bin/glftpd" ]; then
+        GL_DIR="$i"
+        echo "Found glftpd on host: $i (GL_DIR set)"
+        break
+      fi
+    done
+  fi
+  if [ -n "$GL_DIR" ]; then
+    WEBUI_ARGS+=" --ipc=host "
+    echo "* Using hosts IPC namespace"
+    NETWORK="host"
+    WEBUI_ARGS+=" --mount type=bind,src=${GL_DIR:-/glftpd},dst=/glftpd "
+    echo "* Mounting \$GL_DIR as /glftpd"
+  fi
+fi
+
+# local: exception, systemd dbus broker (debian)
+if [ "${WEBUI_DBUS:-0}" -eq 1 ]; then
+  DOCKER_IMAGE_WEBUI="docker-glftpd-web:debian"
+  WEBUI_ARGS+=" --privileged -v /run/systemd:/run/systemd  -v /run/dbus:/run/dbus "
+  echo "* Using systemd and dbus broker to start/stop glftpd"
+  sed -i -r "s|^(.*'env_bus'\s*=>\s*\")(.*)(\",.*)$|\1/usr/bin/env SYSTEMCTL_FORCE_BUS=1\3|" /app/config.php
+fi
+
+# set port
+if [ "${NETWORK:-"bridge"}" = "host" ]; then
   WEBUI_ARGS+=" --env WEBUI_PORT=4444 "
   echo "* Running webui on host network: https://localhost:4444"
 else
