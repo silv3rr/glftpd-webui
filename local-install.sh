@@ -6,12 +6,12 @@ VERSION=V4
 #
 # VARIABLES:
 #
-# APPDIR="<path>" 
-# WWW_ROOT="<path>"
-# BIN_DIR="<path>
-# GLDIR="<path>" 
-# YES=0|1
-# DRYRUN=0|1
+# APPDIR="<path>"                  app dir (default is 'glftpd-webui')
+# WWW_ROOT="<path>"                web server root (default is '/var/www'
+# BIN_DIR="<path>                  binaries (default is /usr/local/bin)
+# GL_DIR="<path>"                   glftpd install dir (default is '/glftpd')
+# YES=0|1                          auto answer yes to prompts
+# DRYRUN=0|1                       test, dont change anything
 #
 # HELP: './local-install.sh -h'
 #
@@ -26,7 +26,7 @@ APPDIR="glftpd-webui"
 AUTHDIR="glftpd-webui-auth"
 WWW_ROOT="${1:-/var/www}"
 BIN_DIR="${2:-/usr/local/bin}"
-GLDIR="${3:-/glftpd}"
+GL_DIR="${3:-/glftpd}"
 #YES=0
 #DRYRUN=1
 
@@ -59,13 +59,13 @@ echo "Installs webgui to host with existing glftpd setup (tested on debian)"
 echo "Note that using *docker* is recommended instead of local install"
 echo
 if echo "$*" | grep -Eiq '\-h'; then
-    echo "Usage: $0 [WWW_ROOT] [BIN_DIR] [GLDIR] [YES|DRYRUN]"
+    echo "Usage: $0 [WWW_ROOT] [BIN_DIR] [GL_DIR] [YES|DRYRUN]"
     echo
     echo "Options:"
     echo
     echo "  WWW_ROOT    webservers document root  (default: /var/www)"
     echo "  BIN_DIR     dir for binaries and scripts like gltool"
-    echo "  GLDIR       glftpd dir  (default: /glftpd)"
+    echo "  GL_DIR       glftpd dir  (default: /glftpd)"
     echo "  DRYRUN      shows commands only, do not actually run"
     echo "  YES         do not prompt"
     echo
@@ -83,7 +83,7 @@ echo
 
 # args
 
-for i in $WWW_ROOT $BIN_DIR $GLDIR; do
+for i in $WWW_ROOT $BIN_DIR $GL_DIR; do
     if ! test -d "$i"; then
         echo "ERROR: specified dir '$i' not found"
         $EXIT_ERR
@@ -128,7 +128,7 @@ if [ "${YES:-0}" -ne 1 ]; then
     fi
 fi
 
-if [ "$( id -u )" -ne 0 ]; then 
+if [ "$( id -u )" -ne 0 ]; then
     echo "ERROR: $0 needs root to run"
     exit 1
 fi
@@ -194,21 +194,21 @@ done
 
 echo
 
-if [ -z "$GLDIR" ]; then
+if [ -z "$GL_DIR" ]; then
     for i in /glftpd /jail/glftpd; do
         if [ -d $i ]; then
-            GLDIR="$i"
+            GL_DIR="$i"
             break
         fi
     done
 fi
 
-if [ -d "$GLDIR" ]; then
-    echo "Detected glftpd dir: '$GLDIR'"
+if [ -d "$GL_DIR" ]; then
+    echo "Detected glftpd dir: '$GL_DIR'"
     echo
     #if [ -z "$2" ]; then
-    #    BIN_DIR="${GLDIR}/bin"
-    #    echo "Bin dir set to: '${GLDIR}/bin'"
+    #    BIN_DIR="${GL_DIR}/bin"
+    #    echo "Bin dir set to: '${GL_DIR}/bin'"
     #fi
 else    
     echo "Could not locate glftpd dir"
@@ -296,13 +296,11 @@ for i in dhparam.pem webui.cnf webui.crt webui.key; do
 done
 $MKDIR -v -p /etc/nginx/http.d
 $MKDIR -v -p /etc/nginx/auth.d
-for i in auth-server.conf webui.conf; do
-    $COPY -v etc/nginx/http.d/$i.template /etc/nginx/http.d
-done
+$COPY -v etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/glftpd-webui-auth-server.conf
+$COPY -v etc/nginx/http.d/webui.conf.template /etc/nginx/http.d/glftpd-webui.conf
 for i in allow.conf auth_basic.conf auth_off.conf auth_request.conf; do
     $COPY -v etc/nginx/auth.d/$i.template /etc/nginx/auth.d
 done
-$COPY -v etc/nginx/http.d/webui.conf.template /etc/nginx/http.d/glftpd-webui.conf
 $COPY -v etc/nginx/auth.d/allow.conf.template /etc/nginx/auth.d/allow.conf
 
 if [ ! -s /etc/nginx/.htpasswd ]; then
@@ -420,7 +418,7 @@ fi
 # config.php
 
 $SED -i -r "s|^(.*'bin_dir'\s*=>\s*\")(.*)(\",.*)$|\1${BIN_DIR}\3|" "${WWW_ROOT}/${APPDIR}/config.php"
-$SED -i -r "s|^(.*'glftpd_dir'\s*=>\s*\")(.*)(\",.*)$|\1${GLDIR}\3|" "${WWW_ROOT}/${APPDIR}/config.php"
+$SED -i -r "s|^(.*'glftpd_dir'\s*=>\s*\")(.*)(\",.*)$|\1${GL_DIR}\3|" "${WWW_ROOT}/${APPDIR}/config.php"
 
 echo
 
