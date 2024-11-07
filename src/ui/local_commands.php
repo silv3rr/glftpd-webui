@@ -67,7 +67,7 @@ return array(
     'flag_raw'              => '"{$bin_dir}/gltool.sh" -c RAWFLAG -u "{$username}"',
     'creds_raw'             => '"{$bin_dir}/gltool.sh" -c RAWCREDS -u "{$username}"',
     'reset_user_stats'      => '"{$bin_dir}/gltool.sh" -c RESETUSERSTATS -u "{$username}"',
-    'auth_mode'             => '{$runas} "{$bin_dir}/auth.sh {$mode}',
+    'change_auth'           => '{$runas} "{$bin_dir}/auth.sh {$mode} {$username} {$password}',
     'nginx_reload'          => '{$runas} nginx -s reload',
     'glftpd_conn'           => '{$runas} netstat -nap|grep {$this->cfg["glftpd"]["port"} || {$runas} ss -nap|grep {$this->cfg["glftpd"]["port"}; }'
 );

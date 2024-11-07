@@ -68,8 +68,7 @@ return array(
     'flag_raw'              => array("exec", '{$gl_ct_name}', '["{$bin_dir}/gltool.sh", "-c", "RAWFLAG", "-u", "{$username}"]'),
     'creds_raw'             => array("exec", '{$gl_ct_name}', '["{$bin_dir}/gltool.sh", "-c", "RAWCREDS", "-u", "{$username}"]'),
     'reset_user_stats'      => array("exec", '{$gl_ct_name}', '["{$bin_dir}/gltool.sh", "-c", "RESETUSERSTATS", "-u", "{$username}"]'),
-    'auth_mode'             => array("exec", '{$web_ct_name}', '["/auth.sh", "{$mode}"]'),
-    'auth_user_pass'        => array("exec", 'glftpd-web', '["/auth.sh", "{$mode}", "{$username}", "{$password}"]'),
+    'change_auth'           => array("exec", '{$web_ct_name}', '["/auth.sh", "{$mode}", "{$username}", "{$password}"]'),
     'nginx_reload'          => array("exec", '{$web_ct_name}', '["nginx", "-s", "reload"]'),
     'ps_gotty_proc'         => array("exec", '{$gl_ct_name}', '["sh", "-c", "grep -ar [gG]otty /proc/[0-9]*/cmdline"]'),
 );
