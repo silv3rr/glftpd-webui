@@ -126,21 +126,10 @@ if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === 
             }
         };
 
-    if (!empty($http_user) || !empty($http_passwd)) {
-        $contents = file_get_contents('/app/config.php');
-        $search = "/('http_auth'.*=>.*)\['username'.*=>.*'password'.*=>.*\],/";
-        $replace = "$1" . "['username' => '" . $http_user . "' , 'password' => '". $http_passwd . "'],";
-        $result = preg_replace($search, $replace, $contents);
-        //print('<pre>DEBUG: auth index.php http_passwd \$result=' . print_r($result, true) . '</pre>');
-        unset($http_user);
-        unset($http_passwd);
-        unset($_POST['http_passwd']);
-        unset($_SESSION['http_auth_result']);
-        $_SESSION['http_passwd_result'] = "1";
-        file_put_contents('/app/config.php', $result);
-        //header("Location: /auth/login.php", 200);
-        http_response_code(200);
-        exit;
+        if (!empty($auth_debug) && $auth_debug !== 1) {
+            header("Location: /auth/login.php", 200);
+            exit;
+        };
     }
 }
 
