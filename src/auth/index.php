@@ -114,13 +114,17 @@ if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === 
             session_destroy();
         }
 
-        $_SESSION['auth_mode_result'] = "1";
-        exit;
-        //if(!empty($auth_debug) && $auth_debug !== 1) {
-        //    header("Location: /auth/login.php", 200);
-        //    exit;
-        //}
-    }
+        if (is_array($result) && preg_grep('/CONFIG_AUTH_MODE=1/', $result)) {
+            $_SESSION['change_auth_mode_result'] = "1";
+        }
+        if (is_array($result) && preg_grep('/CONFIG_USER_PASSWORD=1/', $result)) {
+            if (!empty($change_user_user)) {
+                $_SESSION['change_http_user_result'] = "1";
+            }
+            if (!empty($change_http_user)) {
+                $_SESSION['change_http_password_result'] = "1";
+            }
+        };
 
     if (!empty($http_user) || !empty($http_passwd)) {
         $contents = file_get_contents('/app/config.php');
