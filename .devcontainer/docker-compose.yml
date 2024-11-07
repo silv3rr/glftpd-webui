@@ -60,7 +60,6 @@ services:
       - ./lib:/app/lib:cached
       #- ./lib/apr1-md5:/auth/lib/apr1-md5:cached
       #- ./lib/PHP-Htpasswd:/auth/lib/PHP-Htpasswd:cached
-      - ./lib/ip-lib:/auth/lib/ip-lib:cached
       - ./templates:/app/templates:cached
       - ./assets:/app/assets:cached
       # use local gldir
@@ -102,9 +101,8 @@ services:
       - ./src/config.php:/app/config.php:cached
       - ./src/auth:/auth:cached
       - ./lib:/app/lib:cached
-      - ./lib/apr1-md5:/auth/lib/apr1-md5:cached
-      - ./lib/ip-lib:/auth/lib/ip-lib:cached
-      - ./lib/PHP-Htpasswd:/auth/lib/PHP-Htpasswd:cached
+      #- ./lib/apr1-md5:/auth/lib/apr1-md5:cached
+      #- ./lib/PHP-Htpasswd:/auth/lib/PHP-Htpasswd:cached
       - ./templates:/app/templates:cached
       - ./assets:/app/assets:cached
       # use local gldir

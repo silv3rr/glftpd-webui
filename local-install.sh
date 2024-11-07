@@ -33,7 +33,6 @@ GL_DIR="${3:-/glftpd}"
 BINS="hashgen passchk pywho spy"
 STATIC_BINS="auth.sh gltool.sh gotty"
 #AUTH_LIBS="lib/apr1-md5 lib/ip-lib lib/PHP-Htpasswd"
-AUTH_LIBS="lib/apr1-md5"
 CHECK_SRC_PATHS="
     assets/js/*.js
     assets/css/*.css
@@ -280,9 +279,7 @@ for i in assets lib templates; do
 done
 $MKDIR -v -p "${WWW_ROOT}/${APPDIR}/lib"
 $COPY -u -r -v src/auth "${WWW_ROOT}/${AUTHDIR}"
-# shellcheck disable=SC2086
-$COPY -u -r $AUTH_LIBS "${WWW_ROOT}/${AUTHDIR}/lib"
-$COPY -u -r lib/apr1-md5 lib/PHP-Htpasswd  "${WWW_ROOT}/${APPDIR}/lib"
+#$COPY -u -r $AUTH_LIBS "${WWW_ROOT}/${AUTHDIR}/lib"
 $COPY -u -r -v README.md docs "${WWW_ROOT}/${APPDIR}/templates"
 if [ ! -s "${WWW_ROOT}${APPDIR}/config.php" ]; then
     $COPY -v src/config.php.dist "${WWW_ROOT}/${APPDIR}/config.php"

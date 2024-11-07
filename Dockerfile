@@ -28,13 +28,11 @@ COPY --chown=0:0 bin/gltool.sh bin/gotty bin/alpine/passchk bin/alpine/pywho bin
 COPY --chown=0:0 etc/dot_gotty /var/lib/nginx/.gotty
 #COPY --chown=0:0 etc/webspy/ /usr/local/bin/webspy/
 COPY --chown=100:101 assets/ /app/assets/
-#COPY --chown=100:101 --exclude=ip-lib lib/ /app/lib/
 COPY --chown=100:101 lib/ /app/lib/
 COPY --chown=100:101 src/ui /app/
 COPY --chown=100:101 src/config.php.dist /app/config.php
 COPY --chown=100:101 templates/ /app/templates/
 COPY --chown=100:101 src/auth /auth/
-COPY --chown=100:101 lib/ip-lib /auth/lib/
 COPY --chown=100:101 README.md docs /app/templates/
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # hadolint ignore=SC2016,SC2086,DL3018
@@ -81,5 +79,5 @@ RUN test -n "$http_proxy" && { \
   echo 'shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740' > /etc/nginx/.htpasswd && \
   chown 65534:root /etc/nginx/.htpasswd && \
   addgroup nobody ping && \
-  rm -rf /tmp/* /var/tmp/* /app/lib/ip-lib
+  rm -rf /tmp/* /var/tmp/*
 ENTRYPOINT [ "/entrypoint.sh" ]

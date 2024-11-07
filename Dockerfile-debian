@@ -29,13 +29,11 @@ COPY --chown=0:0 bin/gltool.sh bin/gotty bin/debian/passchk bin/debian/pywho bin
 COPY --chown=0:0 etc/dot_gotty /var/www/.gotty
 #COPY --chown=0:0 etc/webspy/ /usr/local/bin/webspy/
 COPY --chown=33:33 assets/ /app/assets/
-#COPY --chown=33:33 --exclude=ip-lib lib/ /app/lib/
 COPY --chown=33:33 lib/ /app/lib/
 COPY --chown=33:33 src/ui /app/
 COPY --chown=33:33 src/config.php.dist /app/config.php
 COPY --chown=33:33 templates/ /app/templates/
 COPY --chown=33:33 src/auth /auth/
-COPY --chown=33:33 lib/ip-lib /auth/lib/
 COPY --chown=33:33 README.md docs /app/templates/
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 # hadolint ignore=SC2016,SC2086,DL3018,DL3008
@@ -88,5 +86,5 @@ RUN test -n "$http_proxy" && \
   echo 'shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740' > /etc/nginx/.htpasswd && \
   chown www-data:root /etc/nginx/.htpasswd && \
   #addgroup nobody ping && \
-  rm -rf /tmp/* /var/tmp/* /app/lib/ip-lib
+  rm -rf /tmp/* /var/tmp/*
 ENTRYPOINT [ "/entrypoint.sh" ]

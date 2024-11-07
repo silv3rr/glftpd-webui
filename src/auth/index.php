@@ -245,7 +245,7 @@ if (!empty($cfg['auth'])) {
             $glftpd_user = htmlspecialchars(trim($_POST['glftpd_user']));
             $glftpd_password = htmlspecialchars(trim($_POST['glftpd_password']));
 
-            require_once 'lib/ip-lib/ip-lib.php';
+            require_once 'ip-lib/ip-lib.php';
 
             function validate_hostmask($host) {
                 $pattern = "/(?:.*@)?(?!-)(?!.*--)[A-Za-z0-9-]{1,63}(?<!-)(?:\.[A-Za-z0-9]{2,63})?$/";
