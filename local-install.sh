@@ -278,7 +278,7 @@ for i in assets lib templates; do
     $COPY -u -r "$i" "${WWW_ROOT}/${APPDIR}"
 done
 $MKDIR -v -p "${WWW_ROOT}/${APPDIR}/lib"
-$COPY -u -r -v src/auth "${WWW_ROOT}/${AUTHDIR}"
+$COPY -u -r -v src/auth/* "${WWW_ROOT}/${AUTHDIR}"
 #$COPY -u -r $AUTH_LIBS "${WWW_ROOT}/${AUTHDIR}/lib"
 $COPY -u -r -v README.md docs "${WWW_ROOT}/${APPDIR}/templates"
 if [ ! -s "${WWW_ROOT}${APPDIR}/config.php" ]; then

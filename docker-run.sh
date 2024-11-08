@@ -1,12 +1,13 @@
 #!/bin/bash
-
+VERSION=V4
 ################################## ################################   ####  # ##
-# >> DOCKER-RUN-GLFTPD-V3 :: WEBUI
+# >> DOCKER-RUN-GLFTPD :: WEBUI
 ################################## ################################   ####  # ##
 # ENVIRONMENT VARIABLES:
 #
 # GL_DATA="<path>"                 basedir for gl bind mounts (default=./glftpd)
-#                                  ( to reuse existing install set to /glftpd )
+#                                  gl/bot config and data is stored here
+# GL_DIR="<path>"                  optional path to (existing) gl install
 # WEBUI_LOCAL=1                    run commands on same host, no gl docker [0|1]
 # WEBUI_AUTH_MODE="<mode>"         auth mode [basic|glftpd|both|none]  (basic)
 # NETWORK="<network>"              docker network mode [host|bridge]   (bridge)
@@ -14,14 +15,16 @@
 #
 # WEBUI_ARGS+= " --any-other-flags "      add any other docker run options
 #
+#  (*) to reuse existing install set GL_DATA to /glftpd
+#
 ###################################################################   ####  # ##
 
 #DEBUG=0
 #GL_DATA="./glftpd"
-#GL_DIR="/glftpd"
 GLFTPD=0
 WEBUI=1
 #WEBUI_LOCAL=1
+#WEBUI_DBUS=0
 #WEBUI_AUTH_MODE="basic"
 #NETWORK="host"
 DOCKER_REGISTRY="ghcr.io/silv3rr"
@@ -80,7 +83,7 @@ else
 fi
 
 echo "----------------------------------------------"
-echo "DOCKER-GLFTPD-RUN-V3"
+echo "DOCKER-GLFTPD-RUN-${VERSION}"
 echo "----------------------------------------------"
 
 # set runtime docker args
@@ -98,7 +101,6 @@ if [ -z "$NETWORK" ]; then
     NETWORK="shit"
   fi
 fi
-
 
 # local: check for existing glftpd install on host
 if [ "${WEBUI_LOCAL:-0}" -eq 1 ]; then

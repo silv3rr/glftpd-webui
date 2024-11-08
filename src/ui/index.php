@@ -42,7 +42,6 @@ $debug = new debug;
 $data = new data;
 
 // TODO: change config with form and or env vars
-
 /* change config, example:
 $config = cfg::load();
 $config = cfg::set($config, 'auth', 'none');
