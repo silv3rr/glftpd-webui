@@ -1,34 +1,55 @@
 #!/bin/sh
+VERSION=V4
+################################## ################################   ####  # ##
+# >> GLFTPD-WEBUI-AUTH
+################################## ################################   ####  # ##
+#
+# Setup auth mode, changes nginx templates and webgui's config.php
+# USAGE: auth.sh <basic|glftpd|both|none> [username] [password]
+#
+################################## ################################   ####  # ##
 
-# glftpd-webui auth setup :: nginx templates and config.php
+AUTH_MODES="basic|glftpd|both|none"
+# shellcheck disable=SC2016
+DEFAULT_HTPASSWD='shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740'
 
 if [ "$( id -u )" -ne 0 ]; then
     echo "ERROR: $0 needs root to run"
     exit 1
 fi
 
-if [ ! -s /etc/nginx/http.d/webui.conf ]; then
-  echo "ERROR: /etc/nginx/http.d/webui.conf not found"
-  exit 1
-fi
-
-# shellcheck disable=SC2016
-default_htpasswd='shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740'
-modes="basic|glftpd|both|none"
-
-if [ -z "$APPDIR" ]; then
-  for i in /app /var/www/glftpd-webui; do
+if [ -z "$NGINX_ETC_DIR" ]; then
+  for i in /etc/nginx ./etc/nginx ; do
     if [ -d "$i" ]; then
-      APPDIR="$i"
+      NGINX_ETC_DIR="$i"
       break
     fi
   done
 fi
 
-if [ -z "$AUTHDIR" ]; then
-  for i in /auth /var/www/glftpd-webui-auth; do
+if [ ! -d "$NGINX_ETC_DIR" ]; then
+  echo "ERROR: nginx conf dir not found"
+  exit 1
+fi
+
+if [ ! -s "${NGINX_ETC_DIR}/http.d/webui.conf" ]; then
+  echo "ERROR: ${NGINX_ETC_DIR}/http.d/webui.conf not found"
+  exit 1
+fi
+
+if [ -z "$APP_DIR" ]; then
+  for i in /app /var/www/glftpd-webui ./src; do
     if [ -d "$i" ]; then
-      AUTHDIR="$i"
+      APP_DIR="$i"
+      break
+    fi
+  done
+fi
+
+if [ -z "$AUTH_DIR" ]; then
+  for i in /auth /var/www/glftpd-webui-auth ./src/auth; do
+    if [ -d "$i" ]; then
+      AUTH_DIR="$i"
       break
     fi
   done
@@ -37,7 +58,7 @@ fi
 if [ -n "$WEBUI_AUTH_USER" ]; then
   USERNAME="$WEBUI_AUTH_USER"
 fi
-if [ -n "$WEBUI_AUTH_pairSS" ]; then
+if [ -n "$WEBUI_AUTH_PASS" ]; then
   PASSWORD="$WEBUI_AUTH_PASS"
 fi
 if [ -n "$WEBUI_AUTH_MODE" ]; then
@@ -61,76 +82,78 @@ RESULT_AUTH_CONFIG=0
 RESULT_RELOAD_NGINX=0
 RESULT_TMPL=0
 
-if cp -f /etc/nginx/auth.d/allow.conf.template /etc/nginx/auth.d/allow.conf; then
-  RESULT_ALLOW_TMPL=1
-fi
+cp -f "${NGINX_ETC_DIR}/auth.d/allow.conf.template" "${NGINX_ETC_DIR}/auth.d/allow.conf" || RESULT_ALLOW_TMPL=1
 
-if echo "$AUTH" | grep -Eq "^($modes)$"; then
-  echo "$(date '+%F %T') Setting webgui auth mode to '$AUTH'..." | logger -s
+if echo "$AUTH" | grep -Eq "^($AUTH_MODES)$"; then
+  LOG="$(date '+%F %T') GLFTPD-WEBUI-AUTH-${VERSION} Setting mode to '$AUTH'..."
+  echo "$LOG"
+  test -f "/.dockerenv" && logger "$LOG"
   case $AUTH in
     basic)
       if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
-        if ! command -v htpasswd >/dev/null 2>&1; then
-          echo "$PASSWORD" | htpasswd -n -i "$USERNAME" > /etc/nginx/.htpasswd && RESULT_HTPASSWD=1
-        else
-          printf '%s:%s\n' "$USERNAME" "$(openssl passwd -5 "$PASSWORD")">> /etc/nginx/.htpasswd && RESULT_HTPASSWD=1
+        if command -v htpasswd >/dev/null 2>&1; then
+          echo "$PASSWORD" | htpasswd -n -i "$USERNAME" > "${NGINX_ETC_DIR}/.htpasswd" || RESULT_HTPASSWD=1
+        elif command -v openssl >/dev/null 2>&1; then
+          printf '%s:%s\n' "$USERNAME" "$(openssl passwd -5 "$PASSWORD")">> "${NGINX_ETC_DIR}/.htpasswd" || RESULT_HTPASSWD=1
         fi
       else
-        echo "$default_htpasswd" > /etc/nginx/.htpasswd && RESULT_HTPASSWD=1
+        echo "$DEFAULT_HTPASSWD" > "${NGINX_ETC_DIR}/.htpasswd" || RESULT_HTPASSWD=1
       fi
-      rm -f /etc/nginx/auth.d/auth_request.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/auth-server.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/auth.d/auth_off.conf.template /etc/nginx/auth.d/auth_off.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/auth.d/auth_basic.conf.template /etc/nginx/auth.d/auth_basic.conf && RESULT_TMPL=1 || RESULT_TMPL=0
+      rm -f "${NGINX_ETC_DIR}/auth.d/auth_request.conf" || RESULT_TMPL=1
+      for i in http.d/auth-server.conf auth.d/auth_off.conf auth.d/auth_basic.conf; do
+        cp -f "${NGINX_ETC_DIR}/$i.template" "${NGINX_ETC_DIR}/$i" || RESULT_TMPL=1
+      done
     ;;
     glftpd)
-      rm -f /etc/nginx/.htpasswd && RESULT_TMPL=1 || RESULT_TMPL=0
-      rm -f /etc/nginx/auth.d/auth_basic.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/auth-server.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/auth.d/auth_off.conf.template /etc/nginx/auth.d/auth_off.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/auth.d/auth_request.conf.template /etc/nginx/auth.d/auth_requ && RESULT_TMPL=1 || RESULT_TMPL=0est.conf
-      #echo "auth_basic off;" > /etc/nginx/auth.d/auth_basic.conf
+      rm -f "${NGINX_ETC_DIR}/.htpasswd" || RESULT_TMPL=1
+      rm -f "${NGINX_ETC_DIR}/auth.d/auth_basic.conf" || RESULT_TMPL=1
+      for i in http.d/auth-server.conf auth.d/auth_off.conf auth.d/auth_request.conf; do
+        cp -f "${NGINX_ETC_DIR}/$i.template" "${NGINX_ETC_DIR}/$i" || RESULT_TMPL=1
+      done
+      #echo "auth_basic off;" > "${NGINX_ETC_DIR}/auth.d/auth_basic.conf"
     ;;
     both)
       if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
-        if [ -n "$PASSWORD" ]; then
-          PMSG=" and password to '***'"
-        fi
-        echo "$(date '+%F %T') Setting webgui username to '$USERNAME'$PMSG..." | logger -s
-        out="$(sed "s|^\(.*'http_auth'\s*=>\).*$|\1 \['username\' => '$USERNAME', 'password' => '$PASSWORD'\],|" "${APPDIR:-/app}/config.php";)"
-        if [ -n "$out" ]; then
-          echo "$out" > "${APPDIR:-/app}/config.php" && RESULT_USER_PASS_CONFIG=1
+        test -n "$PASSWORD" && PW_MSG=" and password to '***'"
+        LOG="$(date '+%F %T') GLFTPD-WEBUI-AUTH-${VERSION} Setting username to '$USERNAME'${PW_MSG}..."
+        echo "$LOG"
+        test -f "/.dockerenv" && logger "$LOG"
+        OUT="$(sed "s|^\(.*'http_auth'\s*=>\).*$|\1 \['username\' => '$USERNAME', 'password' => '$PASSWORD'\],|" "${APP_DIR:-/app}/config.php";)"
+        if [ -n "$OUT" ]; then
+          echo "$OUT" > "${APP_DIR:-/app}/config.php" || RESULT_USER_PASS_CONFIG=1
         fi
       fi
-      rm -f /etc/nginx/.htpasswd && RESULT_TMPL=1 || RESULT_TMPL=0
-      rm -f /etc/nginx/auth.d/auth_basic.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/http.d/auth-server.conf.template /etc/nginx/http.d/auth-server.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/auth.d/auth_off.conf.template /etc/nginx/auth.d/auth_off.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      cp -f /etc/nginx/auth.d/auth_request.conf.template /etc/nginx/auth.d/auth_request.conf && RESULT_TMPL=1 || RESULT_TMPL=0
+      rm -f "${NGINX_ETC_DIR}/.htpasswd" || RESULT_HTPASSWD=1
+      rm -f "${NGINX_ETC_DIR}/auth.d/auth_basic.conf" || RESULT_TMPL=1
+      for i in http.d/auth-server.conf auth.d/auth_off.conf auth.d/auth_request.conf; do
+        cp -f "${NGINX_ETC_DIR}/$i.template" "${NGINX_ETC_DIR}/$i" || RESULT_TMPL=1
+      done
     ;;
     none)
-      rm -f /etc/nginx/.htpasswd && RESULT_TMPL=1 || RESULT_TMPL=0
-      rm -f /etc/nginx/http.d/auth-server.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      rm -f /etc/nginx/auth.d/auth_off.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      rm -f /etc/nginx/auth.d/auth_basic.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      rm -f /etc/nginx/auth.d/auth_request.conf && RESULT_TMPL=1 || RESULT_TMPL=0
-      rm -f /etc/nginx/sites-enabled/auth-server && RESULT_TMPL=1 || RESULT_TMPL=0
+      rm -f "${NGINX_ETC_DIR}/.htpasswd" || RESULT_TMPL=1
+      for i in http.d/auth-server.conf auth.d/auth_off.conf auth.d/auth_basic.conf auth.d/auth_request.conf sites-enabled/auth-server; do
+        rm -f "${NGINX_ETC_DIR}/$i" || RESULT_TMPL=1
+      done
     ;;
   esac
-
-  if [ ! -f /.dockerenv ] && [ -n "$APPDIR" ] && [ -n "$AUTHDIR" ]; then
-    sed -i 's|/app/config.php|'"${APPDIR}/config.php"'|g' "${AUTHDIR}/index.php" "${AUTHDIR}/login.php"
-    sed -i "s|'/app/|'${APPDIR}/|g" "${AUTHDIR}/index.php"
-    sed -i 's|root /app;|root '"${APPDIR}"';|g' /etc/nginx/http.d/webui.conf
-    sed -i 's|root /auth;|root '"${AUTHDIR}"';|g' /etc/nginx/http.d/auth-server.conf
+  #  local install: restore dir paths
+  if [ ! -f /.dockerenv ] && [ -n "$APP_DIR" ] && [ -n "$AUTH_DIR" ]; then
+    if echo "$APP_DIR" | grep -Eq '^/' && echo "$AUTH_DIR" | grep -Eq '^/' && echo "$NGINX_ETC_DIR" | grep -Eq '^/'; then
+      sed -i 's|/app/config.php|'"${APP_DIR}/config.php"'|g' "${APP_DIR}/index.php" "${AUTH_DIR}/login.php"
+      sed -i "s|'/app/|'${APP_DIR}/|g" "${APP_DIR}/index.php"
+      sed -i 's|root /app;|root '"${APP_DIR}"';|g' "${NGINX_ETC_DIR}/http.d/webui.conf"
+      sed -i 's|root /auth;|root '"${AUTH_DIR}"';|g' "${NGINX_ETC_DIR}/http.d/auth-server.conf"
+    fi
   fi
-  out=$(sed -r "s/^(.*'auth'\s*=>\s*\")($modes|)(\",.*)$/\1$AUTH\3/" "${APPDIR:-/app}/config.php")
-  if [ -n "$out" ]; then
-    echo "$out" > "${APPDIR:-/app}/config.php" && RESULT_AUTH_CONFIG=1
+  OUT=$(sed -r "s/^(.*'auth'\s*=>\s*\")($AUTH_MODES|)(\",.*)$/\1$AUTH\3/" "${APP_DIR:-/app}/config.php")
+  if [ -n "$OUT" ]; then
+    echo "$OUT" > "${APP_DIR:-/app}/config.php" || RESULT_AUTH_CONFIG=1
   fi
-  pgrep nginx >/dev/null 2>&1 && /usr/sbin/nginx -s reload && RESULT_RELOAD_NGINX=1
+  if command -v /usr/sbin/nginx >/dev/null 2>&1; then
+    pgrep nginx >/dev/null 2>&1 && /usr/sbin/nginx -s reload || RESULT_RELOAD_NGINX=1
+  fi
 elif [ -n "$1" ]; then
-  echo "$0 <$modes> [username] [password]"
+  echo "USAGE: $0 <$AUTH_MODES> [username] [password]"
 fi
 
 if [ "$AUTH" = "basic" ]; then
@@ -139,5 +162,5 @@ if [ "$AUTH" = "basic" ]; then
 if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
   RESULT="$RESULT CONFIG_USER_PASSWORD=$RESULT_USER_PASS_CONFIG "
 fi
-echo "RESULT: $RESULT ALLOW=$RESULT_ALLOW_TMPL TEMPLATES=$RESULT_TMPL CONFIG_AUTH_MODE=$RESULT_AUTH_CONFIG RELOAD_NGINX=$RESULT_RELOAD_NGINX"
-
+echo "RESULT: CHANGED NGINX_ETC_DIR='$NGINX_ETC_DIR' APP_DIR='$APP_DIR' AUTH_DIR='$AUTH_DIR'"
+echo "RESULT: ALLOW=$RESULT_ALLOW_TMPL TEMPLATES=$RESULT_TMPL CONFIG_AUTH_MODE=$RESULT_AUTH_CONFIG RELOAD_NGINX=$RESULT_RELOAD_NGINX"
