@@ -10,7 +10,7 @@ Shows online users, status and stops/starts glftpd. Can also be used to view log
 
 _Main page UI, click to enlarge_
 
-[![main](docs/images/webui_small.png "Main page")](docs/images/webui.png)
+> [![main](docs/images/webui_small.png "Main page")](docs/images/webui.png)
 
 ## Usage
 
@@ -24,7 +24,7 @@ Pick one of these 3 options
 
 **1**) The easiest and preferred way to use glftpd-webui is to run both glftpd and webui in 2 docker containers.
 
-> Oh, look -- here's a *Ready-to-go **complete glftpd install**, including webui:
+> _Oh, look -- here's a *Ready-to-go **complete glftpd install**, including webui:_
 > <https://github.com/silv3rr/docker-glftpd>*
 
 **2**) If you do not want to use glftpd in docker, use 'local' mode (glftpd-webui itself will still run in container)
@@ -36,6 +36,8 @@ Pick one of these 3 options
 Options such as 'webui-mode', 'auth', a custom html title and display settings can be changed in `config.php`.
 
 For details about installation and settings see [docs/Setup.md](docs/Setup.md)
+
+Auth and http user/passwd can be changed via webui after logging in.
 
 ### Requirements
 
@@ -61,12 +63,14 @@ Edit 'docker-compose.yml' to change mounts, ports, vars etc. If you dont want th
 
 ## Image
 
-- base: latest alpine
+- base: latest alpine (_or debian_*)
 - size: ~50mb
 - webserver: nginx, php8 fpm
 - stand-alone & fully separate image from 'glftpd'
 - logs: nginx logs to stderr/stdout
 - view access logs with `docker logs glftpd-web`
+
+_\* debian image available for using systemd and dbus broker, not needed usually_
 
 ## Variables
 
@@ -100,21 +104,22 @@ Cutting-edge tech used:
 - PHP, some JQuery, Bootstrap4 and fontawesome
 - Webserver: nginx and php-fpm
 - User management: [gltool.sh](https://github.com/silv3rr/scripts/blob/master/gltool.sh) wrapper (Bash)
-- Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/) (offline)
+- Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/) (offline branch)
 - Web Terminal: [GoTTY](https://github.com/sorenisanerd/gotty)
 - Spy: [pyspy](https://github.com/silv3rr/pyspy) (flask)
 - Sitewho: [pywho](https://github.com/silv3rr/pywho), [ansi-escapes-to-html](https://github.com/neilime/ansi-escapes-to-html)
 - Markdown: [parsedown](https://github.com/erusev/parsedown)
-- Auth: [apr1-md5](https://github.com/whitehat101/apr1-md5), [ip-lib](https://github.com/mlocati/ip-lib), [PHP-Htpasswd](https://github.com/ozanhazer/PHP-Htpasswd)
+- Auth: [ip-lib](https://github.com/mlocati/ip-lib), _[apr1-md5](https://github.com/whitehat101/apr1-md5)_, _[PHP-Htpasswd](https://github.com/ozanhazer/PHP-Htpasswd)_
 
 # Screenshots 
 
 _Notification about added gadmin_
 
-![notification](docs/images/notification.png "Notification on top")
+> ![notification](docs/images/notification.png "Notification on top")
 
 _Terminal modal showing bot_
 
-![bot](docs/images/bot.png "Terminal modal showing bot")
+> ![bot](docs/images/bot.png "Terminal modal showing bot")
 
-> View **[more images](docs/images)**
+--- 
+View **[more images](docs/images)**
