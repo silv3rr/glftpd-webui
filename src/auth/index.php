@@ -28,7 +28,6 @@
 if (!file_exists("/app/config.php")) {
     http_response_code(404);
     exit;
-    // $cfg = array('auth' => 'basic, 'mode' => 'docker');
 }
 
 if (empty($_SESSION)) {
@@ -46,7 +45,6 @@ require_once '/app/format.php';
 
 use shit\docker;
 use shit\local;
-//use WhiteHat101\Crypt\APR1_MD5;
 
 require_once '/app/docker_api.php';
 require_once '/app/local_exec.php';
@@ -58,8 +56,6 @@ if ($cfg['mode'] === "docker") {
 }
 
 if(!empty($auth_debug) && $auth_debug === 1) {
-    //print "<pre>DEBUG: auth index.php \$docker=" . print_r($docker, true) . "</pre>";
-    //print "<pre>DEBUG: auth index.php \$local=" . print_r($local, true) . "</pre>";
     print "<pre>DEBUG: auth index.php \$cfg['auth']={$cfg['auth']}</pre>";
     if (!empty($cfg['http_auth'])) {
         print "<pre>DEBUG: auth index.php \$cfg['http_auth']=" . print_r($cfg['http_auth'], true) . "</pre>";
@@ -86,37 +82,67 @@ if (!empty(($_SESSION['glftpd_auth_result'])) && !is_string($_SESSION['glftpd_au
     unset($_SESSION['glftpd_auth_result']);
 }
 
-// change mode or http password, only if user is logged in
+// change auth mode or http user and password, only if user is logged in
 
-unset($_SESSION['http_passwd_result']);
+unset($_SESSION['change_auth_mode']);
+unset($_SESSION['change_http_user_result']);
+unset($_SESSION['change_http_password_result']);
 
 if (!empty($auth_debug) && $auth_debug === 1) {
-    print("<pre>DEBUG: auth index.php \$_POST['auth_mode']=" . $_POST['auth_mode'] . " \$_POST['http_passwd']=" . $_POST['http_passwd'] . "</pre>");
-    print("<pre>DEBUG: auth index.php \$_SESSION_['http_auth_result']=" . $_SESSION['http_auth_result'] . " \$_SESSION['glftpd_auth_result']=" . $_SESSION['glftpd_auth_result'] . "</pre>");
+    print("<pre>DEBUG: auth index.php \$_POST['change_auth_mode']=" . $_POST['change_auth_mode'] . " \$_POST['change_http_user']=" . $_POST['change_http_user'] . " \$_POST['change_http_password']=" . $_POST['change_http_password'] . "</pre>");
+    print("<pre>DEBUG: auth index.php \$_SESSION['http_auth_result']=" . $_SESSION['http_auth_result'] . " \$_SESSION['glftpd_auth_result']=" . $_SESSION['glftpd_auth_result'] . "</pre>");
 }
 
-if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1") &&
+if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1" && !empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1") ||
     (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) {
 
-    $auth_mode = (isset($_POST['auth_mode'])) ? htmlspecialchars(trim($_POST['auth_mode'])) : NULL;
-    $http_user = (isset($_POST['http_user'])) ? htmlspecialchars(trim($_POST['http_user'])) : NULL;
-    $http_passwd = (isset($_POST['http_passwd'])) ? htmlspecialchars(trim($_POST['http_passwd'])) : NULL;
+    if (isset($_POST['change_auth_mode']) || (isset($_POST['change_http_user']) || isset($_POST['change_http_password']))) {
 
-    print("<pre>DEBUG: auth index.php \$auth_mode={$auth_mode}</pre>");
-    if (!empty($auth_mode)) {
-        $replace_pairs = array('{$mode}' => $auth_mode);
-        if (isset($docker)) {
-            $result = call_user_func_array([$docker, 'func'], array(['auth_mode', $replace_pairs]));
-        } elseif (isset($local)) {
-            $result = call_user_func_array([$local, 'func'], array(['auth_mode', $replace_pairs]));
+        if (isset($_POST['change_auth_mode'])) {
+            $change_auth_mode = htmlspecialchars(trim($_POST['change_auth_mode']));
+            unset($_POST['change_auth_mode']);
+        } else {
+            $change_auth_mode = $cfg['auth'];
         }
-        //print("<pre>DEBUG: auth index.php auth_mode result=" . print_r($result, true) . "</pre>");
-        unset($auth_mode);
-        unset($_POST['auth_mode']);
-        unset($_SESSION['http_auth_result']);
+        unset($_POST['change_auth_mode']);
+        unset($_POST['change_http_user']);
+        unset($_POST['change_http_password']);
+
+        print("<pre>DEBUG: auth index.php \$change_auth_mode={$change_auth_mode}</pre>");
+
+        print("<pre>DEBUG: auth index.php change_http_user / change_http_password</pre>");
+
+        //print("<pre>DEBUG: auth index.php docker=" . print_r($docker, true) . "</pre>");
+
+        $replace_pairs = array(
+            '{$mode}' => $change_auth_mode,
+            '{$username}' => $change_http_user,
+            '{$password}' => $change_http_password,
+        );
+
+        //print("<pre>DEBUG: auth index.php replace_pairs=" . print_r($replace_pairs, true) . "</pre>");
+
+        if (isset($docker)) {
+            $result = call_user_func_array([$docker, 'func'], array(['change_auth', $replace_pairs]));
+        } elseif (isset($local)) {
+            $result = call_user_func_array([$local, 'func'], array(['change_auth', $replace_pairs]));
+        };
+
+        print("<pre>DEBUG: auth index.php change result=" . print_r($result, true) . "</pre>");
+        //print("<pre>DEBUG: auth index.php change \$_SESSION['DEBUG']=" . print_r($_SESSION['DEBUG'], true) . "</pre>");
+
+        unset($change_auth_mode);
+        unset($change_http_user);
+        unset($change_http_password);
+
         unset($_SESSION['userfile']);
+        unset($_SESSION['http_auth_result']);
         unset($_SESSION['glftpd_auth_result']);
         unset($_SESSION['glftpd_auth_user']);
+
+        unset($_SERVER["HTTP_AUTHORIZATION"]);
+        unset($_SERVER["PHP_AUTH_USER"]);
+        unset($_SERVER["PHP_AUTH_PW"]);
 
         //logout
         if (isset($_SERVER['HTTP_COOKIE'])) {
@@ -128,17 +154,16 @@ if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === 
                 setcookie($name, '', time()-1000, '/');
             }
         }
-        unset($_GET);
         unset($_POST);
         if (isset($_SESSION)) {
             unset($_SESSION);
             session_destroy();
         }
 
-        if (is_array($result) && preg_grep('/CONFIG_AUTH_MODE=1/', $result)) {
+        if (is_array($result) && preg_grep('/RESULT:.*CONFIG_AUTH_MODE=0/', $result)) {
             $_SESSION['change_auth_mode_result'] = "1";
         }
-        if (is_array($result) && preg_grep('/CONFIG_USER_PASSWORD=1/', $result)) {
+        if (is_array($result) && preg_grep('/RESULT:.*CONFIG_USER_PASSWORD=0/', $result)) {
             if (!empty($change_user_user)) {
                 $_SESSION['change_http_user_result'] = "1";
             }
@@ -171,28 +196,14 @@ if (!empty($cfg['auth'])) {
         return;
     }
 
-    // mode: 'both' (php http auth)
+    // mode: 'both' (gl + php http auth)
     //    1) $_SERVER[HTTP_AUTHORIZATION]   (default=shit -> 'Basic c2hpdDpFYXRTaDF0')
     //    2) $_SERVER["PHP_AUTH_USER"] and $_SERVER["PHP_AUTH_PW"]
     //    3) try prompting user with browser popup
 
     if ($cfg['auth'] === 'both') {
-
         $http_auth_username = NULL;
         $http_auth_password = NULL;
-
-        // TODO: remove?
-        /*
-        if ($_SESSION['http_auth_result'] === "0") {
-            unset($_SERVER["PHP_AUTH_USER"]);
-            unset($_SERVER["PHP_AUTH_PW"]);
-            //http_response_code(401);
-            //header('WWW-Authenticate: Basic realm="Authentication Required"');
-            //header("HTTP/1.0 401 Unauthorized");
-            //exit;
-        }
-        */
-
         // user is already authenticated
         if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1") &&
             (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) { 
@@ -214,8 +225,6 @@ if (!empty($cfg['auth'])) {
             $http_auth_password = $_SERVER["PHP_AUTH_PW"];
         }
         // get user/pass from client browser popup
-        // TOOD: remove?
-        //if (empty($http_auth_username) || empty($http_auth_password) || (isset($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "0")) {
         if (empty($http_auth_username) || empty($http_auth_password)) {
             header('WWW-Authenticate: Basic realm="Authentication Required"');
             header("HTTP/1.0 401 Unauthorized");
@@ -257,7 +266,6 @@ if (!empty($cfg['auth'])) {
 
             if (!empty($auth_debug) && $auth_debug === 1) {
                 print "<pre>DEBUG: auth index.php glftpd \$_POST=" . print_r($_POST, true). "</pre>";
-                //print "DEBUG: auth index.php \$_GET= " . print_r($_GET, true). "<br>";
                 print "<pre>DEBUG: auth index.php glftpd \$_SESSION=" . print_r($_SESSION, true) . "</pre>";
             }
 
@@ -372,11 +380,6 @@ if (!empty($cfg['auth'])) {
     switch ($cfg['auth']) {
         case "basic":
             return;
-            // if (!empty($_SESSION['http_auth_result'] && $_SESSION['http_auth_result'] === "1")) {
-            //    http_response_code(200);
-            //    exit;
-            // }
-            break;
         case "glftpd":
             if (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1") {
                 http_response_code(200);
@@ -390,8 +393,9 @@ if (!empty($cfg['auth'])) {
                 exit;
             } elseif ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1") ||
                       (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) {
-                http_response_code(401);
-                exit;
+                header("HTTP/1.0 401 Unauthorized");
+                //http_response_code(401);
+                //exit;
             }
             break;
     }
@@ -404,7 +408,7 @@ unset($_SESSION['glftpd_auth_flag']);
 // 401
 
 print('<!DOCTYPE html>');
-print('<html lang="en"><head><title>401 Authorization Required</title></head><body>');
+print('<html lang="en"><head><title>401 Unauthorized</title></head><body>');
 print('<pre>⛔ Login failed, <a href="/auth/login.php">try again</a></pre>');
 print('</body></html>');
 http_response_code(401);

@@ -72,7 +72,7 @@ if (cfg::get('auth') === 'both' || cfg::get('auth') === 'glftpd') {
     if (file_exists('/etc/nginx/auth.d/auth_basic.conf')) {
         header("HTTP/1.0 500 Internal Server Error", true, 404);
         readfile('templates/error_500.html');
-        print("<pre><center><font color='red'>ERROR:</font> misplaced /etc/nginx/auth.d/auth_basic.conf, <b>run 'auth.sh'</b></font></center>");
+        print("<pre><center><font color='red'>ERROR:</font> remove /etc/nginx/auth.d/auth_basic.conf, <b>run 'auth.sh'</b></font></center>");
         exit;
     }
     if (!file_exists('/etc/nginx/auth.d/auth_request.conf')) {

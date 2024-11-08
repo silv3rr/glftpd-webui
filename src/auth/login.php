@@ -43,16 +43,22 @@ $debug_buttons = 0;
         </div>
     <?php endif ?>
 
-    <?php if (!empty($_SESSION['auth_mode_result']) && $_SESSION['auth_mode_result'] === "1" ): ?>
+    <?php if (!empty($_SESSION['change_auth_mode_result']) && $_SESSION['change_auth_mode_result'] === "1" ): ?>
         <div class="alert alert-info" role="alert">
            Auth mode changed
-           <?php unset($_SESSION['auth_mode_result']); ?>
+           <?php unset($_SESSION['change_auth_mode_result']); ?>
         </div>
     <?php endif ?>
-    <?php if (!empty($_SESSION['http_passwd_result']) && $_SESSION['http_passwd_result'] === "1" ): ?>
+    <?php if (!empty($_SESSION['change_http_user_result']) && $_SESSION['change_http_user_result'] === "1" ): ?>
         <div class="alert alert-info" role="alert">
-           Http auth password changed
-           <?php unset($_SESSION['http_passwd_result']); ?>
+           Http auth user changed, relogin
+           <?php unset($_SESSION['change_http_user_result']); ?>
+        </div>
+    <?php endif ?>
+    <?php if (!empty($_SESSION['change_http_password_result']) && $_SESSION['change_http_password_result'] === "1" ): ?>
+        <div class="alert alert-info" role="alert">
+           Http auth password changed, relogin
+           <?php unset($_SESSION['change_http_password_result']); ?>
         </div>
     <?php endif ?>
     <?php if (!isset($cfg['auth']) || empty($cfg['auth'])): ?>
@@ -108,13 +114,15 @@ $debug_buttons = 0;
             <div id="help" class="ml-2">Client browser user: <strong><?= (!empty($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : "&lt;none&gt;" ?></strong></div>
             <?php if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SESSION['http_auth_result']) || (!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] !== "1")): ?>
                 <div id="help" class="ml-2">User is not verified</div>
-                <div id="help" class="text-muted small ml-2">Try logging in (again), this should popup a browser window to input user and password (then go back to this page)</div>
+                <hr>
+                <div id="help" class="text-muted small ml-2">Try logging in (again), this should popup a browser window to input user and password.</div>
+                <div id="help" class="text-muted small ml-2">Make sure glftpd creds are also set, or click 'try again' link. If you get an empty page, use Back button in browser.</div>
             <?php endif ?>
             </div>
         <?php endif ?>
         <?php if ($cfg['auth'] === "glftpd" || $cfg['auth'] === "both"): ?>
             <form id="form" method="POST" class="d-inline">
-                <div class="group" style="margin-bottom:20px;">
+                <div class="group" id="login" style="margin-bottom:20px;">
                     <?php if (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1"): ?>
                         <div class="form-group">
                             <h5>Currently logged in as glftpd user</h5>
@@ -153,22 +161,24 @@ $debug_buttons = 0;
                         </div>
                     <?php endif ?>
                 </div>
-
                 <div class="ml-2 mb-5">
                     <?php if (!empty($_SESSION['glftpd_auth_result']) || (empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] !== "1")): ?>
                         <input type="submit" formaction="/auth/index.php" value="Login" class="btn btn-primary"/>
                     <?php endif ?>
                     <input type="submit" formaction="/auth/logout.php" value="Logout" class="btn btn-outline-primary"/>
                 </div>
+            </form>
 
-                <?php if ((!empty($_SESSION['http_auth_result']) && ($_SESSION['http_auth_result'] === "1")) || (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")): ?>
-                    <div class="group">
-                    <h5 class="text-muted">Change settings</h5>
+            <form id="form" method="POST" class="d-inline">
+                <div class="group" id="config" <?=($cfg['auth'] !== 'glftpd' && $cfg['auth'] !== 'both') ? "disabled" : ""?>>
+                    <h5 class="text-muted">Change config settings</h5>
+                    <?php if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1" && !empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1") ||
+                                (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")): ?>
                         <div class="form-group">
                             <div class="form-row align-items-center mb-1">
-                                <label for="auth_mode" class="form-text text-muted ml-2">Auth method:</label>
+                                <label for="change_auth_mode" class="form-text text-muted ml-2">Auth method:</label>
                                 <div class="col-auto ml-5">
-                                    <select class="form-control form-control" id="auth_mode" name="auth_mode">
+                                    <select class="form-control form-control" id="change_auth_mode" name="change_auth_mode">
                                         <?php foreach (['basic', 'glftpd', 'both', 'none'] as $mode ): ?>
                                             <option <?= ($cfg['auth'] == $mode ? 'selected class="selected"' : '') ?> value="<?= $mode ?>"><?= $mode ?></option>
                                         <?php endforeach ?>
@@ -176,25 +186,28 @@ $debug_buttons = 0;
                                 </div>
                             </div>
                             <div class="form-row align-items-center mb-1">
-                                <label for="http_user" class="form-text text-muted ml-2">HTTP auth user:</label>
+                                <label for="change_http_user" class="form-text text-muted ml-2">HTTP auth user:</label>
                                 <div class="col-auto ml-4">
-                                    <input type="input" class="form-control" id="http_user" name="http_user" placeholder="my-user" value=<?= (!empty($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER'] : "" ?>>
+                                    <input type="input" class="form-control" id="change_http_user" name="change_http_user" placeholder="my-user" value=<?= (!empty($cfg['http_auth']['username'])) ? $cfg['http_auth']['username'] : "" ?>>
                                 </div>
                             </div>
                             <div class="form-row align-items-center mb-1">
-                                <label for="http_passwd" class="form-text text-muted ml-2">HTTP auth password:</label>
+                                <label for="change_http_password" class="form-text text-muted ml-2">HTTP auth password:</label>
                                 <div class="col-auto">
-                                    <input type="password" class="form-control" id="http_passwd" name="http_passwd" placeholder="my-http-p4sswd"/>
+                                    <input type="password" class="form-control" id="change_http_password" name="change_http_password" placeholder="<?= (!empty($cfg['http_auth']['password'])) ? "<set>" : 'my-http-p4sswd' ?>">
                                 </div>
                             </div>
-                            <div id="help" class="form-text text-muted small mt-1 ml-1">In case of issues run '<strong>auth.sh</strong>' (e.g. reset password or rollback auth method)</div>
+                            <div id="help" class="form-text text-muted small mt-1 ml-1">In case of issues, run '<strong>auth.sh</strong>' to reset password or rollback auth mode setting</div>
                             <p></p>
                             <button type="submit" formaction="/auth/index.php" class="btn btn-outline-secondary">Apply</button>
                             <p></p>
                         </div>
-                    </div>
-                <?php endif ?>
+                </div>
             </form>
+                    <?php else: ?>
+                        <div id="help" class="form-text text-muted small mt-1 ml-1">Settings can be changed for auth modes 'glftpd' and 'both', and you have to log in first</div>
+                        </div>
+                    <?php endif ?>
         <?php endif ?>
     <?php endif ?>
 
