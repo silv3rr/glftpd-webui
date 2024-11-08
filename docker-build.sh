@@ -56,13 +56,13 @@ if [ "${INSTALL_WEBUI:-1}" -eq 1 ]; then
     --build-arg http_proxy="${http_proxy:-$HTTP_PROXY}" \
     .
 elif [ "${INSTALL_WEBUI:-1}" -eq 2 ]; then
-  echo "Build image 'docker-glftpd-web-debian'"
+  echo "Build image 'docker-glftpd-web:debian'"
   # shellcheck disable=SC2086
   docker build \
     $ARGS \
     --file Dockerfile-debian \
     --no-cache \
-    --tag "docker-glftpd-web:latest" \
+    --tag "docker-glftpd-web:debian" \
     --build-arg WEBUI_CERT="${WEBUI_CERT:-1}" \
     --build-arg http_proxy="${http_proxy:-$HTTP_PROXY}" \
     .
