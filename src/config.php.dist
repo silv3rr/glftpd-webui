@@ -27,7 +27,7 @@ return $cfg = array(
     'docker' => array(
         'api'               => "http://localhost/v1.44",
         'glftpd_container'  => "glftpd",
-        'web_container'     => "glftpd-web"
+        'web_container'     => "glftpd-web",
         'bin_dir'           => "/glftpd/bin",
     ),
 
@@ -43,26 +43,26 @@ return $cfg = array(
     'filemanager' => array(
         'docker' => array(
             'dirs' => array(
-                'Glftpd Site' => 'glftpd/site',
+                'Glftpd Site' => "glftpd/site",
                 'Web Files'   => $_SERVER['DOCUMENT_ROOT'],
             ),
             'files' => array(
-                'glftpd.conf'   => 'glftpd',
-                'eggdrop.conf'  => 'glftpd/sitebot',
-                'ngBot.conf'    => 'glftpd/sitebot/pzs-ng',
-                'config.php'    => './',
+                'glftpd.conf'   => "glftpd",
+                'eggdrop.conf'  => "glftpd/sitebot",
+                'ngBot.conf'    => "glftpd/sitebot/pzs-ng",
+                'config.php'    => "./",
             ),
         ),
         'local' => array(
             'dirs' => array(
-                'Glftpd Site'   => '/glftpd/site',
-                'Web Files'   => $_SERVER['DOCUMENT_ROOT'],
+                'Glftpd Site'   => "/glftpd/site",
+                'Web Files'     => $_SERVER['DOCUMENT_ROOT'],
             ),
             'files' => array(
-                'glftpd.conf'   => '/etc/',
-                'eggdrop.conf'  => '/glftpd/sitebot',
-                'ngBot.conf'    => '/glftpd/sitebot/pzs-ng',
-                "config.php"    => "{$_SERVER['DOCUMENT_ROOT']}/glftpd-webui/`config.php"
+                'glftpd.conf'   => "/etc/",
+                'eggdrop.conf'  => "/glftpd/sitebot",
+                'ngBot.conf'    => "/glftpd/sitebot/pzs-ng",
+                'config.php'    => $_SERVER['DOCUMENT_ROOT'],
             ),
         ),
     ),
