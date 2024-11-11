@@ -14,8 +14,8 @@ if (!file_exists("/app/config.php")) {
 }
 
 require_once '/app/config.php';
-$debug_vars = 1;
-$debug_buttons = 0;
+//$debug_vars = 1;
+//$debug_buttons = 0;
 
 ?>
 
