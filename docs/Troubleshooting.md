@@ -21,7 +21,7 @@
     - it does require more effort to get working, maybe you should give up and try docker.. ;x
 
 - i want to add a new button to run a command
-    - sure, good luck with that :P ... ok, ok. to get you started: for filemanager/terminal add cmd to array in config.php and {docker,local}_commands.php (see main html template)
+    - sure, good luck with that :P ... ok, ok. to get you started: for filemanager/terminal add element to array in config.php and {docker,local}_commands.php (see main html template)
 
 -  why is this using docker / stupid php / not react / todays js framework / not properly written OOP code 
     - coz of ur mom
