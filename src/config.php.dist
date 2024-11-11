@@ -6,7 +6,7 @@
 
 return $cfg = array(
     'auth'                      => "basic",
-    'mode'                      => "local",
+    'mode'                      => "docker",
     'show_more_opts'            => false,
     'show_alerts'               => true,
     'max_items'                 => 10,
@@ -50,7 +50,7 @@ return $cfg = array(
                 'glftpd.conf'   => "glftpd",
                 'eggdrop.conf'  => "glftpd/sitebot",
                 'ngBot.conf'    => "glftpd/sitebot/pzs-ng",
-                'config.php'    => ".",
+                'config.php'    => "./",
             ),
         ),
         'local' => array(
