@@ -12,13 +12,13 @@
     - set `debug` in config to 3, test an action and check /tmp/curl_err.log
 
 - user mgmt errors
-    - test running `gltool.sh` manually,  e.g. `bin/gltool.sh -c RAWUSERFILE -u test`
+    - test running `gltool.sh` manually,  e.g. `bin/gltool.sh -c RAWUSERFILE -u testuser`
 
 - status incorrectly shows glftpd/bot down 
     - check ports in `services` option in config.php
 
-- i can't get manual setup option (3) work
-    - it does require the most effort to get working, maybe you should give up and try docker.. ;x
+- i can't get manual setup option (3) to work
+    - it does require more effort to get working, maybe you should give up and try docker.. ;x
 
 - i want to add a new button to run a command
     - sure, good luck with that :P ... ok, ok. to get you started: edit main html template and {docker,local}_commands.php
