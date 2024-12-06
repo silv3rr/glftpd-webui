@@ -12,6 +12,7 @@ jobs:
           channel: "#glhelp"
           server: "irc.choopa.net"
           port: 7000
+          tls: true
           nickname: shithub
           message: |-
             ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
