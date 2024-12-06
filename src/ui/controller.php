@@ -239,10 +239,8 @@ if (isset($_SESSION['postdata'])) {
                 unset($_SESSION['postdata']['setPassCmd']);
             }
             if ($data->check_user() && isset($_SESSION['postdata']['flagCmd'])) {
-                // flags: compare current vs new
-                //   - submitted = allflags - newflags
-                //   - unsubmitted = rest
                 $debug->print(pos: 'controller', msg: 'got flagCmd');
+                // single flag_del cmd
                 if (is_string($_SESSION['postdata']['flagCmd']) && preg_match('/^flag_del\|[0-9A-Z]+$/', $_SESSION['postdata']['flagCmd'])) {
                     $flags = preg_replace('/^flag_del\|/', '', $_SESSION['postdata']['flagCmd']);
                     if (!empty($flags)) {
@@ -253,20 +251,25 @@ if (isset($_SESSION['postdata'])) {
                         set_cmd_result($data->func(['flag_del', $replace_pairs]));
                     }
                 }
+                // multiple flags: compare current vs new
+                //   - submitted = allflags - newflags
+                //   - unsubmitted = rest
                 $flags_add = [];
                 $flags_del = flags_list();
                 $flags_userfile = [];
+                $flags_submitted = [];
+                //unset($flags_del['3']);
                 if (is_array($_SESSION['postdata']['flagCmd'])) {
                     $flags_userfile = !empty($_SESSION['userfile']['FLAGS']) ? str_split($_SESSION['userfile']['FLAGS']) : [];
                     foreach ($_SESSION['postdata']['flagCmd'] as $flagcmd) {
                         if (preg_grep('/^flag_add\|[0-9A-Z]+$/', $_SESSION['postdata']['flagCmd'])) {
                             preg_match('/flag_add\|(?<flag>[0-9A-Z]+)/', $flagcmd, $matches);
-                            if (!empty($matches['flag'])) {
-                                if (!in_array($matches['flag'], $flags_userfile)) {
-                                    array_push($flags_add, $matches['flag']);
-                                }
-                                unset($flags_del[$matches['flag']]);
+                            $debug->print(pos: 'controller', matches_flag: $matches['flag']);
+                            if (!in_array($matches['flag'], $flags_userfile)) {
+                                array_push($flags_add, $matches['flag']);
                             }
+                            unset($flags_del[$matches['flag']]);
+                            array_push($flags_submitted, $matches['flag']);
                         }
                     }
                 }
@@ -276,10 +279,14 @@ if (isset($_SESSION['postdata'])) {
                         '{$username}' => $_SESSION['postdata']['select_user'],
                         '{$flags}' => implode(array_keys($flags_del))
                     );
-                    $_result = $data->func(['flag_del', $replace_pairs]);
-                    $_count = count(array_diff($flags_userfile, $flags_del)) - 1;
-                    if ($_count > 0 && empty($flags_add) && !empty($_result)) {
-                        set_cmd_result("DONE: deleted " . $_count . " flag(s) from \"{$_SESSION['postdata']['select_user']}\"");
+                    $result = $data->func(['flag_del', $replace_pairs]);
+                    $diff_userfile = array_diff($flags_userfile, $flags_submitted);
+                    $sum = count($flags_userfile) + count($flags_add) + count($flags_del);
+                    $debug->print(pre: true, pos: 'controller', flags_userfile: $flags_userfile, flags_del: $flags_del, flags_add: $flags_add, array_diff: array_diff($flags_userfile, $flags_del));
+                    $debug->print(pos: 'controller', diff_userfile: $diff_userfile, count_flags_userfile: count($flags_userfile), count_flags_add: count($flags_add), count_flags_del: count($flags_del), count_flags_list: count(flags_list()));
+                    $debug->print(pos: 'controller', flags_submitted: $flags_submitted, cnt_flags_submitted: count($flags_submitted), sum: $sum);
+                    if (!empty($result) && !empty($flags_submitted) && empty($flags_add) && count(array_diff($flags_userfile, $flags_submitted))) {
+                        set_cmd_result("DONE: deleted flags \"" . implode(array_values($diff_userfile)) . "\" from \"{$_SESSION['postdata']['select_user']}\"");
                     }
                 }
                 if (!empty($flags_add)) {
@@ -519,7 +526,9 @@ if (isset($_SESSION['postdata'])) {
                 $debug->print(pre: true, pos: 'controller', msg: 'grpCmd', sort_matches: $sort_matches);
                 if (isset($sort_matches)) {
                     if (!empty($sort_matches['list']) && !empty($sort_matches['order'])) {
-                        sort_array($sort_matches);
+                        //unset($_SESSION['postdata']['applyBtn']);
+                        unset($_SESSION['postdata']);
+                        $_SESSION['postdata']['select_user'] = htmlspecialchars(trim($_GET['user']));
                     } else {
                         unset($_SESSION['display_sort']);
                     }
@@ -531,7 +540,6 @@ if (isset($_SESSION['postdata'])) {
             unset($_SESSION['postdata'][$name]);
         }
         */
-
     } // end foreach postdata
     //print "</pre>" . PHP_EOL;
     if (isset($sort_matches)) {
