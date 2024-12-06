@@ -25,6 +25,16 @@ Or, to set this up completely manually, have a look at the Dockerfile and adapt 
 - copy/compile other bins if needed (gotty, hashgen, passchk)
 - copy etc/sudoers.d/glftpd-web and set 'runas' in config 
 
+*it might help to have a look at the Dockerfile, adapt to your specific environment*
+
+### Requirements
+
+- Network: webui needs to be able to connect to tcp ports 1337(glftpd), 3333(bot), 8080(gotty) and 5050(pyspy) 
+- User management: needs access to /glftpd dir, either in glftpd container or on same host
+- Stop/start glftpd: needs access to docker socket or systemd/service + sudo in local webui-mode
+- Terminal commands: these need to run in glftpd container or on same host in local webui-mode, local mode requires php 'exec'
+- Filemanager: needs access to config files and /glftpd/site
+
 ## Settings
 
 These can be changed in config.php
