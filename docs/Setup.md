@@ -99,22 +99,20 @@ services
 
 *(used for UP/DOWN status)*
 
-#### filemanager paths
+### filemanager
 
-filemanager
+filemanager  *
 
-- docker
-    - files  (edit)
-        - `<filename>`  `<path>`
-    - dirs   (list)
-        - `<title>` `<path>`
-- local
-    - files
-        - ''
-    - dirs
-        - ''
+- (Browse) Name:
+    - type: 'dir', path: "/path/to/dir"
+- (Edit/View) filename:
+    - type: 'file', mode: `<edit|view>`, path: "/path/to/filename/"
 
-*(if there are no files/dirs defined, filemanager tab is not shown)*
+default file mode is 'edit'
+
+if there are no dirs/files defined, filemanager tab is not shown
+
+_* if path is empty, defaults for mode is used (docker/local)_
 
 #### ui buttons
 

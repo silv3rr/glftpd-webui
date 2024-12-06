@@ -123,28 +123,42 @@
 
   <div class="hspace"></div>
 
-<?php if (!empty($filemanager)): ?>
-  <div class="enabled-group">
-    <p>
-      <a class="btn-collapse" data-toggle="collapse" href="#colFileMan" role="button" aria-expanded="false" aria-controls="colFileMan">
-        <em class="fa-solid fa-chevron-up" id="colFileManUp"></em>
-        <em class="fa-solid fa-chevron-right" id="colFileManRight"></em>File Manager
-      </a>
-    </p>
-    <div class="group collapse multi-collapse" id="colFileMan">
-      <?php if (!empty($filemanager['dirs']) && count($filemanager['dirs']) > 0): ?>
-        Browse:
-        <?php foreach ($filemanager['dirs'] as $name => $path): ?>
-          <button type="button" data-toggle="modal" data-target="#bsModal" data-type="dir" data-path="<?= $path ?>" class="btn btn-sm btn-custom"><?= $name ?></button>
-          <hr class="vsep"/>
+  <?php if ($fm_data['count']['dirs'] > 0 || $fm_data['count']['files']['all'] > 0): ?>
+    <div class="enabled-group">
+      <p>
+        <a class="btn-collapse" data-toggle="collapse" href="#colFileMan" role="button" aria-expanded="false" aria-controls="colFileMan">
+          <em class="fa-solid fa-chevron-up" id="colFileManUp"></em>
+          <em class="fa-solid fa-chevron-right" id="colFileManRight"></em>File Manager
+        </a>
+      </p>
+      <div class="group collapse multi-collapse" id="colFileMan">
+        <?php if ($fm_data['count']['dirs'] > 0): ?>
+          Browse:
+          <?php foreach ($filemanager as $key => $value): ?>
+            <?php if ($value['type'] === 'dir'): ?>
+              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="dir" data-path="<?= $value['path'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+            <?php endif ?>
           <?php endforeach ?>
-      <?php endif?>
-      <?php if (!empty($filemanager['files']) && count($filemanager['files']) > 0): ?>
-        Edit:
-        <?php foreach ($filemanager['files'] as $file => $path): ?>
-          <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $path ?>" data-edit="<?= $file ?>" class="btn btn-sm btn-custom"><?= $file ?></button>
-        <?php endforeach ?>
-      <?php endif?>
+        <?php endif ?>
+        <?php if ($fm_data['count']['files']['edit'] > 0): ?>
+            <hr class="vsep" />
+            Edit:
+          <?php foreach ($filemanager as $key => $value): ?>
+            <?php if ($value['type'] === 'file' &&  $value['mode'] === 'edit'): ?>
+              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $value['path'] ?>" data-edit="<?= $key ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+            <?php endif ?>
+          <?php endforeach ?>
+        <?php endif ?>
+        <?php if ($fm_data['count']['files']['view'] > 0): ?>
+           <hr class="vsep" />
+            View:
+          <?php foreach ($filemanager as $key => $value): ?>
+            <?php if ($value['type'] === 'file' && ($value['mode'] === 'view' || !isset($value['mode']))): ?>
+              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $value['path'] ?>" data-view="<?= $key ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+            <?php endif ?>
+          <?php endforeach ?>
+        <?php endif ?>
+      </div>
     </div>
   <?php endif ?>
 

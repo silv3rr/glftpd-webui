@@ -122,21 +122,54 @@ $mode_config_set = cfg::get('mode') ? true : false;
 //$local_dbus_sock_exists = @fsockopen('unix:///run/dbus/system_bus_socket') ? true : false;
 //$local_systemctl_exists = is_file("/bin/systemctl")  ? true : false;
 
-// set fm paths
-
-$filemanager = array(
-    'dirs' => '',
-    'files' => '',
-);
-
 if (cfg::get('mode') === "local") {
     $local = new local;
-    $filemanager = cfg::get('filemanager')['local'];
 } else {
     $docker = new docker;
-    if ($gldata_dir_exists) {
-        $filemanager = cfg::get('filemanager')['docker'];
-    }
+}
+
+// set default docker/local filemanager paths
+
+$filemanager = array();
+$fm_data = array(
+    'defaults' => array(
+        'docker' => array(
+            'Glftpd Site'   => ['type' => 'dir', 'mode' => 'edit', 'path' => "./glftpd/site/"],
+            'Web Files'     => ['type' => 'dir', 'mode' => 'edit', 'path' => "/app/"],
+            'glftpd.conf'   => ['type' => 'file', 'mode' => 'edit', 'path' => "./glftpd/"],
+            'eggdrop.conf'  => ['type' => 'file', 'mode' => 'edit', 'path' => "./glftpd/sitebot/"],
+            'ngBot.conf'    => ['type' => 'file', 'mode' => 'edit', 'path' => "./glftpd/sitebot/pzs-ng/"],
+            'config.php'    => ['type' => 'file', 'mode' => 'edit', 'path' => "./"],
+        ),
+        'local' => array(
+            'Glftpd Site'   => ['type' => 'dir', 'mode' => 'edit', 'path' => cfg::get('local')['glftpd_dir'] . "/site/"],
+            'Web Files'     => ['type' => 'dir', 'mode' => 'edit',' path' => $_SERVER['DOCUMENT_ROOT'],],
+            'glftpd.conf'   => ['type' => 'file', 'mode' => 'edit', 'path' => cfg::get('local')['glftpd_etc']],
+            'eggdrop.conf'  => ['type' => 'file', 'mode' => 'edit', 'path' => cfg::get('local')['glftpd_dir'] . "sitebot/"],
+            'ngBot.conf'    => ['type' => 'file', 'mode' => 'edit', 'path' => cfg::get('local')['glftpd_dir'] . "sitebot/pzs-ng/"],
+            'config.php'    => ['type' => 'file', 'mode' => 'edit', 'path' => $_SERVER['DOCUMENT_ROOT']],
+        ),
+    ),
+    'count' => array('dirs' => 0, 'files' => ['all' => 0, 'edit' => 0, 'view' => 0]),
+);
+if (!empty(cfg::get('filemanager')) && count(cfg::get('filemanager')) > 0) {
+    $mode = ($gldata_dir_exists) ? 'docker' : 'local';
+    foreach (cfg::get('filemanager') as $key => $value) {
+        if (!empty($value['path'])) {
+            $filemanager[$key] = cfg::get('filemanager')[$key];
+        } else {
+            $filemanager[$key] = $fm_data['defaults'][$mode][$key];
+        }
+        if (!empty($value['type'] && $value['type'] === 'dir')) {
+            $fm_data['count']['dirs']++;
+        }
+        if (!empty($value['type']) && $value['type'] === 'file') {
+            $action = (isset($value['mode'])) ? $value['mode'] : 'view';
+            $filemanager[$key]['mode'] = $action;
+            $fm_data['count']['files'][$action]++;
+        }
+    };
+    $fm_data['count']['files']['all'] = $fm_data['count']['files']['edit'] + $fm_data['count']['files']['view'];
 }
 
 if (cfg::get('debug')) {

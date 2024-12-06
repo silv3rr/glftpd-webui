@@ -41,30 +41,13 @@ return $cfg = array(
     ),
 
     'filemanager' => array(
-        'docker' => array(
-            'dirs' => array(
-                'Glftpd Site' => "glftpd/site",
-                'Web Files'   => $_SERVER['DOCUMENT_ROOT'],
-            ),
-            'files' => array(
-                'glftpd.conf'   => "glftpd",
-                'eggdrop.conf'  => "glftpd/sitebot",
-                'ngBot.conf'    => "glftpd/sitebot/pzs-ng",
-                'config.php'    => "./",
-            ),
-        ),
-        'local' => array(
-            'dirs' => array(
-                'Glftpd Site'   => "/glftpd/site",
-                'Web Files'     => $_SERVER['DOCUMENT_ROOT'],
-            ),
-            'files' => array(
-                'glftpd.conf'   => "/etc/",
-                'eggdrop.conf'  => "/glftpd/sitebot",
-                'ngBot.conf'    => "/glftpd/sitebot/pzs-ng",
-                'config.php'    => $_SERVER['DOCUMENT_ROOT'],
-            ),
-        ),
+        'Glftpd Site'       => ['type' => 'dir'],
+        'Web Files'         => ['type' => 'dir'],
+        'glftpd.conf'       => ['type' => 'file', 'mode' => 'edit'],
+        'eggdrop.conf'      => ['type' => 'file', 'mode' => 'edit'],
+        'ngBot.conf'        => ['type' => 'file', 'mode' => 'edit'],
+        'config.php'        => ['type' => 'file', 'mode' => 'edit'],
+        /* 'myfile.txt'        => ['type' => 'file', 'mode' => 'view', 'path' => "/path/to/myfile/"], */
     ),
 
     'ui_buttons' => array(
