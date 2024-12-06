@@ -204,82 +204,81 @@
     </div>
     </div>
 
-  <?php if (!empty(cfg::get('ui_buttons')['glftpd']) && count(cfg::get('ui_buttons')['glftpd']) > 0): ?>
-    <div class="enabled-group">
-      <div class="hspace"></div>
-      <p>
-        <label for="glCmd">
-          <a class="btn-collapse" data-toggle="collapse" href="#colGlftpd" role="button" aria-expanded="false" aria-controls="colGlftpd">
-            <em class="fa-solid fa-chevron-up" id="colGlftpdUp"></em>
-            <em class="fa-solid fa-chevron-right" id="colGlftpdRight"></em>Glftpd
-          </a>
-        </label>
-      </p>
-      <div class="group collapse multi-collapse" id="colGlftpd">
-        <?php foreach (cfg::get('ui_buttons')['glftpd'] as $key => $value): ?>
-          <button type="submit" name="glCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
-        <?php endforeach ?>
-        <?php if (cfg::get('mode') == "local" && !empty(cfg::get('local')['env_bus'])): ?>
-          <div id="help" class="form-text text-muted ml-2">
-            <small><em>connecting to host using systemd dbus broker</em></small>
-          </div>
-        <?php endif ?>
+    <?php if (!empty(cfg::get('buttons')['Glftpd']) && count(cfg::get('buttons')['Glftpd']) > 0): ?>
+      <div class="enabled-group">
+        <div class="hspace"></div>
+        <p>
+          <label for="glCmd">
+            <a class="btn-collapse" data-toggle="collapse" href="#colGlftpd" role="button" aria-expanded="false" aria-controls="colGlftpd">
+              <em class="fa-solid fa-chevron-up" id="colGlftpdUp"></em>
+              <em class="fa-solid fa-chevron-right" id="colGlftpdRight"></em>Glftpd
+            </a>
+          </label>
+        </p>
+        <div class="group collapse multi-collapse" id="colGlftpd">
+          <?php foreach (cfg::get('buttons')['Glftpd'] as $key => $value): ?>
+            <button type="submit" name="glCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+          <?php endforeach ?>
+          <?php if (cfg::get('mode') == "local" && !empty(cfg::get('local')['env_bus'])): ?>
+            <div id="help" class="form-text text-muted ml-2">
+              <small><em>connecting to host using systemd dbus broker</em></small>
+            </div>
+          <?php endif ?>
+        </div>
       </div>
-    </div>
-  <?php endif ?>
+    <?php endif ?>
 
-  <?php if (cfg::get('mode') == "docker" && !empty(cfg::get('ui_buttons')['docker']) && count(cfg::get('ui_buttons')['docker']) > 0): ?>
-    <div class="enabled-group">
-      <div class="hspace"></div>
-      <p>
-        <label for="dockerCmd">
-          <a class="btn-collapse" data-toggle="collapse" href="#colDocker" role="button" aria-expanded="false" aria-controls="colDocker">
-            <em class="fa-solid fa-chevron-up" id="colDockerUp"></em>
-            <em class="fa-solid fa-chevron-right" id="colDockerRight"></em>Docker
-          </a>
-        </label> 
-      </p>
-      <div class="group collapse multi-collapse" id="colDocker">
-        <?php foreach (cfg::get('ui_buttons')['docker'] as $key => $value): ?>
-          <button type="submit" name="dockerCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom <?=isset($value['disabled']) ? 'disabled' : ''?>"><?= $key ?></button>
-        <?php endforeach ?>
+    <?php if (cfg::get('mode') == "docker" && !empty(cfg::get('buttons')['Docker']) && count(cfg::get('buttons')['Docker']) > 0): ?>
+      <div class="enabled-group">
+        <div class="hspace"></div>
+        <p>
+          <label for="dockerCmd">
+            <a class="btn-collapse" data-toggle="collapse" href="#colDocker" role="button" aria-expanded="false" aria-controls="colDocker">
+              <em class="fa-solid fa-chevron-up" id="colDockerUp"></em>
+              <em class="fa-solid fa-chevron-right" id="colDockerRight"></em>Docker
+            </a>
+          </label>
+        </p>
+        <div class="group collapse multi-collapse" id="colDocker">
+          <?php foreach (cfg::get('buttons')['Docker'] as $key => $value): ?>
+            <button type="submit" name="dockerCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom <?= isset($value['disabled']) ? 'disabled' : '' ?>"><?= $key ?></button>
+          <?php endforeach ?>
+        </div>
       </div>
-    </div>
-  <?php endif ?>
+    <?php endif ?>
 
-  <?php //if ((cfg::get('mode') == "docker") || (cfg::get('mode') == "local" && !$local_dockerenv_exists)): ?>
-  <?php if (!empty(cfg::get('ui_buttons')['term']) && count(cfg::get('ui_buttons')['term']) > 0): ?>
-    <div class="enabled-group">
-      <div class="hspace"></div>
-      <p>
-        <label for="termCmd">
-          <a class="btn-collapse" data-toggle="collapse" href="#colTerm" role="button" aria-expanded="false" aria-controls="colTerm">
-            <em class="fa-solid fa-chevron-up" id="colTermUp"></em>
-            <em class="fa-solid fa-chevron-right" id="colTermRight"></em>Terminal
-          </a>
-        </label>
-      </p>
-      <div class="group collapse multi-collapse" id="colTerm">
-        <?php foreach (cfg::get('ui_buttons')['term'] as $key => $value): ?>
+    <?php if (!empty(cfg::get('buttons')['Terminal']) && count(cfg::get('buttons')['Terminal']) > 0): ?>
+      <div class="enabled-group">
+        <div class="hspace"></div>
+        <p>
+          <label for="termCmd">
+            <a class="btn-collapse" data-toggle="collapse" href="#colTerm" role="button" aria-expanded="false" aria-controls="colTerm">
+              <em class="fa-solid fa-chevron-up" id="colTermUp"></em>
+              <em class="fa-solid fa-chevron-right" id="colTermRight"></em>Terminal
+            </a>
+          </label>
+        </p>
+        <div class="group collapse multi-collapse" id="colTerm">
+          <?php foreach (cfg::get('buttons')['Terminal'] as $key => $value): ?>
             <button type="submit" name="termCmd" value="<?= $value['cmd'] ?>" id="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
             <?= (isset($value['sep'])) ? '<hr class="vsep"/>' : '' ?>
-        <?php endforeach ?>
-        <a class="btn-txt" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
-          <em class="fa-solid fa-circle-info"></em>
-        </a>
-        <div class="collapse" id="colTermInfo">
-          <div class="card card-body">
-            <div class="text-muted">
-              Run cli tools in browser, interactive commands use javascript based terminal <a href="https://github.com/sorenisanerd/gotty">goTTY</a>.
-              Click <strong>close tty</strong> button to kill any runaway gotty processes left open. Sitewho (pywho) is shown in a popup and does not require gotty.
+          <?php endforeach ?>
+          <a class="btn-txt" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">
+            <em class="fa-solid fa-circle-info h5 align-text-top"></em>
+          </a>
+          <div class="collapse" id="colTermInfo">
+            <div class="card card-body">
+              <div class="text-muted">
+                Run cli tools in browser, interactive commands use javascript based terminal <a href="https://github.com/sorenisanerd/gotty">goTTY</a>.
+                Click <strong>close tty</strong> button to kill any runaway gotty processes left open. Sitewho (pywho) is shown in a popup and does not require gotty.
+              </div>
             </div>
           </div>
         </div>
-     </div>
-    </div>
-  <?php endif ?>
+      </div>
+    <?php endif ?>
 
-</form>
+  </form>
 
-<div class="hspace"></div>
-<div class="bottom"></div>
+  <div class="hspace"></div>
+  <div class="bottom"></div>

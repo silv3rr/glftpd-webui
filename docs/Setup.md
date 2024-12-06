@@ -116,16 +116,18 @@ _* if path is empty, defaults for mode is used (docker/local)_
 
 #### ui buttons
 
-ui_buttons
+buttons
 
-- glftpd
-    - `<name>` `<cmd>`
-- docker
-    - ''
-- term
-    - ''
+- Glftpd
+    - name: `<cmd>`
+- Docker
+    - name: `<cmd>`
+- Terminal
+    - name: `<cmd>`
 
-*(if there are no buttons defined, tab is not shown)*
+add separator(s) with `'sep'`
+
+*(if there are no buttons defined, it's tab is not shown)*
 
 ## Details webui-mode
 

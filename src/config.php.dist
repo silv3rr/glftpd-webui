@@ -50,14 +50,14 @@ return $cfg = array(
         /* 'myfile.txt'        => ['type' => 'file', 'mode' => 'view', 'path' => "/path/to/myfile/"], */
     ),
 
-    'ui_buttons' => array(
-        'glftpd' => array(
+    'buttons' => array(
+        'Glftpd' => array(
             'Status'        => ['cmd' => 'glftpd_status'],
             'Start'         => ['cmd' => 'glftpd_start'],
             'Stop'          => ['cmd' => 'glftpd_stop'],
             'Restart'       => ['cmd' => 'glftpd_restart'],
         ),
-        'docker' => array(
+        'Docker' => array(
             'Create'        =>  ['cmd' => 'docker_create_glftpd', 'disabled' => true ],
             'Inspect'       =>  ['cmd' => 'docker_inspect_glftpd'],
             'Top'           =>  ['cmd' => 'docker_top_glftpd'],
@@ -65,7 +65,7 @@ return $cfg = array(
             'Tail logs'     =>  ['cmd' => 'docker_tail_glftpd'],
             'View logs'     =>  ['cmd' => 'docker_logs_glftpd'],
         ),
-        'term' => array(
+        'Terminal' => array(
             'sitewho'       => ['cmd' => 'pywho', 'sep' => true ],
             'telnet bot'    => ['cmd' => 'tty_eggdrop', 'sep' => true ],
             'useredit'      => ['cmd' => 'tty_useredit'],
