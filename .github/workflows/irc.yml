@@ -1,0 +1,17 @@
+name: "Push Notification"
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: irc push
+        uses: rectalogic/notify-irc@v1
+        if: github.event_name == 'push'
+        with:
+          channel: "#glhelp"
+          server: "efnet.port80.se"
+          nickname: shithub
+          message: |-
+            ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
+            commit: ${{ join(github.event.commits.*.message, ', ') }}
