@@ -1,4 +1,4 @@
-<!-- user management > change > more options, included in main.html.php -->
+<!--glftpd-webui::user-management::change:more, included in main.html.php -->
 
 <div class="<?= ((cfg::get('show_more_opts')) ? 'show' : 'collapse') ?>" id="colMoreOpts">
   <div class="card card-body bg-custom">

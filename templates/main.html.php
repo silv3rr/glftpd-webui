@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>GLFTPD:WEBUI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,115 +11,117 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/spy.css">
   <link rel="stylesheet" href="assets/css/dark.css">
-  <link rel="stylesheet" href="lib/fontawesome-free-6.5.1-web/css/all.min.css"> 
+  <link rel="stylesheet" href="lib/fontawesome-free-6.5.1-web/css/all.min.css">
   <script type="text/javascript" src="lib/jquery/jquery-3.6.0.min.js"></script>
   <script type="text/javascript" src="lib/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
   <script type="text/javascript" src="assets/js/modal_func.js"></script>
 </head>
+
 <body>
 
-<div class="title"><?= cfg::get('title') ?>
-</div>
-<div class="status">
-  &nbsp;
-  MODE: <span id="mode"><?= cfg::get('mode') ?></span><hr class="vsep"/>
-  STATUS:
-  <?php foreach ($_SESSION['status'] as $service => $state): ?>
-    <div id="<?= $state ?>" style="display:<?= (preg_match('/(up|down|open)/', $state) ? 'inline-block' : 'none') ?>">
-      <?= $service ?>:<strong><?= strtoupper($state) ?></strong>
-    </div>
-  <?php endforeach ?>
-  <hr class="vsep"/>
-  <span class="theme-switch-wrapper">
-    <label class="theme-switch" for="theme-checkbox">
-        <input type="checkbox" id="theme-checkbox"/>
+  <div class="title"><?= cfg::get('title') ?>
+  </div>
+  <div class="status">
+    &nbsp;
+    MODE: <span id="mode"><?= cfg::get('mode') ?></span>
+    <hr class="vsep" />
+    STATUS:
+    <?php foreach ($_SESSION['status'] as $service => $state): ?>
+      <div id="<?= $state ?>" style="display:<?= (preg_match('/(up|down|open)/', $state) ? 'inline-block' : 'none') ?>">
+        <?= $service ?>:<strong><?= strtoupper($state) ?></strong>
+      </div>
+    <?php endforeach ?>
+    <hr class="vsep" />
+    <span class="theme-switch-wrapper">
+      <label class="theme-switch" for="theme-checkbox">
+        <input type="checkbox" id="theme-checkbox" />
         <span class="slider round"></span>
-    </label>
-    <div id="theme"><span>DARK THEME</span></div>
-  </span>
-  <form id="form" action="/" method="POST" class="form-inline d-inline">
-    <button type="submit" name="help" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
-      <em class="fa-solid fa-question"></em> help
-    </button>
-  </form>
-  <a href data-toggle="modal" data-target="#bsModal" data-type="html" data-path="/templates/about.html">
-    <button type="button" id="about" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2">
-      <em class="fa-solid fa-poo"></em> about
-    </button>
-  </a>
-  <a href="/auth/login.php">
-    <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2" <?= (cfg::get('auth') !== 'none' ? "" : "disabled") ?>>
-      <em class="fa-solid fa-id-card"></em> login
-    </button>
-  </a>
-</div>
+      </label>
+      <div id="theme"><span>DARK THEME</span></div>
+    </span>
+    <form id="form" action="/" method="POST" class="form-inline d-inline">
+      <button type="submit" name="help" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
+        <em class="fa-solid fa-question"></em> help
+      </button>
+    </form>
+    <a href data-toggle="modal" data-target="#bsModal" data-type="html" data-path="/templates/about.html">
+      <button type="button" id="about" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2">
+        <em class="fa-solid fa-poo"></em> about
+      </button>
+    </a>
+    <a href="/auth/login.php">
+      <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2" <?= (cfg::get('auth') !== 'none' ? "" : "disabled") ?>>
+        <em class="fa-solid fa-id-card"></em> login
+      </button>
+    </a>
+  </div>
 
-<div class="modal fade" id="bsModal" tabindex="F1" aria-labelledby="bsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl" style="max-width: 1200px;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="bsModalLabel"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p style="white-space: pre-line"></p>
-        <iframe title="modal" id="bsModalFrame" src="" style="zoom:0" width="80%" height="600"></iframe>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+  <div class="modal fade" id="bsModal" tabindex="F1" aria-labelledby="bsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" style="max-width: 1200px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bsModalLabel"></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p style="white-space: pre-line"></p>
+          <iframe title="modal" id="bsModalFrame" src="" style="zoom:0" width="80%" height="600"></iframe>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div>
   <div>
-    <button type="button" id="colShow" class="btn-collapse"><em class="fa-solid fa-folder-open"></em> Show All</button>
-    <button type="button" id="colHide" class="btn-collapse"><em class="fa-solid fa-folder"></em> Hide All</button>
-  </div>
-  <p></p>
-</div>
-
-<p></p>
-
-<?php if (cfg::get('spy')['enabled']): ?>
-  <div class="enabled-group">
-    <p>
-      <a class="btn-collapse" data-toggle="collapse" href="#colSpy" role="button" aria-expanded="false" aria-controls="colSpy">
-        <em class="fa-solid fa-chevron-up" id="colSpyUp"></em>
-        <em class="fa-solid fa-chevron-right" id="colSpyRight"></em>Spy
-      </a>
-    </p>
-    <div class="group collapse multi-collapse" id="colSpy">
-      <p></p>
-
-      <div class="spy_menu">
-        &nbsp;
-        <a href="<?php $_SERVER['PHP_SELF'] ?>"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2">
-          <em class="fa-solid fa-sync"></em>
-        </button></a>
-        <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh(3000);">
-          <em class="fa-solid fa-pause-circle"></em>
-        </button>
-        &nbsp;
-        <a href="/spy"><button type="button" class="btn btn-sm btn-custom mb-1 mr-2 ">
-          <em class="fa-solid fa-up-right-and-down-left-from-center icon"></em>
-        </button></a>
-      </div>
-
-      <div id="include_spy_totals" class="totals">
-      </div>
-      <p></p>
-      <div class="subcat">Online users</div>
-      <div id="include_spy_users" class="users ml-2">&lt;none&gt;</div>
-      <div id="spy_api_result"></div>
+    <div>
+      <button type="button" id="colShow" class="btn-collapse"><em class="fa-solid fa-folder-open"></em> Show All</button>
+      <button type="button" id="colHide" class="btn-collapse"><em class="fa-solid fa-folder"></em> Hide All</button>
     </div>
+    <p></p>
   </div>
-  <p></p>
-<?php endif ?>
 
-<div class="hspace"></div>
+  <p></p>
+
+  <?php if (cfg::get('spy')['enabled']): ?>
+    <div class="enabled-group">
+      <p>
+        <a class="btn-collapse" data-toggle="collapse" href="#colSpy" role="button" aria-expanded="false" aria-controls="colSpy">
+          <em class="fa-solid fa-chevron-up" id="colSpyUp"></em>
+          <em class="fa-solid fa-chevron-right" id="colSpyRight"></em>Spy
+        </a>
+      </p>
+      <div class="group collapse multi-collapse" id="colSpy">
+        <p></p>
+
+        <div class="spy_menu">
+          &nbsp;
+          <a href="<?php $_SERVER['PHP_SELF'] ?>"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2">
+              <em class="fa-solid fa-sync"></em>
+            </button></a>
+          <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh(3000);">
+            <em class="fa-solid fa-pause-circle"></em>
+          </button>
+          &nbsp;
+          <a href="/spy"><button type="button" class="btn btn-sm btn-custom mb-1 mr-2 ">
+              <em class="fa-solid fa-up-right-and-down-left-from-center icon"></em>
+            </button></a>
+        </div>
+
+        <div id="include_spy_totals" class="totals">
+        </div>
+        <p></p>
+        <div class="subcat">Online users</div>
+        <div id="include_spy_users" class="users ml-2">&lt;none&gt;</div>
+        <div id="spy_api_result"></div>
+      </div>
+    </div>
+    <p></p>
+  <?php endif ?>
+
+  <div class="hspace"></div>
 
 <?php if (!empty($filemanager)): ?>
   <div class="enabled-group">
@@ -143,51 +146,49 @@
         <?php endforeach ?>
       <?php endif?>
     </div>
-  </div>
-<?php endif?>
+  <?php endif ?>
 
+  <div class="hspace"></div>
 
-<div class="hspace"></div>
+  <form id="form" action="/" method="POST">
 
-<form id="form" action="/" method="POST">
+    <div class="enabled-group">
+      <div class="hspace"></div>
+      <p>
+        <label for="userCmd">
+          <a class="btn-collapse" data-toggle="collapse" href="#colUserMgmt" role="button" aria-expanded="false" aria-controls="colUserMgmt">
+            <em class="fa-solid fa-chevron-up" id="colUserMgmtUp"></em>
+            <em class="fa-solid fa-chevron-right" id="colUserMgmtRight"></em>User Management
+          </a>
+        </label>
+      </p>
+      <div class="group collapse multi-collapse" id="colUserMgmt">
 
-  <div class="enabled-group">
-    <div class="hspace"></div>
-    <p>
-      <label for="userCmd">
-        <a class="btn-collapse" data-toggle="collapse" href="#colUserMgmt" role="button" aria-expanded="false" aria-controls="colUserMgmt">
-          <em class="fa-solid fa-chevron-up" id="colUserMgmtUp"></em>
-          <em class="fa-solid fa-chevron-right" id="colUserMgmtRight"></em>User Management
-        </a>
-      </label>
-    </p>
-    <div class="group collapse multi-collapse" id="colUserMgmt">
+        <!-- main: begin includes -->
 
-      <!-- main: begin includes -->
+        <div class="subcat">Users</div>
+        <p></p>
+        <?php include 'users.html.php' ?>
+        <p></p>
 
-      <div class="subcat">Users</div>
-      <p></p>
-      <?php include 'users.html.php' ?>
-      <p></p>
+        <div class="subcat">Groups</div>
+        <p></p>
+        <?php include 'groups.html.php' ?>
+        <p></p>
 
-      <div class="subcat">Groups</div>
-      <p></p>
-      <?php include 'groups.html.php' ?>
-      <p></p>
+        <div class="subcat">Change</div>
+        <?php include 'change.html.php' ?>
+        <?php include 'change_more.html.php' ?>
 
-      <div class="subcat">Change</div>
-      <?php include 'change.html.php' ?>
-      <?php include 'more_options.html.php' ?>
+        <!-- main: end includes -->
 
-      <!-- main: end includes -->
-
-      <p></p>
-      <div class="subcat">Action log</div>
+        <p></p>
+        <div class="subcat">Action log</div>
         <button type="submit" name="gltoolCmd" value="gltool_tail" class="btn btn-sm btn-custom">Last 10</button>
         <button type="submit" name="gltoolCmd" value="gltool_log" class="btn btn-sm btn-custom">View all</button>
       </div>
     </div>
-  </div>
+    </div>
 
   <?php if (!empty(cfg::get('ui_buttons')['glftpd']) && count(cfg::get('ui_buttons')['glftpd']) > 0): ?>
     <div class="enabled-group">

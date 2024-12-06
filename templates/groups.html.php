@@ -1,4 +1,4 @@
-<!-- user management - groups, included in main.html.php -->
+<!--glftpd-webui::user-management::groups, included in main.html.php -->
 
 <div class="col-auto">
   <p></p>

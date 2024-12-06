@@ -1,4 +1,4 @@
-<!-- user management, included in main.html.php -->
+<!--glftpd-webui::user-management::users, included in main.html.php -->
 
 <div class="col-auto">
   <?php if (!empty($_SESSION['users_groups'])): ?>

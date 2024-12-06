@@ -1,7 +1,7 @@
-<!-- user management - change, included in main.html.php -->
+<!--glftpd-webui::user-management::change, included in main.html.php -->
 
 <?php if (cfg::get('debug') > 9): ?>
-  <br>DEBUG: change get_user=<?= $data->get_user() ?> check_user=<?= $data->check_user();  ?><br>
+  <br><pre>[DEBUG] change get_user=<?= $data->get_user() ?> check_user=<?= $data->check_user();  ?></pre><br>
 <?php endif ?>
 
 <div class="bg-custom pb-3">
@@ -27,19 +27,19 @@
     <?php if (!empty($data->get_user()) && $data->check_user()): ?>
       <div class="col-auto">
         <?php $masks = $data->get_mask(); if (!empty($masks)): ?>
-        <input type="hidden" name="ipCmd" value="ip_del" />
-        <div class="form-row align-items-center">
-          <div class="col-auto">
-            <textarea rows="2" id="ip_add" cols="35" name="ipCmd" class="form-control"><?= implode(" ", $masks) ?></textarea>
+          <input type="hidden" name="ipCmd" value="ip_del" />
+          <div class="form-row align-items-center">
+            <div class="col-auto">
+              <textarea rows="2" id="ip_add" cols="35" name="ipCmd" class="form-control"><?= implode(" ", $masks) ?></textarea>
+            </div>
+            <div class="col-amt-4">
+              <span class=" col-form-label-sm text-muted">
+                <button type="button" id="ip_reset" onclick="document.getElementById('ip_add').value='';" value="Clear" class="btn btn-outline-secondary btn-sm" />
+                  <em class="fa-solid fa-eraser"></em>Clear
+                </button>
+              </span>
+            </div>
           </div>
-          <div class="col-amt-4">
-            <span class=" col-form-label-sm text-muted">
-              <button type="button" id="ip_reset" onclick="document.getElementById('ip_add').value='';" value="Clear" class="btn btn-outline-secondary btn-sm" />
-                <em class="fa-solid fa-eraser"></em>Clear
-              </button>
-            </span>
-          </div>
-        </div>
         <?php else: ?>
           <textarea rows="2" id="ip_add" cols="35" name="ipCmd" placeholder="myident@11.22.33.* *@example.org" class="form-control"><?= $masks ?></textarea>
         <?php endif ?>
@@ -70,27 +70,27 @@
       <?php $user_groups = $data->get_user_group(); if (!empty($user_groups)): ?>
       <?php if (count($user_groups['current']) > 0): ?>
         <div class="col-9 bg-white align-items-center border rounded text-break ml-2 mb-2 pt-2 pb-2">
-        <?php foreach ($user_groups['current'] as $group => $gadmin): ?>
-          <span class="badge badge-pill badge-secondary pt-0 pb-0">
-          <?= $group ?>
-          <?php if ($gadmin): ?>
-            <em title="User is Group Admin" class='fa-solid fa-circle-user'></em>
-          <?php endif ?>
-          <button title="Remove group from user" type='submit' id='del_user_group' name='userGrpCmd[]' value='del_user_group|<?= $group ?>' class='btn btn-sm btn-txt text-dark align-text-center mb-1'>
-            <em class='fa-solid fa-circle-xmark'></em>
-          </button>
-        </span>
-      <?php endforeach ?>
-      <?php $user_pgroups = $data->get_user_pgroup(); if (!empty($user_pgroups)): ?>
-      <?php foreach ($user_pgroups as $pgroup): ?>
-        <span title="Private Group" class="badge badge-pill badge-secondary  pt-0 pb-0"">
-          *<?= $pgroup ?>
-          <em class='fa-solid fa-shield-halved text-light'></em>
-          <button title="Remove pgroup from user" type='submit' id='del_user_pgroup' name='userGrpCmd[]' value='del_user_pgroup|<?= $pgroup ?>' class='btn btn-sm btn-txt text-dark align-text-center mb-1'>
-            <em class='fa-solid fa-circle-xmark'></em>
-          </button>
-      </span>
-      <?php endforeach ?>
+          <?php foreach ($user_groups['current'] as $group => $gadmin): ?>
+            <span class="badge badge-pill badge-secondary pt-0 pb-0">
+              <?= $group ?>
+              <?php if ($gadmin): ?>
+                <em title="User is Group Admin" class='fa-solid fa-circle-user'></em>
+              <?php endif ?>
+              <button title="Remove group from user" type='submit' id='del_user_group' name='userGrpCmd[]' value='del_user_group|<?= $group ?>' class='btn btn-sm btn-txt text-dark align-text-center mb-1'>
+                <em class='fa-solid fa-circle-xmark'></em>
+              </button>
+            </span>
+          <?php endforeach ?>
+        <?php $user_pgroups = $data->get_user_pgroup(); if (!empty($user_pgroups)): ?>
+        <?php foreach ($user_pgroups as $pgroup): ?>
+          <span title="Private Group" class="badge badge-pill badge-secondary  pt-0 pb-0"">
+            *<?= $pgroup ?>
+            <em class='fa-solid fa-shield-halved text-light'></em>
+            <button title="Remove pgroup from user" type='submit' id='del_user_pgroup' name='userGrpCmd[]' value='del_user_pgroup|<?= $pgroup ?>' class='btn btn-sm btn-txt text-dark align-text-center mb-1'>
+              <em class='fa-solid fa-circle-xmark'></em>
+            </button>
+          </span>
+        <?php endforeach ?>
     <?php endif ?>
       </div>
     </div>
@@ -103,11 +103,12 @@
               <input type='checkbox' id='del_user_group_all' name='userGrpCmd[]' value='del_user_group_all|<?= implode(PHP_EOL, array_keys($user_groups["current"])) ?>'/>
             </span>
           </div>
-          </div>
         </div>
       <?php endif ?>
+      </div>
   <?php else: ?>
     <span class='col-form-label-sm text-muted ml-2'>&lt;No groups&gt;</span>
+    </div>
     </div>
   <?php endif ?>
     <p></p>
@@ -139,7 +140,7 @@
     <?php else: ?>
       <?php if (!empty($_SESSION['pgroups'])): ?>
         &nbsp;
-       <?php endif ?>
+      <?php endif ?>
     <?php endif ?>
     <?php if (!empty($_SESSION['pgroups']) && count($_SESSION['pgroups']) > 0): ?>
       <div class="col-auto">
@@ -152,7 +153,7 @@
         </div>
       </div>
     <?php else: ?>
-        </div>
+      </div>
     <?php endif ?>
   <?php else: ?>
     </div>
