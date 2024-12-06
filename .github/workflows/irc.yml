@@ -1,9 +1,8 @@
----
-name: "Push Notification"
+name: "IRC Push Notification"
 on: push
 
 jobs:
-  irc-messsage:
+  messsage:
     runs-on: ubuntu-latest
     steps:
       - name: irc push
@@ -20,33 +19,3 @@ jobs:
           message: |-
             ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
             commit: ${{ join(github.event.commits.*.message, ', ') }}
-
----
-name: "Manual Push Notification"
-on: workflow_dispatch
-
-  jobs:
-    irc-messsage-old:
-      runs-on: ubuntu-latest
-      steps:
-        - name: irc push
-          uses: rectalogic/notify-irc@v1
-          with:
-            channel: "#glhelp"
-            server: "irc.choopa.net"
-            port: 6667
-            tls: false
-            nickname: shithub
-            message: |-
-              8ceb498 src: config.php, templates: main.html.php - add config option to add/del ui buttons
-              e39c9dc src: index.php, fix Cancel button (clear user)
-              47b23a4 src: controller.php - improve notification when changing user flags
-              71261c4 src: index.php, templates: main.html.php - improve filemanager config and allow custom file/dirs
-              2197faa src: controller.php, templates: logs.html - improve log/txt viewer
-              62e97ee src: user.php, assets: css - improve showing spy userinfo
-              429c7d3 src: cleanup get_data.php and helpers.php, formatting
-              ed38d39 templates: fix div in change.html.php change_more.html.php, formatting
-              2236c9f templates: add help.html, rename more_options.html.php change_more.html.php, rm docs dir
-              8295b2c bin/gltool.sh: fix adding flags if none set
-              086f3bc bin/auth.sh: detect docker
-              5c9da66 docs: move reqs to docs/Setup.md
