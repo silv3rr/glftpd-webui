@@ -4,6 +4,8 @@
  *   SHIT:FRAMEWORK auth index
  *--------------------------------------------------------------------------*/
 
+// TODO: change http user/passwd
+
 // Needs nginx auth_request module:
 //
 //   From https://nginx.org/en/docs/http/ngx_http_auth_request_module.html
@@ -211,10 +213,11 @@ if (!empty($cfg['auth'])) {
         return;
     }
 
-    // mode: 'both' (gl + php http auth)
-    //    1) $_SERVER[HTTP_AUTHORIZATION]   (default=shit -> 'Basic c2hpdDpFYXRTaDF0')
+    // mode: 'both' glftpd and php http auth
+    //    1) $_SERVER[HTTP_AUTHORIZATION]
     //    2) $_SERVER["PHP_AUTH_USER"] and $_SERVER["PHP_AUTH_PW"]
     //    3) try prompting user with browser popup
+    //    default=shit 'Basic c2hpdDpFYXRTaDF0'
 
     if ($cfg['auth'] === 'both') {
         $http_auth_username = NULL;
@@ -386,8 +389,6 @@ if (!empty($cfg['auth'])) {
         unset($glftpd_password);
     }
 
-    // return response
-
     // debug result
     if (!empty($auth_debug) && $auth_debug === 1) {
         if (($cfg['auth'] === 'glftpd') && ((!empty($_SESSION['glftpd_auth_result']) && ($_SESSION['glftpd_auth_result'] === "0")))) {
@@ -397,6 +398,8 @@ if (!empty($cfg['auth'])) {
             print "<br>DEBUG: auth index.php NOK: \$_SESSION['http_auth_result']={$_SESSION['http_auth_result']}<br>" . PHP_EOL;
         }
     }
+
+    // return response
 
     switch ($cfg['auth']) {
         case "basic":
@@ -415,8 +418,6 @@ if (!empty($cfg['auth'])) {
             } elseif ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1") ||
                       (!empty($_SESSION['glftpd_auth_result']) && $_SESSION['glftpd_auth_result'] === "1")) {
                 header("HTTP/1.0 401 Unauthorized");
-                //http_response_code(401);
-                //exit;
             }
             break;
     }
@@ -426,11 +427,17 @@ unset($_SESSION['glftpd_auth_user']);
 unset($_SESSION['glftpd_auth_mask']);
 unset($_SESSION['glftpd_auth_flag']);
 
-// 401
+// return 401
 
 print('<!DOCTYPE html>');
 print('<html lang="en"><head><title>401 Unauthorized</title></head><body>');
-print('<pre>⛔ Login failed, <a href="/auth/login.php">try again</a></pre>');
+if(!empty($auth_debug) && $auth_debug === 1) {
+    print("<pre>👉 Debug enabled...<br></pre>");
+}
+if (!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === "1") {
+    print("<pre>✅ Http auth ok...<br></pre>");
+}
+print('<pre>⛔ Login failed, <a href="/auth/login.php"><strong>try again</strong></a></pre>');
 print('</body></html>');
 http_response_code(401);
 exit;
