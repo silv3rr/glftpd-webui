@@ -482,7 +482,7 @@ pre.out {
     margin-left: 16px;
 }
 #spy_api_result {
-    display: inline-block;
+    display: none;
     margin-left: 16px;
     width: auto;
 }

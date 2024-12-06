@@ -104,3 +104,9 @@
 [data-theme='dark'] .alert .btn-link {  
     color: darkcyan;
 }
+[data-theme='dark'] #spy_api_result {
+    background-color: #6c757d;
+}
+[data-theme='dark'] #spy_api_result a {
+    color: cyan;
+}

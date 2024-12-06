@@ -65,13 +65,13 @@ server {
 		return 301 $scheme://$http_host/assets/css/spy.css;
 	}
 
-	location = "/static/g15950.svg" {
-		return 301 $scheme://$http_host/assets/img/empty.svg;
-	}
+	#location = "/static/g15950.svg" {
+	#	return 301 $scheme://$http_host/assets/img/empty.svg;
+	#}
 
 	location ~ ^/user/(.+)$ {
-		#return 301 /user.php?user=$1;
-		return 301 /index.php?user=$1;
+		return 301 /user.php?user=$1;
+		#return 301 /index.php?user=$1;
 	}
 
 	#rewrite ^/user/(.+)$ $scheme://$http_host/user.php?user=$1 permanent;
