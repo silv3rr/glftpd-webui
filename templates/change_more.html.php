@@ -1,4 +1,4 @@
-<!-- user management more_options, included in main.html.php -->
+<!-- user management > change > more options, included in main.html.php -->
 
 <div class="<?= ((cfg::get('show_more_opts')) ? 'show' : 'collapse') ?>" id="colMoreOpts">
   <div class="card card-body bg-custom">
@@ -6,29 +6,29 @@
       <div class="col-1">
         <label for="flag_add" class="col-form-label">Flags:</label>
       </div>
-  <?php if (!empty($data->get_user()) && $data->check_user() && isset($_SESSION['userfile'])): ?>
+      <?php if (!empty($data->get_user()) && $data->check_user() && isset($_SESSION['userfile'])): ?>
       <input type="hidden" name="flagCmd" value="flag_del" />
       <?php $userfile_flags = ((!empty($_SESSION['userfile'] && !empty($_SESSION['userfile']['FLAGS']))) ? str_split($_SESSION['userfile']['FLAGS']) : []); ?> 
-        <div class="col-4">
-          <select id="flag_add" name="flagCmd[]" multiple size="5" class="form-control">
-            <?php foreach (flags_list() as $flag => $name): ?>
+      <div class="col-4">
+        <select id="flag_add" name="flagCmd[]" multiple size="5" class="form-control">
+          <?php foreach (flags_list() as $flag => $name): ?>
             <option <?= (in_array($flag, $userfile_flags) ? "selected" : "") ?> value='<?= "flag_add|$flag" ?>'><?= "$flag ({$name})" ?></option>
-            <?php endforeach ?>
-          </select>
-        </div>
-        <div class="col-amt-4">
-          <span class=" col-form-label-sm text-muted">
-            <button type="button" id="ip_reset" onclick="document.getElementById('flag_add').value='';" value="Clear" class="btn btn-outline-secondary btn-sm" />
-              <em class="fa-solid fa-eraser"></em>Clear
-            </button>
-          </span>
-        </div>
+          <?php endforeach ?>
+        </select>
+      </div>
+      <div class="col-amt-4">
+        <span class=" col-form-label-sm text-muted">
+          <button type="button" id="ip_reset" onclick="document.getElementById('flag_add').value='';" value="Clear" class="btn btn-outline-secondary btn-sm" />
+            <em class="fa-solid fa-eraser"></em>Clear
+          </button>
+        </span>
+      </div>
     </div>
     <p></p>
-  <?php else: ?>
-    <span class='col-form-label-sm text-muted'>&lt;user:none&gt;</span>
-    </div>
-  <?php endif ?>
+    <?php else: ?>
+      <span class='col-form-label-sm text-muted'>&lt;user:none&gt;</span>
+      </div>
+    <?php endif ?>
   <p></p>
   <div class="form-row">
     <div class="col-1">
@@ -56,7 +56,7 @@
       <div class="form-inline">
         <input type="text" id="credits" name="credsCmd" <?= (!empty($data->get_user()) && $data->check_user() && !empty($_SESSION['credits']) ? 'value="' . $_SESSION['credits'] . '"' : 'placeholder="0"') ?> size="22" class="form-control">
         <span class="ml-2">
-          (def section: <strong><?= (!empty($data->get_user()) && $data->check_user() && !empty($_SESSION['credits']) && $_SESSION['credits'] > 0) ? format_bytes((int)$_SESSION['credits']) : "0b" ?></strong>)
+          (default section: <strong><?= (!empty($data->get_user()) && $data->check_user() && !empty($_SESSION['credits']) && $_SESSION['credits'] > 0) ? format_bytes((int)$_SESSION['credits']) : "0b" ?></strong>)
         </span>
       </div>
     </div>
@@ -81,7 +81,7 @@
         <em class='fa-solid fa-chart-simple'></em> Show
       </button>
       <span class='border border-warning rounded p-2'>
-        Reset all
+        Reset
         <input type='checkbox' id='reset_user_stats' name='userCmd' value='reset_user_stats'>
       </span>
     </div>
@@ -103,7 +103,7 @@
       </div>
     <?php endif ?>
     </div>
-  </div>
+</div>
 <p></p>
 </div>
 
@@ -115,14 +115,14 @@
     </a>
   </div>
   <div class="col-5"></div>
-    <button type='button' id='clear' name='clear' onclick='window.location = "?user="' class='btn btn-secondary ml-4 <?= ($data->check_user() ? "" : "disabled") ?>'>
-      <em class="fa-solid fa-circle-xmark"></em> Clear
-    </button>
-    <button type='submit' id='apply' name='applyBtn' class='btn btn-primary btn ml-3 <?= ($data->check_user() ? "" : "disabled") ?>'>
-      <em class="fa-solid fa-circle-check"></em> Apply
-    </button>
-  </div>
+  <button type='button' id='cancel' name='cancelBtn' onclick='window.location = "?user="' class='btn btn-secondary ml-4 <?= ($data->check_user() ? "" : "disabled") ?>'>
+    <em class="fa-solid fa-circle-xmark"></em> Cancel
+  </button>
+  <button type='submit' id='apply' name='applyBtn' class='btn btn-primary btn ml-3 <?= ($data->check_user() ? "" : "disabled") ?>'>
+    <em class="fa-solid fa-circle-check"></em> Apply
+  </button>
+</div>
 
-  
+
 </div>
 
