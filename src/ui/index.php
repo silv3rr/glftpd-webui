@@ -210,8 +210,12 @@ if (!isset($_SESSION)) {
 
 // recursively sanitize incoming data and store POST values as $_SESSION['postdata'][$x]
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_GET['user']) && $_GET['user'] !== "Select username...") {
-    $_SESSION['postdata']['select_user'] = htmlspecialchars(trim($_GET['user']));
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['user'] !== "Select username...") {
+    if (empty($_GET['user'])) {
+        unset($_SESSION['postdata']['select_user']);
+    } else  {
+        $_SESSION['postdata']['select_user'] = htmlspecialchars(trim($_GET['user']));
+    }
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST)) {
