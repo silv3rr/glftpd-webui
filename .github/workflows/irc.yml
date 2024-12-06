@@ -10,7 +10,7 @@ jobs:
         if: github.event_name == 'push'
         with:
           channel: "#glhelp"
-          server: "efnet.port80.se"
+          server: "efnet.choopa.net"
           nickname: shithub
           message: |-
             ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
