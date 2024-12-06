@@ -70,7 +70,7 @@ while getopts ha:c:d:f:g:i:k:l:u:p:r:s:t:z: opt; do
     a) GADMIN=$OPTARG ;;                      # (ADDUSERGROUP|USERGADMIN)
     c) COMMAND=$OPTARG ;;
     d) GROUPDESC=$OPTARG ;;                   # (ADDGROUP)
-    f) FLAGS=$OPTARG ;;                       # (CHFLAG)
+    f) FLAGS=$OPTARG ;;                       # (ADDFLAG|DELFLAG|CHFLAG)
     g) GROUP=$OPTARG ;;                       # (ADDGROUP|DELGROUP|CHGRP)
     h) echo "$HELP" && exit 0 ;;
     i) MASK=$OPTARG ;;                        # (ADDIP|DELIP)
@@ -951,7 +951,7 @@ func_addflag() {
     CNT=1
   fi
   if [ "${CNT:-0}" -ge 1 ]; then
-    sed "s/^\(FLAGS .*\)/\1${NEW_FLAGS}/" "$USERFILE" > "$USERFILE.tmp" || { echo "ERROR: adding flag"; exit 1; }
+    sed "s/^\(FLAGS[^ ]*\)/\1 ${NEW_FLAGS}/" "$USERFILE" > "$USERFILE.tmp" || { echo "ERROR: adding flag"; exit 1; }
     func_update_userfile
     func_logmsg "added flags \"$FLAGS\" to \"$USERNAME\""
   fi
