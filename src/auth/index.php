@@ -335,12 +335,18 @@ if (!empty($cfg['auth'])) {
                     break;
                 }
             }
+            if (!empty($cfg['glftpd_auth']['check_ip_mask']) && $cfg['glftpd_auth']['check_ip_mask'] === false) {
+                $glftpd_ip_match = true;
+            }
             // check for siteop flag
             $gl_flag_result = $_SESSION['userfile']['FLAGS'];
             if (!empty($auth_debug) && $auth_debug === 1) {
                 print "<pre>DEBUG: auth index.php glftpd \$_SESSION['userfile']['FLAGS']={$_SESSION['userfile']['FLAGS']}</pre>";
             }
             if (preg_match('/^[0-9A-Z]+$/', $gl_flag_result) && strpos($gl_flag_result, '1') !== false) {
+                $gl_flag_match = true;
+            }
+            if (!empty($cfg['glftpd_auth']['check_siteop']) && $cfg['glftpd_auth']['check_siteop'] === false) {
                 $gl_flag_match = true;
             }
             if (!empty($auth_debug) && $auth_debug === 1) {
