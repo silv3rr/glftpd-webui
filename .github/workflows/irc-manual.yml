@@ -1,4 +1,4 @@
-name: "Manual Notification"
+name: "IRC Manual Notification"
 on: workflow_dispatch
 
 jobs:
