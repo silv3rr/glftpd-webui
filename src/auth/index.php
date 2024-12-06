@@ -82,11 +82,11 @@ if (!empty(($_SESSION['glftpd_auth_result'])) && !is_string($_SESSION['glftpd_au
     unset($_SESSION['glftpd_auth_result']);
 }
 
-// change auth mode or http user and password, only if user is logged in
-
 unset($_SESSION['change_auth_mode']);
 unset($_SESSION['change_http_user_result']);
 unset($_SESSION['change_http_password_result']);
+
+// change settings auth mode or http user and password, if user is logged in
 
 if (!empty($auth_debug) && $auth_debug === 1) {
     print("<pre>DEBUG: auth index.php \$_POST['change_auth_mode']=" . $_POST['change_auth_mode'] . " \$_POST['change_http_user']=" . $_POST['change_http_user'] . " \$_POST['change_http_password']=" . $_POST['change_http_password'] . "</pre>");
@@ -104,15 +104,25 @@ if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === 
         } else {
             $change_auth_mode = $cfg['auth'];
         }
+        if (!empty($_POST['change_http_user'])) {
+            $change_http_user = htmlspecialchars(trim($_POST['change_http_user']));
+            unset($_POST['change_http_user']);
+        } else {
+            $change_http_user = $cfg['http_auth']['username'];
+        }
+        if (!empty($_POST['change_http_password'])) {
+            $change_http_password = htmlspecialchars(trim($_POST['change_http_password']));
+            unset($_POST['change_http_password']);
+        } else {
+            $change_http_password = $cfg['http_auth']['password'];
+        }
         unset($_POST['change_auth_mode']);
         unset($_POST['change_http_user']);
         unset($_POST['change_http_password']);
 
-        print("<pre>DEBUG: auth index.php \$change_auth_mode={$change_auth_mode}</pre>");
-
-        print("<pre>DEBUG: auth index.php change_http_user / change_http_password</pre>");
-
-        //print("<pre>DEBUG: auth index.php docker=" . print_r($docker, true) . "</pre>");
+        if (!empty($auth_debug) && $auth_debug === 1) {
+            print("<pre>DEBUG: auth index.php change settings (\$change_auth_mode={$change_auth_mode} change_http_user={$change_http_user} change_http_password={$change_http_password}</pre>");
+        }
 
         $replace_pairs = array(
             '{$mode}' => $change_auth_mode,
@@ -120,62 +130,67 @@ if ((!empty($_SESSION['http_auth_result']) && $_SESSION['http_auth_result'] === 
             '{$password}' => $change_http_password,
         );
 
-        //print("<pre>DEBUG: auth index.php replace_pairs=" . print_r($replace_pairs, true) . "</pre>");
-
         if (isset($docker)) {
             $result = call_user_func_array([$docker, 'func'], array(['change_auth', $replace_pairs]));
         } elseif (isset($local)) {
             $result = call_user_func_array([$local, 'func'], array(['change_auth', $replace_pairs]));
         };
 
-        print("<pre>DEBUG: auth index.php change result=" . print_r($result, true) . "</pre>");
-        //print("<pre>DEBUG: auth index.php change \$_SESSION['DEBUG']=" . print_r($_SESSION['DEBUG'], true) . "</pre>");
-
-        unset($change_auth_mode);
-        unset($change_http_user);
-        unset($change_http_password);
-
-        unset($_SESSION['userfile']);
-        unset($_SESSION['http_auth_result']);
-        unset($_SESSION['glftpd_auth_result']);
-        unset($_SESSION['glftpd_auth_user']);
-
-        unset($_SERVER["HTTP_AUTHORIZATION"]);
-        unset($_SERVER["PHP_AUTH_USER"]);
-        unset($_SERVER["PHP_AUTH_PW"]);
-
-        //logout
-        if (isset($_SERVER['HTTP_COOKIE'])) {
-            $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
-            foreach($cookies as $cookie) {
-                $parts = explode('=', $cookie);
-                $name = trim($parts[0]);
-                setcookie($name, '', time()-1000);
-                setcookie($name, '', time()-1000, '/');
+        if (!empty($result)) {
+            if (is_array($result) && preg_grep('/RESULT:.*CONFIG_AUTH_MODE=0/', $result)) {
+                $_SESSION['change_auth_mode_result'] = "1";
             }
-        }
-        unset($_POST);
-        if (isset($_SESSION)) {
-            unset($_SESSION);
-            session_destroy();
-        }
+            if (is_array($result) && preg_grep('/RESULT:.*CONFIG_USER_PASSWORD=0/', $result)) {
+                if (!empty($change_http_user)) {
+                    $_SESSION['change_http_user_result'] = "1";
+                }
+                if (!empty($change_http_pssword)) {
+                    $_SESSION['change_http_password_result'] = "1";
+                }
+            };
 
-        if (is_array($result) && preg_grep('/RESULT:.*CONFIG_AUTH_MODE=0/', $result)) {
-            $_SESSION['change_auth_mode_result'] = "1";
-        }
-        if (is_array($result) && preg_grep('/RESULT:.*CONFIG_USER_PASSWORD=0/', $result)) {
-            if (!empty($change_user_user)) {
-                $_SESSION['change_http_user_result'] = "1";
-            }
-            if (!empty($change_http_user)) {
-                $_SESSION['change_http_password_result'] = "1";
-            }
-        };
+            print("<pre>DEBUG: auth index.php change \$result=" . print_r($result, true) . "</pre>");
+            print("<pre>DEBUG: auth index.php change \$_SESSION['DEBUG']=" . print_r($_SESSION['DEBUG'], true) . "</pre>");
 
-        if (!empty($auth_debug) && $auth_debug !== 1) {
-            header("Location: /auth/login.php", 200);
+            //clear previous auth state
+            unset($change_auth_mode);
+            unset($change_http_user);
+            unset($change_http_password);
+            unset($_SESSION['userfile']);
+            //unset($_SESSION['http_auth_result']);
+            //unset($_SESSION['glftpd_auth_result']);
+            unset($_SESSION['glftpd_auth_user']);
+            unset($_SERVER["HTTP_AUTHORIZATION"]);
+            unset($_SERVER["PHP_AUTH_USER"]);
+            unset($_SERVER["PHP_AUTH_PW"]);
+
+            //logout
+            if (isset($_SERVER['HTTP_COOKIE'])) {
+                $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+                foreach($cookies as $cookie) {
+                    $parts = explode('=', $cookie);
+                    $name = trim($parts[0]);
+                    setcookie($name, '', time()-1000);
+                    setcookie($name, '', time()-1000, '/');
+                }
+            }
+            unset($_POST);
+            if (isset($_SESSION)) {
+                unset($_SESSION);
+                session_destroy();
+            }
+
+            if (!empty($auth_debug) && $auth_debug !== 1) {
+                header("Location: /auth/login.php", 200);
+                exit;
+            } else {
+                http_response_code(200);
+                exit;
+            }
+        } else {
+            http_response_code(500);
             exit;
-        };
+        }
     }
 }
 
