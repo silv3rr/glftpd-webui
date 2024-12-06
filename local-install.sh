@@ -9,7 +9,7 @@ VERSION=V4
 # APPDIR="<path>"                  app dir (default is 'glftpd-webui')
 # WWW_ROOT="<path>"                web server root (default is '/var/www'
 # BIN_DIR="<path>                  binaries (default is /usr/local/bin)
-# GL_DIR="<path>"                   glftpd install dir (default is '/glftpd')
+# GL_DIR="<path>"                  glftpd install dir (default is '/glftpd')
 # YES=0|1                          auto answer yes to prompts
 # DRYRUN=0|1                       test, dont change anything
 #
@@ -64,7 +64,7 @@ if echo "$*" | grep -Eiq '\-h'; then
     echo
     echo "  WWW_ROOT    webservers document root  (default: /var/www)"
     echo "  BIN_DIR     dir for binaries and scripts like gltool"
-    echo "  GL_DIR       glftpd dir  (default: /glftpd)"
+    echo "  GL_DIR      glftpd dir  (default: /glftpd)"
     echo "  DRYRUN      shows commands only, do not actually run"
     echo "  YES         do not prompt"
     echo

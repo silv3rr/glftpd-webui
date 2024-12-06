@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# glftpd-webui::docker::entrypoint
+
 DOCKER_GID="$(stat -c %g /var/run/docker.sock 2>/dev/null)"
 grep -Eq "^docker:" /etc/group || echo "docker:x:${DOCKER_GID:-999}:nobody" >>/etc/group
 

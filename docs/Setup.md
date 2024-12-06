@@ -6,30 +6,38 @@ The default and recommended setup is using webui in 'docker' mode. Both webui an
 
 ## local
 
-This mode runs commands locally, on same host. While glftpd-webui runs in a container, gl can either be installed in the same container or on host.
+This mode runs commands locally, on same host. While webui runs in a container, glftpd can either be installed in the same container or on host.
 
-## manual
+## webui only
 
-To install without docker at all - with both glftpd and webgui running on the same host - you need nginx with php-fpm8+. Glftpd should already be installed in /glftpd.
+Just installing webui is also possible, but not recommended.
 
-Try running [local-install.sh](local-install.sh). Some manual steps might still be required.
+Does not use docker at all, both glftpd and webgui run on the same host. Glftpd should already be installed (e.g. in '/glftpd') and you need nginx and php-fpm to run webui from www dir.
 
-Or, to set this up completely manually, have a look at the Dockerfile and adapt to your specific environment
+### installer
 
+Try running [local-install.sh](local-install.sh), it will prompt a few times for paths and settings. The script will check for requirements first. Some additional manual steps might still be required.
+
+### manually
+
+Or, to set this up completely manually
+
+- you've setup glftpd, nginx, php-fpm(8+) and modules etc
 - copy webui files to document root: assets, lib, templates and src dirs to e.g. /var/www/html
 - copy config.php.dist to config.php (set mode to 'local')
 - copy nginx conf templates from etc
-- enable local mode and check 'bin_dir' under 'local' in config.php (default is '/usr/local/bin')
+- check 'bin_dir' under 'local' in config.php (default is '/usr/local/bin')
+- verify paths and other config settings
 - download/replace pyspy and pywho for your distro in 'bin_dir'
-- make sure `spy --web` is running on localhost:5000
+- make sure `spy --web` is running on localhost:5000 (`bin/spy.sh`)
 - copy/compile other bins if needed (gotty, hashgen, passchk)
-- copy etc/sudoers.d/glftpd-web and set 'runas' in config 
+- copy etc/sudoers.d/glftpd-web and set 'runas' in config
 
 *it might help to have a look at the Dockerfile, adapt to your specific environment*
 
 ### Requirements
 
-- Network: webui needs to be able to connect to tcp ports 1337(glftpd), 3333(bot), 8080(gotty) and 5050(pyspy) 
+- Network: webui needs to be able to connect to tcp ports 1337(glftpd), 3333(bot), 8080(gotty) and 5050(pyspy)
 - User management: needs access to /glftpd dir, either in glftpd container or on same host
 - Stop/start glftpd: needs access to docker socket or systemd/service + sudo in local webui-mode
 - Terminal commands: these need to run in glftpd container or on same host in local webui-mode, local mode requires php 'exec'
@@ -45,14 +53,15 @@ docker
 
 - api: `<url>`
 - glftpd_ct_name `<name>` (default: glftpd)
-- bin_dir: `<path>` to binaries *
+- bin_dir: `<path>` to binaries  *
 
 local
 
 - runas: `<sudo cmd>` for sudo (default: '/usr/bin/sudo -n -u root')
-- bin_dir: `<path>` to binaries *
+- bin_dir: `<path>` to binaries
 
 _* path to gltool.sh, gotty, pywho etc_
+
 
 #### display
 
@@ -84,9 +93,9 @@ spy
 services
 
 - glftpd:
-    - host: `<hostname or ip>` (default: localhost), port: `<num>` (default: 1337)
+    - host: `<hostname|ip>` (default: localhost), port: `<num>` (default: 1337)
 - sitebot:
-    - host: `<hostname or ip>`  (default: localhost), port: `<num>` (default: 3333)
+    - host: `<hostname|ip>`  (default: localhost), port: `<num>` (default: 3333)
 
 *(used for UP/DOWN status)*
 
@@ -122,6 +131,8 @@ ui_buttons
 
 ## Details webui-mode
 
+More info about different setup modes
+
 ### docker
 
 Commands: docker_commands.php, uses docker api
@@ -130,7 +141,7 @@ Network: both glftpd and webui use same docker network ('shit')
 
 Storage: Default basedir for glftpd mounts is './glftpd' which is the workdir on host, set `GL_DATA` to change
 
-Notes: 
+Notes:
 
 - the 'glftpd' image from [docker-glftpd](https://github.com/silv3rr/docker-glftpd) is used by default
 - to use a different image, change it in `docker-run.sh`
@@ -147,8 +158,8 @@ Network: docker host network is used (`--network=host`) and 'localhost' to conne
 Storage: to allow access to '/glftpd' dir (`GL_DIR`), it's bind mounted inside the webui container (for non docker you could change this to document root)
 
 Notes:
- 
-- running webgui in docker but not gl limits what webui can do
+
+- running webgui in docker but not glftpd, limits what webui can do
 - it's possible start/stop glftpd with system and dbus broker, but probably not worth the effort (build the debian image if you want)
 - when using manual setup without docker, make sure webui can run commands using sudo and/or systemd
 

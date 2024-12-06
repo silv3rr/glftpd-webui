@@ -4,6 +4,10 @@
  *   SHIT:FRAMEWORK get data
  *--------------------------------------------------------------------------*/
 
+// TODO: use reflection instead of call_user_func_array?
+//         https://www.php.net/manual/en/reflectionfunction.invokeargs.php
+//       cleanup
+
 namespace shit;
 
 use \cfg;
@@ -36,7 +40,6 @@ class data {
             $this->debug->print(pos: 'get_data func', args: $args);
         }
 
-        // TODO: cleanup
         /*
         if (cfg::get('debug') > 9) {
             $this->cfg = $args;
@@ -49,9 +52,6 @@ class data {
             exit;
         }
         */
-
-        // TODO: use reflection instead of call_user_func_array?
-        //       https://www.php.net/manual/en/reflectionfunction.invokeargs.php
 
         if (cfg::get('mode') == "local") {
             $local = new local;
@@ -77,7 +77,6 @@ class data {
                 default:
                     // $_SESSION['DEBUG']['argv'] = $argv;
                     //$this->debug->print(pos: 'get_data func', _SESSION_DEBUG_argv: $_SESSION['DEBUG']['argv']);
-
                     $result = call_user_func_array([$local, 'func'], $argv);
             }
         } elseif (cfg::get('mode') == "docker") {
@@ -125,7 +124,6 @@ class data {
     public function get_groups() {
         $groups_all = [];
         $result = $this->func('groups_raw');
-        //$this->debug->print(pos: 'get_data get_groups', result: $result);
         if (is_array($result)) {
             foreach ($result as $group) {
                 //$get_group = trim(sanitize_string($group));
@@ -141,7 +139,6 @@ class data {
     public function get_pgroups() {
         $pgroups_all = [];
         $result = $this->func('pgroups_raw');
-        //$this->debug->print(pos: 'get_data get_pgroups', result: $result);
         if (is_array($result)) {
             foreach ($result as $pgroup) {
                 //$get_pgroup = trim(sanitize_string($pgroup));
@@ -157,7 +154,6 @@ class data {
     public function get_users_groups() {
         $users_groups_all = [];
         $result = $this->func('usersgroups_raw');
-        //$this->debug->print(pos: 'get_data get_usersgroups', result: $result);
         if (is_array($result)) {
             foreach ($result as $get_user_group) {
                 //$get_user_group = trim(sanitize_string($get_user_group));
@@ -175,12 +171,11 @@ class data {
         if ($this->check_user()) {
             $replace_pairs = array('{$username}' => $_SESSION['postdata']['select_user']);
             $result = $this->func(['userfile_raw', $replace_pairs]);
-            //$this->debug->print(pre: true, pos: 'get_data get_userfile', replace_pairs: $replace_pairs, result: $result);
             if (!empty($result)) {
                 foreach ($result as $line) {
                     $fields = explode(' ', $line, 2);
                     if (empty($userfile[$fields[0]])) {
-                        $userfile[$fields[0]] = $fields[1];
+                        $userfile[$fields[0]] = (!empty($fields[1]) ? $fields[1] : []);
                     } else {
                         if (!is_array($userfile[$fields[0]])) {
                             $var = $userfile[$fields[0]];

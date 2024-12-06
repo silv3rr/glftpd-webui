@@ -42,7 +42,7 @@ function format_json($json): string {
 function format_msg_logs($output): string {
     $result = "";
     foreach ($output as $line) {
-        $result .= trim(substr("$line", 8)) . PHP_EOL;
+        $result .= trim(substr($line, 8)) . PHP_EOL;
     }
     return $result;
 }

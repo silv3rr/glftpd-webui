@@ -4,10 +4,8 @@
  *   SHIT:FRAMEWORK index -- "Don't worry, be crappy"
  *--------------------------------------------------------------------------*/
 
-// TODO:
 // add self service for users (addip, invite), use gl auth
 // switch to mvc framework (laravel|symfony)
-// change config.php with env vars
 
 
 /*--------------------------------------------------------------------------*/
@@ -41,13 +39,11 @@ require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter
 $debug = new debug;
 $data = new data;
 
-// TODO: change config with form and or env vars
-/* change config, example:
-$config = cfg::load();
-$config = cfg::set($config, 'auth', 'none');
-$config = cfg::set($config, 'mode', 'docker');
-cfg::save($config);
-*/
+// TODO: change config with form and or env vars,  example:
+//  $config = cfg::load();
+//  $config = cfg::set($config, 'auth', 'none');
+//  $config = cfg::set($config, 'mode', 'docker');
+//  cfg::save($config);
 
 if (cfg::get('auth') === 'basic') {
     //copy('/etc/nginx/auth.d/auth_basic.conf.template', '/etc/nginx/auth.d/auth_basic.conf');

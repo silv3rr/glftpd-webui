@@ -386,6 +386,9 @@ hr.vsep {
     opacity: 0.9;
     padding: 10px;
     transform: translate(200px, 150px);
+    border: solid 1px !important;
+    border-color: gray !important;
+    margin: 10px !important;
 }
 
 #api_result pre {

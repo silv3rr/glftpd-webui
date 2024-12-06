@@ -1,8 +1,26 @@
 <?php 
 
 /*--------------------------------------------------------------------------*
- *   SHIT:FRAMEWORK helper fucntions
+ *   SHIT:FRAMEWORK helper functions
  *--------------------------------------------------------------------------*/
+
+// TODO: sanitize_string
+//
+// htmlspecialchars(), addslashes(), recursive/array:
+//    htmlspecialchars(trim(substr($str, 8)));
+//    htmlspecialchars(trim(preg_replace("/[[:cntrl:]]+/", PHP_EOL, $str)));
+//    trim(preg_replace("/[[:cntrl:]]+/", PHP_EOL, $str));
+//    preg_replace("/[[:cntrl:]]/", PHP_EOL, $str);
+// remove control chars from docker output
+//   - U+0001 U+0000 U+0000 U+0000 U+0000 U+0000 U+0000 U+0006
+//   - U+002B
+//   - chars: + ! & (?)
+// remove all non alpha chars:
+//   preg_replace('/[^a-zA-Z0-9_@#&%:\/\+\-\[\]\.\(\)\*\s]/s', '', $str);
+// trim the ASCII control characters at the beginning and end of $binary
+//   (from 0 to 31 inclusive)
+//   $clean = trim($binary, "\x00..\x1F");
+
 
 // config.php
 
@@ -42,23 +60,6 @@ class cfg {
     }
 }
 
-// TODO:
-//
-// htmlspecialchars(), addslashes(), recursive/array:
-//    htmlspecialchars(trim(substr($str, 8)));
-//    htmlspecialchars(trim(preg_replace("/[[:cntrl:]]+/", PHP_EOL, $str)));
-//    trim(preg_replace("/[[:cntrl:]]+/", PHP_EOL, $str));
-//    preg_replace("/[[:cntrl:]]/", PHP_EOL, $str);
-// remove control chars from docker output
-//   - U+0001 U+0000 U+0000 U+0000 U+0000 U+0000 U+0000 U+0006
-//   - U+002B
-//   - chars: + ! & (?)
-// remove all non alpha chars:
-//   preg_replace('/[^a-zA-Z0-9_@#&%:\/\+\-\[\]\.\(\)\*\s]/s', '', $str);
-// trim the ASCII control characters at the beginning and end of $binary
-//   (from 0 to 31 inclusive)
-//   $clean = trim($binary, "\x00..\x1F");
-
 function sanitize_string(string $str): string {
     if (!empty($str) && is_string($str)) {
         // remove control chars
@@ -68,14 +69,10 @@ function sanitize_string(string $str): string {
 }
 
 function htmlspecialchars_recursive ($input, int $flags = ENT_COMPAT | ENT_HTML401, string $encoding = 'UTF-8', bool $double_encode = false): mixed {
-//function htmlspecialchars_recursive ($input, int $flag, string $encoding, bool $double_encode): mixed {    
-    //static $flags, $encoding, $double_encode;
     if (is_array($input)) {
         return array_map('htmlspecialchars_recursive', $input);
     }
     elseif (is_scalar($input)) {
-        //$flags = ((!empty($flags) && is_int($flags)) ? $flags : 0);
-        //$double_encode = ((!empty($double_encode) && is_bool($flags)) ? $double_encode : false);
         return htmlspecialchars($input, $flags, $encoding, $double_encode);
     }
     else {
