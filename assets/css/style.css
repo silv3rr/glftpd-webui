@@ -89,26 +89,32 @@ pre.about {
     background-color: #dfdddd;
 }
 
-.log_tmpl {
+.txt_tmpl {
     display: block !important;
 }
 
-body.log {
+body.show_txt {
     width: 90%;
 }
 
-h6.log {
-    margin-bottom: 0px !important;
+.title.show_txt {
+    font-size: 20px;
     width: auto;
+    margin-bottom: 0px !important;
     margin-left: 16px;
+    padding-left: 6px;
+    padding-bottom: 3px;
+    color: #000;
+    background-color: #dfdddd;
 }
 
-pre.log {
+pre.show_txt {
     display: inline-block;
     background: black;
     color: lightgreen;
     width: auto;
     margin-left: 16px;
+    padding-left: 8px;
 }
 
 button,

@@ -58,13 +58,17 @@ if (isset($_SESSION['postdata'])) {
     if (!empty($_SESSION['postdata']['dockerCmd'])) {
         if ($_SESSION['postdata']['dockerCmd'] === 'docker_logs_glftpd') {
             include_once 'templates/logs.html';
-            print $data->func($_SESSION['postdata']['dockerCmd']);
+            print(PHP_EOL . 'Showing <strong>glftpd docker logs</strong>...' . PHP_EOL . PHP_EOL);
+            foreach(explode(PHP_EOL, $data->func($_SESSION['postdata']['dockerCmd'])) as $line) {
+                print(trim(substr($line, 8)) . PHP_EOL);
+            }
             unset($_SESSION['postdata']['dockerCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
             exit;
         }
         if ($_SESSION['postdata']['dockerCmd'] === 'docker_inspect_glftpd') {
             include_once 'templates/logs.html';
+            print(PHP_EOL . 'Output from <strong>docker inpect glftpd</strong>...' . PHP_EOL . PHP_EOL);
             print format_cmdout($data->func($_SESSION['postdata']['dockerCmd']));
             unset($_SESSION['postdata']['dockerCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
