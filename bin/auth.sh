@@ -10,10 +10,30 @@ VERSION=V4
 ################################## ################################   ####  # ##
 
 AUTH_MODES="basic|glftpd|both|none"
+BIND_MNT=0
+DOCKERENV=0
+
 # shellcheck disable=SC2016
 DEFAULT_HTPASSWD='shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740'
 
-if [ "$( id -u )" -ne 0 ]; then
+LOG="$(date '+%F %T') GLFTPD-WEBUI-AUTH-${VERSION}"
+echo "$LOG"
+
+if [ -d ./etc ] && [ -d ./src ]; then
+  echo "INFO: Detected hosts bind mount dirs.."
+  BIND_MNT=1
+fi
+
+if [ -f "/.dockerenv" ]; then
+  echo "INFO: Detected dockerenv.."
+  DOCKERENV=1
+fi
+
+if [ "${DOCKERENV:-0}" -eq 1 ]; then
+  logger "$LOG"
+fi
+
+if [ ${BIND_MNT:-0} -eq 0 ] && [ "$( id -u )" -ne 0 ]; then
     echo "ERROR: $0 needs root to run"
     exit 1
 fi
@@ -85,9 +105,11 @@ RESULT_TMPL=0
 cp -f "${NGINX_ETC_DIR}/auth.d/allow.conf.template" "${NGINX_ETC_DIR}/auth.d/allow.conf" || RESULT_ALLOW_TMPL=1
 
 if echo "$AUTH" | grep -Eq "^($AUTH_MODES)$"; then
-  LOG="$(date '+%F %T') GLFTPD-WEBUI-AUTH-${VERSION} Setting mode to '$AUTH'..."
+  LOG="NOTICE: Setting mode to '$AUTH'..."
   echo "$LOG"
-  test -f "/.dockerenv" && logger "$LOG"
+  if [ "${DOCKERENV:-0}" -eq 1 ]; then
+    logger "$LOG"
+  fi
   case $AUTH in
     basic)
       if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
@@ -117,7 +139,9 @@ if echo "$AUTH" | grep -Eq "^($AUTH_MODES)$"; then
         test -n "$PASSWORD" && PW_MSG=" and password to '***'"
         LOG="$(date '+%F %T') GLFTPD-WEBUI-AUTH-${VERSION} Setting username to '$USERNAME'${PW_MSG}..."
         echo "$LOG"
-        test -f "/.dockerenv" && logger "$LOG"
+        if [ "${DOCKERENV:-0}" -eq 1 ]; then
+          logger "$LOG"
+        fi
         OUT="$(sed "s|^\(.*'http_auth'\s*=>\).*$|\1 \['username\' => '$USERNAME', 'password' => '$PASSWORD'\],|" "${APP_DIR:-/app}/config.php";)"
         if [ -n "$OUT" ]; then
           echo "$OUT" > "${APP_DIR:-/app}/config.php" || RESULT_USER_PASS_CONFIG=1
@@ -137,7 +161,7 @@ if echo "$AUTH" | grep -Eq "^($AUTH_MODES)$"; then
     ;;
   esac
   #  local install: restore dir paths
-  if [ ! -f /.dockerenv ] && [ -n "$APP_DIR" ] && [ -n "$AUTH_DIR" ]; then
+  if [ "${DOCKERENV:-0}" -eq 0 ] && [ -n "$APP_DIR" ] && [ -n "$AUTH_DIR" ]; then
     if echo "$APP_DIR" | grep -Eq '^/' && echo "$AUTH_DIR" | grep -Eq '^/' && echo "$NGINX_ETC_DIR" | grep -Eq '^/'; then
       sed -i 's|/app/config.php|'"${APP_DIR}/config.php"'|g' "${APP_DIR}/index.php" "${AUTH_DIR}/login.php"
       sed -i "s|'/app/|'${APP_DIR}/|g" "${APP_DIR}/index.php"
@@ -151,7 +175,10 @@ if echo "$AUTH" | grep -Eq "^($AUTH_MODES)$"; then
   fi
   if command -v /usr/sbin/nginx >/dev/null 2>&1; then
     pgrep nginx >/dev/null 2>&1 && /usr/sbin/nginx -s reload || RESULT_RELOAD_NGINX=1
+  elif [ "${BIND_MNT:-0}" -eq 1 ]; then
+    echo  "NOTICE: Reload nginx *manually*"
   fi
+
 elif [ -n "$1" ]; then
   echo "USAGE: $0 <$AUTH_MODES> [username] [password]"
 fi
@@ -162,5 +189,6 @@ if [ "$AUTH" = "basic" ]; then
 if [ -n "$USERNAME" ] && [ -n "$PASSWORD" ]; then
   RESULT="$RESULT CONFIG_USER_PASSWORD=$RESULT_USER_PASS_CONFIG "
 fi
-echo "RESULT: CHANGED NGINX_ETC_DIR='$NGINX_ETC_DIR' APP_DIR='$APP_DIR' AUTH_DIR='$AUTH_DIR'"
-echo "RESULT: ALLOW=$RESULT_ALLOW_TMPL TEMPLATES=$RESULT_TMPL CONFIG_AUTH_MODE=$RESULT_AUTH_CONFIG RELOAD_NGINX=$RESULT_RELOAD_NGINX"
+echo "RESULT: BIND_MNT=$BIND_MNT DOCKERENV=$DOCKERENV" | sed -e 's/=0/=false/g' -e 's/=1/=true/g'
+echo "RESULT: NGINX_ETC_DIR='$NGINX_ETC_DIR' APP_DIR='$APP_DIR' AUTH_DIR='$AUTH_DIR'"
+echo "RESULT: ALLOW=$RESULT_ALLOW_TMPL TEMPLATES=$RESULT_TMPL CONFIG_AUTH_MODE=$RESULT_AUTH_CONFIG RELOAD_NGINX=$RESULT_RELOAD_NGINX  (0=OK, 1=NOK)" #| sed -e 's/=0/=OK/g' -e 's/=1/=NOK/g'
