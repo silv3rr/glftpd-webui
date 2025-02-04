@@ -8,8 +8,11 @@
   <meta http-Equiv="Pragma" Content="no-cache" />
   <meta http-Equiv="Expires" Content="0" />
   <link rel="stylesheet" href="lib/bootstrap-4.6.2-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/spy.css">
+  <?php if (cfg::get('spy')['show']): ?>
+    <link rel="stylesheet" href="assets/css/spy.css">
+  <?php else: ?>
+    <link rel="stylesheet" href="assets/css/style.css">
+  <?php endif ?>
   <link rel="stylesheet" href="assets/css/dark.css">
   <link rel="stylesheet" href="lib/fontawesome-free-6.5.1-web/css/all.min.css">
   <script type="text/javascript" src="lib/jquery/jquery-3.6.0.min.js"></script>
