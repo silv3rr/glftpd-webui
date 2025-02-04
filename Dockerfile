@@ -9,8 +9,10 @@
 
 ARG WEBUI_PORT
 ARG WEBUI_CERT
+
 FROM alpine:3.18
 HEALTHCHECK CMD busybox wget -qO /dev/null http://127.0.0.1/health
+ARG PHP_VER="${PHP_VER:-82}"
 LABEL org.opencontainers.image.source=https://github.com/silv3rr/glftpd-webui
 LABEL org.opencontainers.image.description="Web-gui to manage glftpd"
 EXPOSE ${WEBUI_PORT:-443}
@@ -41,15 +43,16 @@ RUN test -n "$http_proxy" && { \
     https_proxy=${http_proxy}; \
   }; \
   test -n "$apk_http" && sed -i 's/https/http/g' /etc/apk/repositories; \
+  echo DEBUG php${PHP_VER} ; \
   apk add --no-cache \
     nginx \
-    php \
-    php-fpm \
-    php-session \
-    php-ftp \
-    php-curl \
-    php-json \
-    php-ctype \
+    php${PHP_VER} \
+    php${PHP_VER}-fpm \
+    php${PHP_VER}-session \
+    php${PHP_VER}-ftp \
+    php${PHP_VER}-curl \
+    php${PHP_VER}-json \
+    php${PHP_VER}-ctype \
     apache2-utils \
     openssl \
     bash \
