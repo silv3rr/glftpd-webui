@@ -88,37 +88,42 @@ function format_cmdout(mixed $result): mixed {
 function format_bytes(int $size, int $precision = 2): string {
     if ($size > 0) {
         $base = log($size, 1024);
-        $suffixes = array('', 'K', 'M', 'G', 'T');
+        $suffixes = array('', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi');
         return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)] . "B";
     }
-    return "0KB";
+    return "0b";
 }
 
-function format_lastlogin(): string {
+function format_login(): string {
     if (!empty($_SESSION['userfile']) && !empty($_SESSION['userfile']['TIME'])) {
-        $epoch  = explode(' ', $_SESSION['userfile']['TIME'])[1];
-        $dt = new DateTime("@$epoch");
-        return $dt->format('Y-m-d H:i');
+        $values = explode(' ', $_SESSION['userfile']['TIME']);
+         print('<pre>DEBUG<br></pre>');
+         print_r($values, true);
+        if ($values[0] > 0  && $values[1] > 0) {
+            $dt = new DateTime("@$values[1]");
+            return $dt->format('Y-m-d H:i');
+        }
     }
+    return false;
 }
 
-function format_stats(string $field): array {
+function format_stat_section(string $field): array {
     $i=0;
-    $s=0;
+    $snum=0;
     $section = array();
     if (isset($_SESSION['userfile'][$field])) {
-        foreach(explode(' ', $_SESSION['userfile'][$field]) as $v) {
+        foreach(explode(' ', $_SESSION['userfile'][$field]) as $value) {
             switch ($i) {
                 case $i > 2:
                     $i=0;
                 case 0:
-                    $section[$s][0] = $v;
+                    $section[$snum][0] = $value;
                 case 1:
-                    $section[$s][1] = $v;
+                    $section[$snum][1] = $value;
                     break;
                 case 2:
-                    $section[$s][2] = $v;
-                    $s++;
+                    $section[$snum][2] = $value;
+                    $snum++;
                     //break;
                 default:
             }
@@ -128,20 +133,17 @@ function format_stats(string $field): array {
     return $section;
 }
 
-function format_user_stats(): string {
-    $all_fields = array('DAYUP', 'WKUP ', 'MONTHUP', 'ALLUP', '', 'DAYDN', 'WKDN', 'MONTHDN', 'ALLDN', '', 'NUKE', '');
-    $out = "<pre><div style='color:lightgreen'><br>";
-    $out .= "Showing stats for <strong>{$_SESSION['postdata']['select_user']}</strong><br>";
-    if (!empty($_SESSION['userfile']) && !empty($_SESSION['userfile']['TIME'])) {
-        $out .= "LAST LOGIN: " . format_lastlogin();
-    } else {
-        $out .= "&lt;none&gt;";
-    }
-    $out .= "<br><br>";
-    $out .= sprintf("PERIOD UP/DN%-4s[STAT_SECTION]%-5sFiles / Bytes", "", "") . "<br>";
-    $out .= sprintf("%'-*s", 80, "-") . "<br>";
-    foreach($all_fields as $field) {
-        $stats = format_stats($field);
+function format_userstats(): string {
+    $all_userstats = array('DAYUP', 'WKUP ', 'MONTHUP', 'ALLUP', '', 'DAYDN', 'WKDN', 'MONTHDN', 'ALLDN', '', 'NUKE', '');
+    $out = "<pre><div style='color:lightgreen'><br>" .
+            "Showing stats for <strong>{$_SESSION['postdata']['select_user']}</strong><br>" .
+            "LAST LOGIN: " . ((format_login()) ? format_login() : "&lt;none&gt;") .
+            "<br><br>" .
+            sprintf("STATS UP/DN%-4s[STAT_SECTION]%-5sFiles / Bytes", "", "") . "<br>" .
+            sprintf("%'-*s", 80, "-") . "<br>";
+
+    foreach($all_userstats as $field) {
+        $stats = format_stat_section($field);
         if (!empty($_SESSION['userfile'][$field])) {
             $out .= sprintf("<strong>%-11s</strong>", $field);
             for ($i = 0; $i < count($stats); $i++) {
@@ -149,7 +151,7 @@ function format_user_stats(): string {
                     $out .= ($i === 0) ? sprintf("%17s%7s", "[{$i}](DEFAULT)", "") : sprintf("%19s%16s", "[{$i}]", "");
                     if ($field === "NUKE") {
                         $last = "";
-                        $epoch = $stats[$i][0];
+                        $epoch = $stats[$i][2];
                         if (!empty($epoch) && $epoch > 0) {
                             $dt = new DateTime("@$epoch");
                             $last = $dt->format('y-m-d H:i');
