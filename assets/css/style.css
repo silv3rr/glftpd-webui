@@ -351,6 +351,33 @@ button {
     margin-top: 10px;
 }
 
+.stats {
+    float: left;
+    width: 340px;
+    height: 600px;
+    background-color:whitesmoke;
+    margin-bottom: 40px;
+    margin-right: 90px;
+    /*padding-left: 10px;*/
+}
+
+.stats svg {
+    margin-top: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    /* transform: scale(0.9); */
+}
+
+.stats_main {
+    margin-left: 10px;
+    height: 300px;
+}
+
+.stats_tmpl {
+    width: 80%;
+    /* height: 1300px; */
+}
+
 .cbview {
     border: 2px solid gray;
     border-color: orangered;
