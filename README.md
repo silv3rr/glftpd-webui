@@ -103,6 +103,7 @@ Cutting-edge tech used:
 - Sitewho: [pywho](https://github.com/silv3rr/pywho), [ansi-escapes-to-html](https://github.com/neilime/ansi-escapes-to-html)
 - Markdown: [parsedown](https://github.com/erusev/parsedown)
 - Auth: [ip-lib](https://github.com/mlocati/ip-lib), _[apr1-md5](https://github.com/whitehat101/apr1-md5)_, _[PHP-Htpasswd](https://github.com/ozanhazer/PHP-Htpasswd)_
+- Graphs: [svg-chart-builder](https://github.com/xanpena/svg-chart-builder)
 
 # Screenshots 
 

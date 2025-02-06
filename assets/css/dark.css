@@ -15,6 +15,7 @@
     background-color: lightgray;
 }
 [data-theme='dark'] button,
+[data-theme='dark'] button a,
 [data-theme='dark'] button.btn {  
     color: #ccc;
     background-color: #6c757d;
@@ -46,6 +47,9 @@
     background-color: lightgray;
     border-color: whitesmoke;
     color: black;
+}
+[data-theme='dark'] .modal-content {
+    background-color: lightgray;
 }
 [data-theme='dark'] .modal-footer {
     background-color: lightgray;
