@@ -4,20 +4,36 @@
 *   GLFTPD:WEBUI configuration
 *---------------------------------------------------------------------------*/
 
+// for theme button colors see:
+//  - https://getbootstrap.com/docs/4.0/components/buttons/
+//  - plus these extra colors: 'custom', 'purple', 'gray'
+
 return $cfg = array(
-    'auth'                      => "basic",
-    'mode'                      => "docker",
-    'show_more_opts'            => false,
-    'show_alerts'               => true,
-    'max_items'                 => 10,
-    'debug'                     => 0,
-    'http_auth'                 => ['username' => 'shit', 'password' => 'EatSh1t'],
-    'spy'                       => ['enabled' => true, 'refresh' => true],
-    'modal'                     => ["commands" => false, "sitewho" => true],
-    'title'                     => '<em class="fa-solid fa-left-right"></em>
-                                    <span style="font-weight:bold;color:#5456c5;">GLFTPD</span>:
-                                    <span style="text-decoration:underline;text-decoration-color:lightblue;">
-                                    COMMAND CENTER</span>',
+    'auth'                  => "basic",
+    'mode'                  => "docker",
+    'show_alerts'           => true,
+    'show_more_options'     => true,
+    'auto_scroll'           => false,
+    'max_items'             => 10,
+    'debug'                 => 0,
+    'http_auth'             => ['username' => 'shit', 'password' => 'EatSh1t'],
+    'glftpd_auth'           => ['check_siteop' => true, 'check_ip_mask' => true ],
+    'spy'                   => ['show' => true, 'refresh' => true],
+    'modal'                 => array(
+                                'commands'   => false,
+                                'sitewho'    => true,
+                                'userstats'  => false,
+                                'all_stats'  => true,
+                            ),
+    'theme'                 => array(
+        'title'             => '<em class="fa-solid fa-left-right"></em>
+                                <span style="font-weight:bold;color:#5456c5;">GLFTPD</span>:
+                                <span style="text-decoration:underline;text-decoration-color:lightblue;">
+                                COMMAND CENTER</span>',
+        'btn-color-1'       => 'primary',
+        'btn-color-2'       => 'secondary',
+        'btn-small-color'   => 'gray',
+    ),
 
     'services' => array(
         "glftpd" => ['host' => "localhost", 'port' => "1337"],

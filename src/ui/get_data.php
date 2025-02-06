@@ -6,7 +6,6 @@
 
 // TODO: use reflection instead of call_user_func_array?
 //         https://www.php.net/manual/en/reflectionfunction.invokeargs.php
-//       cleanup
 
 namespace shit;
 
@@ -40,6 +39,7 @@ class data {
             $this->debug->print(pos: 'get_data func', args: $args);
         }
 
+        //TODO: cleanup
         /*
         if (cfg::get('debug') > 9) {
             $this->cfg = $args;
@@ -267,4 +267,27 @@ class data {
         }
         //$_SESSION['update']['status'] = true;
     }
+
+    public function get_chart_stats($item): array {
+        $fields_all = array ();
+        $chart_data = array();
+        $chart_labels = array();
+        foreach ($this->func([$item['cmd'], array('{$stat}' => $item['stat'])]) as $line) {
+            $fields = explode(' ', trim(sanitize_string($line)));
+            $format_fields = array(
+                $fields[0],
+                format_bytes((int)$fields[1], 0),
+                (!empty($fields[2]) ? $fields[2] : 0) . "%"
+            );
+            array_push($fields_all, $format_fields);
+            array_push($chart_labels, $fields[0]);
+            array_push($chart_data, (!empty($fields[2]) ? $fields[2] : 0));
+        }
+        return array(
+            'fields_all' => $fields_all,
+            'chart_labels' => $chart_labels,
+            'chart_data' => $chart_data,
+        );
+    }
+
 }
