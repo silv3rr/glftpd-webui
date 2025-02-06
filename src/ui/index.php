@@ -34,6 +34,7 @@ require_once 'debug.php';
 require_once 'format.php';
 require_once 'get_data.php';
 require_once 'show.php';
+require_once 'graphs.php';
 require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter.php';
 
 $debug = new debug;
@@ -208,15 +209,19 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
+if (empty($_GET['user'])) {
+    unset($_SESSION['postdata']['select_user']);
+} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['user'] !== "Select username...") {
+    $_SESSION['postdata']['select_user'] = htmlspecialchars(trim($_GET['user']));
+} 
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_GET['stats']) && $_GET['stats'] == 1) {
+    $_SESSION['postdata']['show_all_stats'] = true;
+    $_SESSION['postdata']['stats_page'] = true;
+}
+
 // recursively sanitize incoming data and store POST values as $_SESSION['postdata'][$x]
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['user'] !== "Select username...") {
-    if (empty($_GET['user'])) {
-        unset($_SESSION['postdata']['select_user']);
-    } else  {
-        $_SESSION['postdata']['select_user'] = htmlspecialchars(trim($_GET['user']));
-    }
-}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST)) {
         $_SESSION['postdata'] = array_map('htmlspecialchars_recursive', $_POST);

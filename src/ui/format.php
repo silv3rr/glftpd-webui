@@ -167,3 +167,20 @@ function format_userstats(): string {
     $out .= "<br></div></pre>";
     return $out;
 }
+
+function format_stats($item) {
+    $pos = 1;
+    $out = "";
+    foreach ($item['fields_all'] as $fields) {
+        if ($pos <= cfg::get('stats')['options']['max_pos']) {
+            $out .= "<div style='padding-left:10px'>";
+            $out .= sprintf("%02d. ", $pos) . (($pos === 1) ? "<strong>{$fields[0]}</strong>" : $fields[0]) . " {$fields[1]} ({$fields[2]})";
+            $out .= "</div>";
+        }
+        $pos++;
+    }
+    for ($pos; $pos <= cfg::get('stats')['options']['max_pos']; $pos++) {
+        $out .= "<div>&nbsp;</div>";
+    }
+    return $out;
+}
