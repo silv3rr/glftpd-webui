@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION=V4
+VERSION=V5
 ################################## ################################   ####  # ##
 # >> GLFTPD-WEBUI-LOCAL-INSTALLER
 ################################## ################################   ####  # ##
@@ -237,7 +237,7 @@ func_ports() {
             }
         }
     {
-            print g,x":"hextodec(substr($2,index($2,":")+1,4))                
+            print g,x":"hextodec(substr($2,index($2,":")+1,4))
     }' < /proc/net/tcp
 }
 
