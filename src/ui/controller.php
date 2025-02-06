@@ -83,13 +83,19 @@ if (isset($_SESSION['postdata'])) {
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
             exit;
         }
-        if ($_SESSION['postdata']['gltoolCmd'] === "show_user_stats") {
+        if ($_SESSION['postdata']['gltoolCmd'] === "show_userstats") {
             if ($data->check_user() && isset($_SESSION['userfile'])) {
-                $html = htmlspecialchars(addslashes(format_user_stats()));
+                $text = format_userstats();
+                $html = htmlspecialchars(addslashes($text));
             } else {
+                $text = "<user:none>";
                 $html = "&lt;user:none&gt;";
             }
-            $_SESSION['modal'] = array('func' => 'show', 'title' => "User Stats", 'text' => $html);
+            if (cfg::get('modal')['userstats']) {
+                $_SESSION['modal'] = array('func' => 'show', 'title' => "User Stats", 'text' => $html);
+            } else {
+                $_SESSION['cmd_output'] = $text;
+            }
             unset($_SESSION['postdata']['gltoolCmd']);
         }
     }
@@ -103,6 +109,35 @@ if (isset($_SESSION['postdata'])) {
         print(parse_markdown("templates/README.md"));
         unset($_SESSION['postdata']['help']);
         exit;
+    }
+    
+    if (isset($_SESSION['postdata']['show_all_stats'])) {
+        if (cfg::get('modal')['all_stats'] && !isset($_SESSION['postdata']['stats_page'])) {
+            $out = '<p><a href="' . $_SERVER["PHP_SELF"] . '?stats=1"><button class="fixed-top">View full screen</a></button><p>';
+            foreach (cfg::get('stats')['commands'] as $key => $item) {
+                if ($item['show'] >= 1) {
+                    $result = $data->get_chart_stats($item);
+                    $color = cfg::get('stats')['options']['color'];
+                    $svg = create_svg("pie", $result['chart_data'], $result['chart_labels'], cfg::get('palette')[$color]);
+                    $out .= "<h6>{$item['stat']} " . ((substr($key, 0, 1) === 'G' ? "GROUP" : "USER") . "</h6>");
+                    $out .= "<div style='float:right;'>";
+                    $out .= str_replace(["\r\n", "\r", "\n", "\t"], ' ', $svg);
+                    $out .= "</div>";
+                    $out .= "<div>";
+                    $out .= format_stats($result);
+                    $out .= "</div>";
+                }           
+            }
+            $_SESSION['modal'] = array('func' => 'show', 'title' => "All Stats", 'text' => htmlspecialchars(addslashes("<div>{$out}</div>")));
+            unset($_SESSION['postdata']['show_all_stats']);
+        } else {
+            include_once 'templates/stats.html.php';
+            if ($_SESSION['postdata']['stats_page']) {
+                unset($_SESSION['postdata']['stats_page']);
+            }
+            unset($_SESSION['postdata']['show_all_stats']);
+            exit;
+        };
     }
 
     // loop over postdata to get remaining inputs
@@ -358,11 +393,11 @@ if (isset($_SESSION['postdata'])) {
                 unset($_SESSION['postdata']['tagCmd']);
             }
             unset($_SESSION['postdata']['applyBtn']);
-            if ($data->check_user() && !empty($_SESSION['postdata']['userCmd']) && $_SESSION['postdata']['userCmd'] === 'reset_user_stats') {
+            if ($data->check_user() && !empty($_SESSION['postdata']['userCmd']) && $_SESSION['postdata']['userCmd'] === 'reset_userstats') {
                 $replace_pairs = array(
                     '{$username}' => $_SESSION['postdata']['select_user'],
                 );
-                set_cmd_result($data->func(['reset_user_stats', $replace_pairs]));
+                set_cmd_result($data->func(['reset_userstats', $replace_pairs]));
                 unset($_SESSION['postdata']['userCmd']);
             }
             unset($_SESSION['postdata']['applyBtn']);
