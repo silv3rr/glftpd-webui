@@ -278,6 +278,47 @@
       </div>
     <?php endif ?>
 
+  <div class="hspace"></div>
+
+  <?php if (!empty(cfg::get('stats'))): ?>
+    <div>
+      <p>
+        <a class="btn-collapse" data-toggle="collapse" href="#colStats" role="button" aria-expanded="false" aria-controls="colStats">
+          <em class="fa-solid fa-chevron-up" id="colStatsUp"></em>
+          <em class="fa-solid fa-chevron-right" id="colStatsRight"></em>Stats
+        </a>
+      </p>
+      <div class="group collapse multi-collapse" id="colStats">
+        <div>
+          <?php foreach (cfg::get('stats')['commands'] as $key => $item): ?>
+            <?php if ($item['show'] === 2): ?>
+              <div class="stats stats_main">
+                <h6><?= "{$item['stat']}  " . (substr($key, 0, 1) === 'G' ? "GROUP" : "USER") ?> TOP</h6>
+                <p></p>
+                <div>
+                  <?php $pos = 1; ?>
+                  <?php $result = $data->get_chart_stats($item); ?>
+                  <?php foreach ($result['fields_all'] as $fields):  ?>
+                    <?php if ($pos <= 10): ?>
+                      <div>
+                        <?= sprintf("%02d", $pos) ?>. <?= ($pos === 1) ? "<strong>{$fields[0]}</strong>" : $fields[0] ?> <?= $fields[1] ?> (<?= $fields[2] ?>)
+                      </div>
+                    <?php endif ?>
+                    <?php $pos++ ?>
+                  <?php endforeach ?>
+                </div>
+              </div>
+              <?= create_svg("pie", $result['chart_data'], $result['chart_labels'], cfg::get('palette')['default']); ?>
+            <?php endif ?>
+          <?php endforeach ?>
+          <button type="submit" name="show_all_stats" class="btn btn-<?= cfg::get('theme')['btn-color-1'] ?> mr-4" style="float:right;margin-top:30%;">
+            <em class='fa-solid fa-chart-simple'></em> More...
+          </button>
+        </div>
+      </div>
+    </div>
+  <?php endif ?>
+
   </form>
 
   <div class="hspace"></div>
