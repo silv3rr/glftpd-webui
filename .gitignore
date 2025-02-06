@@ -9,6 +9,7 @@ src/config.php
 src/ui/config.php
 lib/ui/fontawesome-free-6.1.2-web/
 templates/README.md
+templates/docs/
 .env
 *.bak
 *.crt
