@@ -69,7 +69,7 @@ Notes:
 - to use a different image, change it in `docker-run.sh`
 - to not start gl at all set `GLFTPD=0`, for example if you already have your own glftpd container running
 
-### local
+#### local
 
 Enabled if `WEBUI_LOCAL=1` is set on runtime
 
