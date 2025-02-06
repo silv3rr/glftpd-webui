@@ -74,4 +74,61 @@ return $cfg = array(
             'close tty'     => ['cmd' => 'kill_gotty', 'sep' => true ],
         ),
     ),
+
+    'stats' => array(
+        'commands' => array(
+            'DAYUP'         => ['cmd' => 'usertop_raw', 'stat' => 'DAYUP',   'show' => 1],
+            'WKUP'          => ['cmd' => 'usertop_raw', 'stat' => 'WKUP',    'show' => 1],
+            'MONTHUP'       => ['cmd' => 'usertop_raw', 'stat' => 'MONTHUP', 'show' => 2],
+            'ALLUP'         => ['cmd' => 'usertop_raw', 'stat' => 'ALLUP',   'show' => 1],
+            'DAYDN'         => ['cmd' => 'usertop_raw', 'stat' => 'DAYDN',   'show' => 0],
+            'WKDN'          => ['cmd' => 'usertop_raw', 'stat' => 'WKDN',    'show' => 0],
+            'MONTHDN'       => ['cmd' => 'usertop_raw', 'stat' => 'MONTHDN', 'show' => 0],
+            'ALLDN'         => ['cmd' => 'usertop_raw', 'stat' => 'ALLDN',   'show' => 0],
+            'NUKE'          => ['cmd' => 'usertop_raw', 'stat' => 'NUKE',    'show' => 0],
+            'GDAYUP'        => ['cmd' => 'grouptop_raw', 'stat' => 'DAYUP',   'show' => 1],
+            'GWKUP'         => ['cmd' => 'grouptop_raw', 'stat' => 'WKUP',    'show' => 1],
+            'GMONTHUP'      => ['cmd' => 'grouptop_raw', 'stat' => 'MONTHUP', 'show' => 1],
+            'GALLUP'        => ['cmd' => 'grouptop_raw', 'stat' => 'ALLUP',   'show' => 1],
+            'GDAYDN'        => ['cmd' => 'grouptop_raw', 'stat' => 'DAYDN',   'show' => 0],
+            'GWKDN'         => ['cmd' => 'grouptop_raw', 'stat' => 'WKDN',    'show' => 0],
+            'GMONTHDN'      => ['cmd' => 'grouptop_raw', 'stat' => 'MONTHDN', 'show' => 0],
+            'GALLDN'        => ['cmd' => 'grouptop_raw', 'stat' => 'ALLDN',   'show' => 0],
+        ),
+        'options' => array(
+            'max_pos'       => 20,
+            'color'         => 'darkgreen',
+        ),
+    ),
+
+    'palette' => array(
+        'default' => array(
+            '#a9d6e5',
+            '#89c2d9',
+            '#61a5c2',
+            '#468faf',
+            '#2c7da0',
+            '#2a6f97',
+        ),
+        'lightblue' => array(
+            '#caf0f8',
+            '#ade8f4',
+            '#90e0ef',
+            '#48cae4',
+            '#00b4d8',
+            '#0096c7',
+            '#0077b6',
+            '#023e8a',
+        ),
+        'darkgreen' => array(
+            '#dde7c7',
+            '#c2c5aa',
+            '#a4ac86',
+            '#6d8257',
+            '#656d4a',
+            '#b6ad90',
+            '#dad7cd',
+        ),
+    ),
+
 );
