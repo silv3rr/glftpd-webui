@@ -45,95 +45,17 @@ Or, to set this up completely manually
 
 ## Settings
 
-These can be changed in config.php
+Initial settings are copied from 'config.php.dist' to 'config.php', where they can be changed using filemanager.
 
-#### mode
+If you change auth mode in "login" page, it automatically changes config. Same if you run auth.sh.
 
-docker
-
-- api: `<url>`
-- glftpd_ct_name `<name>` (default: glftpd)
-- bin_dir: `<path>` to binaries  *
-
-local
-
-- runas: `<sudo cmd>` for sudo (default: '/usr/bin/sudo -n -u root')
-- bin_dir: `<path>` to binaries
-
-_* path to gltool.sh, gotty, pywho etc_
-
-
-#### display
-
-show_more_opts
-
- - `true` always show all options
- - `false` collapse with link "Show/hide more options"
-
-show_alerts
-
- - `true` show notifications, `false` no notifications
-
-max_items: `<number>` of users and groups to show (without collapse)
-
-modal
-
- - commands:
-    - `true` show (terminal) commands in dialog, `false` outputs to bottom of page
- - sitewho:
-    - `true` show pywho in dialog, `false`  outputs to bottom of page
-
-spy
-
- - enabled: `true` show online users, `false` hide online users
- - refresh: `true` auto refresh, `false` no refresh
-
-#### connections
-
-services
-
-- glftpd:
-    - host: `<hostname|ip>` (default: localhost), port: `<num>` (default: 1337)
-- sitebot:
-    - host: `<hostname|ip>`  (default: localhost), port: `<num>` (default: 3333)
-
-*(used for UP/DOWN status)*
-
-### filemanager
-
-filemanager  *
-
-- (Browse) Name:
-    - type: 'dir', path: "/path/to/dir"
-- (Edit/View) filename:
-    - type: 'file', mode: `<edit|view>`, path: "/path/to/filename/"
-
-default file mode is 'edit'
-
-if there are no dirs/files defined, filemanager tab is not shown
-
-_* if path is empty, defaults for mode is used (docker/local)_
-
-#### ui buttons
-
-buttons
-
-- Glftpd
-    - name: `<cmd>`
-- Docker
-    - name: `<cmd>`
-- Terminal
-    - name: `<cmd>`
-
-add separator(s) with `'sep'`
-
-*(if there are no buttons defined, it's tab is not shown)*
+For all options see [Config.md](Config.md)
 
 ## Details webui-mode
 
-More info about different setup modes
+More info about different setup modes:
 
-### docker
+#### docker
 
 Commands: docker_commands.php, uses docker api
 
