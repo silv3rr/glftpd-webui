@@ -18,7 +18,7 @@
       </div>
       <div class="col-amt-4">
         <span class=" col-form-label-sm text-muted">
-          <button type="button" id="ip_reset" onclick="document.getElementById('flag_add').value='';" value="Clear" class="btn btn-outline-secondary btn-sm" />
+          <button type="button" id="ip_reset" onclick="document.getElementById('flag_add').value='';" value="Clear" class="btn btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> btn-sm" />
             <em class="fa-solid fa-eraser"></em>Clear
           </button>
         </span>
@@ -77,7 +77,7 @@
       <label for='reset_userstats' class='col-form-label'>Stats:</label>
     </div>
     <div class="col-auto">
-      <button type="submit" name="gltoolCmd" value="show_user_stats" class="btn btn-outline-primary mr-2 mb-1">
+      <button type="submit" name="gltoolCmd" value="show_userstats" class="btn btn-outline-<?= cfg::get('theme')['btn-color-1'] ?> mr-2 mb-1">
         <em class='fa-solid fa-chart-simple'></em> Show
       </button>
       <span class='border border-warning rounded p-2' style='border-color:#ff8c00!important'>
@@ -110,15 +110,15 @@
 <div class="form-row mb-4">
   <div class="col-auto">
     <a class='btn btn-link color-custom' data-toggle="collapse" href="#colMoreOpts" role="button" aria-expanded="false" aria-controls="colMoreOpts">
-      <em class="border border-primary rounded ml-3 p-2 fa-solid fa-arrows-up-down"></em>
+      <em class="border border-<?= cfg::get('theme')['btn-color-1'] ?> rounded ml-3 p-2 fa-solid fa-arrows-up-down"></em>
       Show/hide more options
     </a>
   </div>
   <div class="col-5"></div>
-  <button type='button' id='cancel' name='cancelBtn' onclick='window.location = "?user="' class='btn btn-secondary ml-4 <?= ($data->check_user() ? "" : "disabled") ?>'>
+    <button type='button' id='cancel' name='cancelBtn' onclick='window.location = "?user="' class="btn btn-<?= cfg::get('theme')['btn-color-2'] ?> ml-4 <?= ($data->check_user() ? '' : 'disabled') ?>">
     <em class="fa-solid fa-circle-xmark"></em> Cancel
   </button>
-  <button type='submit' id='apply' name='applyBtn' class='btn btn-primary btn ml-3 <?= ($data->check_user() ? "" : "disabled") ?>'>
+  <button type='submit' id='apply' name='applyBtn' class="btn btn-<?= cfg::get('theme')['btn-color-1'] ?> ml-3 <?= ($data->check_user() ? '' : 'disabled') ?>">
     <em class="fa-solid fa-circle-check"></em> Apply
   </button>
 </div>

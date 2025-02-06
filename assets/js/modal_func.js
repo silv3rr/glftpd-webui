@@ -30,7 +30,7 @@ function showModal(title, html) {
         $('iframe').hide();
         $('#bsModalLabel').text(title);
         $('.modal-body p').show();
-        $('.modal-body p').attr("style", "background-color:black");
+        $('.modal-body p').attr("class", "modal-content");
         $('.modal-body p').html($(parsed_html).text());
         //$('.modal-body p').html(parsed_html);
     }, 100);

@@ -21,9 +21,7 @@
 </head>
 
 <body>
-
-  <div class="title"><?= cfg::get('title') ?>
-  </div>
+  <div class="title"><?= cfg::get('theme')['title'] ?></div>
   <div class="status">
     &nbsp;
     MODE: <span id="mode"><?= cfg::get('mode') ?></span>
@@ -43,20 +41,23 @@
       <div id="theme"><span>DARK THEME</span></div>
     </span>
     <form id="form" action="/" method="POST" class="form-inline d-inline">
-      <button type="submit" name="help" class="btn btn-sm btn-outline-secondary text-dark ml-3 mb-1 pl-2 pr-2">
+      <button type="submit" name="show_all_stats" class="btn btn-sm btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> text-dark mb-1 pl-2 pr-2 ml-3" ?>
+        <em class='fa-solid fa-chart-simple'></em> stats
+      </button>
+    </form>
+    <a href="/auth/login.php">
+      <button type="button" class="btn btn-sm btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> text-dark mb-1 pl-2 pr-2" <?= (cfg::get('auth') !== 'none' ? "" : "disabled") ?>>
+        <em class="fa-solid fa-id-card"></em> login
+      </button></a>
+    <a href data-toggle="modal" data-target="#bsModal" data-type="html" data-path="/templates/about.html">
+      <button type="button" id="about" class="btn btn-sm btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> text-dark mb-1 pl-2 pr-2 ml-3">
+        <em class="fa-solid fa-poo"></em> about
+      </button></a>
+    <form id="form" action="/" method="POST" class="form-inline d-inline">
+      <button type="submit" name="help" class="btn btn-sm btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> text-dark mb-1 pl-2 pr-2">
         <em class="fa-solid fa-question"></em> help
       </button>
     </form>
-    <a href data-toggle="modal" data-target="#bsModal" data-type="html" data-path="/templates/about.html">
-      <button type="button" id="about" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2">
-        <em class="fa-solid fa-poo"></em> about
-      </button>
-    </a>
-    <a href="/auth/login.php">
-      <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pl-2 pr-2" <?= (cfg::get('auth') !== 'none' ? "" : "disabled") ?>>
-        <em class="fa-solid fa-id-card"></em> login
-      </button>
-    </a>
   </div>
 
   <div class="modal fade" id="bsModal" tabindex="F1" aria-labelledby="bsModalLabel" aria-hidden="true">
@@ -73,7 +74,7 @@
           <iframe title="modal" id="bsModalFrame" src="" style="zoom:0" width="80%" height="600"></iframe>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-<?= cfg::get('theme')['btn-color-1'] ?>" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -101,10 +102,10 @@
 
         <div class="spy_menu">
           &nbsp;
-          <a href="<?php $_SERVER['PHP_SELF'] ?>"><button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2">
+          <a href="<?= $_SERVER['PHP_SELF'] ?>"><button type="button" class="btn btn-sm btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> text-dark mb-1 pr-2">
               <em class="fa-solid fa-sync"></em>
             </button></a>
-          <button type="button" class="btn btn-sm btn-outline-secondary text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh(3000);">
+          <button type="button" class="btn btn-sm btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> text-dark mb-1 pr-2" <?= (cfg::get('spy')['refresh'] ? "" : "disabled") ?> onclick="set_norefresh(3000);">
             <em class="fa-solid fa-pause-circle"></em>
           </button>
           &nbsp;
@@ -140,7 +141,7 @@
           Browse:
           <?php foreach ($filemanager as $key => $value): ?>
             <?php if ($value['type'] === 'dir'): ?>
-              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="dir" data-path="<?= $value['path'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="dir" data-path="<?= $value['path'] ?>" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?>"><?= $key ?></button>
             <?php endif ?>
           <?php endforeach ?>
         <?php endif ?>
@@ -149,7 +150,7 @@
             Edit:
           <?php foreach ($filemanager as $key => $value): ?>
             <?php if ($value['type'] === 'file' &&  $value['mode'] === 'edit'): ?>
-              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $value['path'] ?>" data-edit="<?= $key ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $value['path'] ?>" data-edit="<?= $key ?>" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?>"><?= $key ?></button>
             <?php endif ?>
           <?php endforeach ?>
         <?php endif ?>
@@ -158,7 +159,7 @@
             View:
           <?php foreach ($filemanager as $key => $value): ?>
             <?php if ($value['type'] === 'file' && ($value['mode'] === 'view' || !isset($value['mode']))): ?>
-              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $value['path'] ?>" data-view="<?= $key ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+              <button type="button" data-toggle="modal" data-target="#bsModal" data-type="file" data-path="<?= $value['path'] ?>" data-view="<?= $key ?>" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?>"><?= $key ?></button>
             <?php endif ?>
           <?php endforeach ?>
         <?php endif ?>
@@ -202,8 +203,8 @@
 
         <p></p>
         <div class="subcat">Action log</div>
-        <button type="submit" name="gltoolCmd" value="gltool_tail" class="btn btn-sm btn-custom">Last 10</button>
-        <button type="submit" name="gltoolCmd" value="gltool_log" class="btn btn-sm btn-custom">View all</button>
+        <button type="submit" name="gltoolCmd" value="gltool_tail" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?>">Last 10</button>
+        <button type="submit" name="gltoolCmd" value="gltool_log" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?>">View all</button>
       </div>
     </div>
     </div>
@@ -221,7 +222,7 @@
         </p>
         <div class="group collapse multi-collapse" id="colGlftpd">
           <?php foreach (cfg::get('buttons')['Glftpd'] as $key => $value): ?>
-            <button type="submit" name="glCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+            <button type="submit" name="glCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?>"><?= $key ?></button>
           <?php endforeach ?>
           <?php if (cfg::get('mode') == "local" && !empty(cfg::get('local')['env_bus'])): ?>
             <div id="help" class="form-text text-muted ml-2">
@@ -264,7 +265,7 @@
         </p>
         <div class="group collapse multi-collapse" id="colTerm">
           <?php foreach (cfg::get('buttons')['Terminal'] as $key => $value): ?>
-            <button type="submit" name="termCmd" value="<?= $value['cmd'] ?>" id="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom"><?= $key ?></button>
+            <button type="submit" name="termCmd" value="<?= $value['cmd'] ?>" id="<?= $value['cmd'] ?>" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?>"><?= $key ?></button>
             <?= (isset($value['sep'])) ? '<hr class="vsep"/>' : '' ?>
           <?php endforeach ?>
           <a class="btn-txt" data-toggle="collapse" href="#colTermInfo" role="button" aria-expanded="false" aria-controls="colTermInfo">

@@ -45,7 +45,7 @@ pre.out {
 }
 
 #spy_api_result {
-    /* display: inline-block */
+    display: none;
     margin-left: 16px;
     width: auto;
     border: solid 1px;
@@ -53,7 +53,7 @@ pre.out {
     margin: 10px;
     padding: 5px;
     background-color: whitesmoke;
-    box-shadow: 3px 2px 2px lightgray;
+    box-shadow: 10px 5px 5px lightgray;
 }
 #spy_api_result a {
     font-weight: bolder;
@@ -98,8 +98,8 @@ body.show_txt {
 }
 
 .title.show_txt {
-    font-size: 20px;
     width: auto;
+    font-size: 20px;
     margin-bottom: 0px !important;
     margin-left: 16px;
     padding-left: 6px;
@@ -109,10 +109,10 @@ body.show_txt {
 }
 
 pre.show_txt {
+    width: auto;
     display: inline-block;
     background: black;
     color: lightgreen;
-    width: auto;
     margin-left: 16px;
     padding-left: 8px;
 }
@@ -126,21 +126,48 @@ textarea {
 }
 
 .btn-custom {
+    color: #000;
+    background-color: #eee;
+    border-color: #666;
+}
+
+.btn-custom:hover {
+    color: #ddd;
+    background-color: #999;
+    border-color: #666;
+}
+
+.btn-gray {
     color: #fff;
     background-color: #9b9b9b;
     border-color: #9b9b9b;
 }
 
-.btn-custom:hover {
+.btn-gray:hover {
     color: #ccc;
     background-color: #6c757d;
     border-color: #6f757d;
 }
 
+.btn-purple {
+    color: #fff;
+    background-color: #9063bd;
+    border-color: #5c4c6b;
+}
+
+.btn-purple:hover {
+    color: #fff;
+    background-color: #48137c;
+    border-color: #5c4c6b;
+}
+
+
 .btn-back,
 .btn-top,
+.btn-reload,
 .btn-end {
-    left: 85%;
+    left: 70%;
+    width: fit-content;
     font-size: 1.2em;
     background-color: #eaeaeacc;
     padding-top: 3px;
@@ -152,7 +179,11 @@ textarea {
 }
 
 .btn-back {
-    top: 5%;
+    top: 6%;
+}
+
+.btn-reload {
+    top: 1%;
 }
 
 .btn-top {
@@ -483,6 +514,10 @@ a:focus {
     background-color: var(--bg-color);
 }
 
+.modal-content {
+    background-color: white;
+}
+
 /* THEME SWITCH */
 
 .theme-switch {
@@ -514,7 +549,7 @@ a:focus {
     bottom: 0px;
     content: "";
     height: 16px;
-    left: 4px;
+    left: 3px;
     position: absolute;
     transition: .4s;
     width: 16px;
