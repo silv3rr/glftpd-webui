@@ -1,6 +1,6 @@
 <?php
 
-/*--------------------------------------------------------------------------*
+    /*--------------------------------------------------------------------------*
  *   SHIT:FRAMEWORK index -- "Don't worry, be crappy"
  *--------------------------------------------------------------------------*/
 
@@ -34,16 +34,19 @@ require_once 'debug.php';
 require_once 'format.php';
 require_once 'get_data.php';
 require_once 'show.php';
+require_once 'graphs.php';
 require_once 'lib/neilime/ansi-escapes-to-html/src/AnsiEscapesToHtml/Highlighter.php';
 
 $debug = new debug;
 $data = new data;
 
-// TODO: change config with form and or env vars,  example:
-//  $config = cfg::load();
-//  $config = cfg::set($config, 'auth', 'none');
-//  $config = cfg::set($config, 'mode', 'docker');
-//  cfg::save($config);
+// TODO: change config with form and or env vars
+/*
+   $config = cfg::load();
+   $config = cfg::set($config, 'auth', 'none');
+   $config = cfg::set($config, 'mode', 'docker');
+   cfg::save($config);
+*/
 
 if (cfg::get('auth') === 'basic') {
     //copy('/etc/nginx/auth.d/auth_basic.conf.template', '/etc/nginx/auth.d/auth_basic.conf');
@@ -208,15 +211,19 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
+if (empty($_GET['user'])) {
+    unset($_SESSION['postdata']['select_user']);
+} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['user'] !== "Select username...") {
+    $_SESSION['postdata']['select_user'] = htmlspecialchars(trim($_GET['user']));
+} 
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_GET['stats']) && $_GET['stats'] == 1) {
+    $_SESSION['postdata']['show_all_stats'] = true;
+    $_SESSION['postdata']['stats_page'] = true;
+}
+
 // recursively sanitize incoming data and store POST values as $_SESSION['postdata'][$x]
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['user'] !== "Select username...") {
-    if (empty($_GET['user'])) {
-        unset($_SESSION['postdata']['select_user']);
-    } else  {
-        $_SESSION['postdata']['select_user'] = htmlspecialchars(trim($_GET['user']));
-    }
-}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST)) {
         $_SESSION['postdata'] = array_map('htmlspecialchars_recursive', $_POST);
@@ -302,9 +309,6 @@ if ($__test == 'post') {
 
 // test: uncomment to force user 'glftpd'
 
-//$_SESSION['postdata']['select_user'] = 'glftpd';
-//$debug->print(ppos: 'index', get: $_GET['user'], select_user: $_SESSION['postdata']['select_user']);
-
 if (cfg::get('debug') > 0) {
     unset($_SESSION['DEBUG']);
     $_SESSION['DEBUG'] = array();
@@ -313,9 +317,6 @@ if (cfg::get('debug') > 0) {
 if ((cfg::get('debug') > 1) && (isset($_SESSION['postdata']))) {
     $debug->print(pre: true, pos: 'index', _SESSION_postdata: $_SESSION['postdata']);
 }
-
-//$debug->print(pre: true, pos: 'index', _SESSION_results: $_SESSION['results'], , _SESSION_cmd_output: $_SESSION['cmd_output']);
-//$debug->print(pre: true, pos: 'index', _SESSION: $_SESSION);
 
 
 /*--------------------------------------------------------------------------*/
@@ -389,8 +390,6 @@ show_notifications(
 
 unset($_SESSION['results']);
 
-// $debug->print(pre: true, pos: 'index [2]', _SESSION_cmd_output: $_SESSION['cmd_output']);
-
 
 /*--------------------------------------------------------------------------*/
 /* TEMPLATE
@@ -417,7 +416,7 @@ if (cfg::get('debug') > 0 && !empty($_SESSION['DEBUG'])) {
     print_r($_SESSION['DEBUG'], true) . "</pre>" . PHP_EOL;
 }
 
-if (cfg::get('spy')['enabled']) {
+if (cfg::get('spy')['show']) {
     print '<script type="text/javascript" src="spy.js"></script>' . PHP_EOL;
     if (!cfg::get('spy')['refresh']) {
         print '<script type="text/javascript">set_norefresh();</script>' . PHP_EOL;

@@ -4,7 +4,10 @@
  *   SHIT:FRAMEWORK formatting
  *--------------------------------------------------------------------------*/
 
-// ghetto json parsing and fmt'ing :)
+//use shit\data;
+//require_once 'get_data.php';
+
+// ghetto json parsing and formatting :)
 
 function format_json($json): string {
     try {
@@ -39,6 +42,8 @@ function format_json($json): string {
     }
 }
 
+// XXX: unused
+/*
 function format_msg_logs($output): string {
     $result = "";
     foreach ($output as $line) {
@@ -46,6 +51,7 @@ function format_msg_logs($output): string {
     }
     return $result;
 }
+*/
 
 function format_procs($json): string {
     $result = "<br>Processes:<br>" . PHP_EOL;
@@ -59,7 +65,7 @@ function format_procs($json): string {
 // docker mode: format json result
 // local mode:  format $output from exec($command, $output, $result_code);
 
-function format_cmdout(mixed $result): mixed {
+function format_cmd_out(mixed $result): mixed {
     $out = null;
     if (is_array($result)) {
         $out = implode(PHP_EOL, $result);
@@ -165,5 +171,22 @@ function format_userstats(): string {
         }
     }
     $out .= "<br></div></pre>";
+    return $out;
+}
+
+function format_stats($item) {
+    $pos = 1;
+    $out = "";
+    foreach ($item['fields_all'] as $fields) {
+        if ($pos <= cfg::get('stats')['options']['max_pos']) {
+            $out .= "<div style='padding-left:10px'>";
+            $out .= sprintf("%02d. ", $pos) . (($pos === 1) ? "<strong>{$fields[0]}</strong>" : $fields[0]) . " {$fields[1]} ({$fields[2]})";
+            $out .= "</div>";
+        }
+        $pos++;
+    }
+    for ($pos; $pos <= cfg::get('stats')['options']['max_pos']; $pos++) {
+        $out .= "<div>&nbsp;</div>";
+    }
     return $out;
 }

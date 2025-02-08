@@ -6,23 +6,29 @@
       <div class="form-row align-items-center border rounded p-2">
         <div class="col-auto">
           <a class="btn btn-link color-custom" data-toggle="collapse" href="#colUsersGroups" role="button" aria-expanded="false" aria-controls="colUsersGroups">
-            <em class="border border-primary rounded p-2 fa-solid fa-arrows-up-down"></em>
+            <em class="border border-<?= cfg::get('theme')['btn-color-1'] ?> rounded p-2 fa-solid fa-arrows-up-down"></em>
             Show/hide <strong><?= count($_SESSION['users_groups']) ?></strong> users...
           </a>
         </div>
         <div class="col-auto">
         <span class=" col-form-label-sm text-muted">
-          <button type="submit" name="sortList" value="sort_users_groups|a-z" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-down-a-z"></em></button>
+          <button type="submit" name="sortList" value="sort_users_groups|a-z" class="btn btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> btn-sm">
+            <em class="fa-solid fa-arrow-down-a-z"></em>
+          </button>
+        </span>
+      </div>
+      <div class="col-auto">
+      <span class=" col-form-label-sm text-muted">
+          <button type="submit" name="sortList" value="sort_users_groups|z-a" class="btn btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> btn-sm">
+            <em class="fa-solid fa-arrow-up-a-z"></em>
+          </button>
         </span>
       </div>
       <div class="col-auto">
         <span class=" col-form-label-sm text-muted">
-          <button type="submit" name="sortList" value="sort_users_groups|z-a" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-up-a-z"></em></button>
-        </span>
-      </div>
-      <div class="col-auto">
-        <span class=" col-form-label-sm text-muted">
-          <button type="submit" name="sortList" value="sort_users_groups|group" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-people-group"></em></button>
+          <button type="submit" name="sortList" value="sort_users_groups|group" class="btn btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> btn-sm">
+            <em class="fa-solid fa-people-group"></em>
+          </button>
         </span>
       </div>
     </div>
@@ -35,7 +41,9 @@
        <?php foreach ($_SESSION['users_groups'] as $user => $group): ?>
         <div>
           <span class="btn-txt">
-            <button type='submit' id='user' name='set_user' value='<?= $user ?>' class='btn btn-txt btn-sm'><strong><?= $user ?></strong><?= (!empty($group) ? "/{$group}" : "") ?></button>
+            <button type='submit' id='user' name='set_user' value='<?= $user ?>' class='btn btn-txt btn-sm'>
+              <strong><?= $user ?></strong><?= (!empty($group) ? "/{$group}" : "") ?>
+            </button>
           </span>
         </div>
         <?php endforeach ?>
@@ -74,11 +82,14 @@
     <input type="text" id="new_user_ip" name="user_ip" placeholder="*@1.2.3.*" class="form-control">
   </div>
   <div class="col-auto ml-2">
-    <label for="new_user_gadmin" class="col-form-label mr-0"><em class='fa-solid fa-circle-user'></em> gadmin</label><input type="checkbox" id="new_user_gadmin" name="user_gadmin" class="form-check-sm">
+    <label for="new_user_gadmin" class="col-form-label mr-0">
+      <em class='fa-solid fa-circle-user'></em> gadmin
+    </label>
+    <input type="checkbox" id="new_user_gadmin" name="user_gadmin" class="form-check-sm">
   </div>
   <div class="col-8"></div>
   <div class="col-auto"></div>
-    <button type="submit" id="add_user" name="userCmd" value="user_add" class="btn btn-primary mt-3">
+    <button type="submit" id="add_user" name="userCmd" value="user_add" class="btn btn-<?= cfg::get('theme')['btn-color-1'] ?> mt-3">
       <em class='fa-solid fa-circle-plus'></em> Add
     </button>
   </div>

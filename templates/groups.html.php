@@ -7,18 +7,22 @@
       <div class="form-row align-items-center border rounded p-2">
         <div class="col-auto">
           <a class="btn btn-link color-custom" data-toggle="collapse" href="#colGroups" role="button" aria-expanded="false" aria-controls="colGroups">
-            <em class="border border-primary rounded p-2 fa-solid fa-arrows-up-down"></em>
+            <em class="border border-<?= cfg::get('theme')['btn-color-1'] ?> rounded p-2 fa-solid fa-arrows-up-down"></em>
             Show/hide <strong><?= count($_SESSION['groups']) ?></strong> groups...
           </a>
         </div>
         <div class="col-auto">
           <span class=" col-form-label-sm text-muted">
-            <button type="submit" name="sortList" value="sort_groups|a-z" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-down-a-z"></em></button>
+            <button type="submit" name="sortList" value="sort_groups|a-z" class="btn btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> btn-sm">
+              <em class="fa-solid fa-arrow-down-a-z"></em>
+            </button>
           </span>
         </div>
         <div class="col-auto">
           <span class=" col-form-label-sm text-muted">
-            <button type="submit" name="sortList" value="sort_groups|z-a" class="btn btn-outline-secondary btn-sm"><em class="fa-solid fa-arrow-up-a-z"></em></button>
+            <button type="submit" name="sortList" value="sort_groups|z-a" class="btn btn-outline-<?= cfg::get('theme')['btn-color-2'] ?> btn-sm">
+              <em class="fa-solid fa-arrow-up-a-z"></em>
+            </button>
           </span>
         </div>
       </div>
@@ -26,7 +30,9 @@
         <div class="card card-body">
       <?php endif ?>
       <?php foreach ($_SESSION['groups'] as $group => $desc): ?>
-        <span title="<?= (!empty($desc) ? "$desc" : "")?>" class="mr-2"><?= $group ?><button type='submit' id='group_del' name='grpCmd' value='group_del|<?= $group ?>' class='btn btn-txt btn-outline-info color-custom align-text-bottom'><em class='fa-solid fa-circle-xmark pl-1 pr-1'></em></button></span>
+        <span title="<?= (!empty($desc) ? "$desc" : "")?>" class="mr-2">
+          <?= $group ?><button type='submit' id='group_del' name='grpCmd' value='group_del|<?= $group ?>' class='btn btn-txt btn-outline-info color-custom align-text-bottom'><em class='fa-solid fa-circle-xmark pl-1 pr-1'></em></button>
+        </span>
       <?php endforeach ?>
 
       <?php if (count($_SESSION['groups']) > cfg::get('max_items')): ?>
@@ -46,7 +52,9 @@
       <input type="text" id="new_group" name="group_add" placeholder="mygroup" class="form-control">
     </div>
     <div class="col-auto ml-2">
-      <button type="submit" id="add_group" name="grpCmd" value="group_add" class="btn btn-primary"><em class='fa-solid fa-circle-plus'></em> Add</button>
+      <button type="submit" id="add_group" name="grpCmd" value="group_add" class="btn btn-<?= cfg::get('theme')['btn-color-1'] ?>">
+        <em class='fa-solid fa-circle-plus'></em> Add
+      </button>
     </div>
   </div>
 </div>

@@ -60,7 +60,7 @@ function show_notifications(...$args) {
         // show cmd results from controller
         if (!empty(($_SESSION['results']))) {
             foreach(($_SESSION['results']) as $result) {
-                print "  <div id='notification_results' class='alert alert-primary' role='alert'>{$result}</div>" . PHP_EOL;
+                print "  <div id='notification_results' class='alert alert-<?= cfg::get('theme')['btn-color-1'] ?>' role='alert'>{$result}</div>" . PHP_EOL;
                 print '  <p></p>' . PHP_EOL;
             }
         } else {
@@ -80,7 +80,7 @@ function show_notifications(...$args) {
                 print "  <form id='form' action='?user={$user}' method='POST'>" . PHP_EOL;
             }
             if (isset($args['reload']) && $args['reload'] === "button") {
-                print '    <button type="submit" class="btn btn-primary"><em class="fa-solid fa-retweet"></em>Reload</button>' . PHP_EOL;
+                print '    <button type="submit" class="btn btn-<?= cfg::get("theme")["btn-color-1"] ?>"><em class="fa-solid fa-retweet"></em>Reload</button>' . PHP_EOL;
             }
             print '    <p></p>' . PHP_EOL;
             print '  </form>' . PHP_EOL;
@@ -101,7 +101,9 @@ function show_output() {
     print '<pre class="out">' . PHP_EOL;
     print $_SESSION['cmd_output'];
     print "</pre>" . PHP_EOL;
-    print JS_SCROLL;
+    if (cfg::get('auto_scroll')) {
+        print JS_SCROLL;
+    }
     unset($_SESSION['cmd_output']);
 }
 
