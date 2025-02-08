@@ -110,7 +110,7 @@ if (isset($_SESSION['postdata'])) {
         unset($_SESSION['postdata']['help']);
         exit;
     }
-    
+
     if (isset($_SESSION['postdata']['show_all_stats'])) {
         if (cfg::get('modal')['all_stats'] && !isset($_SESSION['postdata']['stats_page'])) {
             $out = '<p><a href="' . $_SERVER["PHP_SELF"] . '?stats=1"><button class="fixed-top">View full screen</a></button><p>';
@@ -126,7 +126,7 @@ if (isset($_SESSION['postdata'])) {
                     $out .= "<div>";
                     $out .= format_stats($result);
                     $out .= "</div>";
-                }           
+                }
             }
             $_SESSION['modal'] = array('func' => 'show', 'title' => "All Stats", 'text' => htmlspecialchars(addslashes("<div>{$out}</div>")));
             unset($_SESSION['postdata']['show_all_stats']);
