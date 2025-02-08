@@ -35,7 +35,9 @@
        <?php foreach ($_SESSION['users_groups'] as $user => $group): ?>
         <div>
           <span class="btn-txt">
-            <button type='submit' id='user' name='set_user' value='<?= $user ?>' class='btn btn-txt btn-sm'><strong><?= $user ?></strong><?= (!empty($group) ? "/{$group}" : "") ?></button>
+            <button type='submit' id='user' name='set_user' value='<?= $user ?>' class='btn btn-txt btn-sm'>
+              <strong><?= $user ?></strong><?= (!empty($group) ? "/{$group}" : "") ?>
+            </button>
           </span>
         </div>
         <?php endforeach ?>

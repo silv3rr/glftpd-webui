@@ -4,7 +4,10 @@
  *   SHIT:FRAMEWORK formatting
  *--------------------------------------------------------------------------*/
 
-// ghetto json parsing and fmt'ing :)
+//use shit\data;
+//require_once 'get_data.php';
+
+// ghetto json parsing and formatting :)
 
 function format_json($json): string {
     try {
@@ -39,6 +42,8 @@ function format_json($json): string {
     }
 }
 
+// XXX: unused
+/*
 function format_msg_logs($output): string {
     $result = "";
     foreach ($output as $line) {
@@ -46,6 +51,7 @@ function format_msg_logs($output): string {
     }
     return $result;
 }
+*/
 
 function format_procs($json): string {
     $result = "<br>Processes:<br>" . PHP_EOL;

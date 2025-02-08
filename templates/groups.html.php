@@ -26,7 +26,9 @@
         <div class="card card-body">
       <?php endif ?>
       <?php foreach ($_SESSION['groups'] as $group => $desc): ?>
-        <span title="<?= (!empty($desc) ? "$desc" : "")?>" class="mr-2"><?= $group ?><button type='submit' id='group_del' name='grpCmd' value='group_del|<?= $group ?>' class='btn btn-txt btn-outline-info color-custom align-text-bottom'><em class='fa-solid fa-circle-xmark pl-1 pr-1'></em></button></span>
+        <span title="<?= (!empty($desc) ? "$desc" : "")?>" class="mr-2">
+          <?= $group ?><button type='submit' id='group_del' name='grpCmd' value='group_del|<?= $group ?>' class='btn btn-txt btn-outline-info color-custom align-text-bottom'><em class='fa-solid fa-circle-xmark pl-1 pr-1'></em></button>
+        </span>
       <?php endforeach ?>
 
       <?php if (count($_SESSION['groups']) > cfg::get('max_items')): ?>

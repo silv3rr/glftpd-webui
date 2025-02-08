@@ -1,6 +1,6 @@
 <!--glftpd-webui::user-management::change:more, included in main.html.php -->
 
-<div class="<?= ((cfg::get('show_more_opts')) ? 'show' : 'collapse') ?>" id="colMoreOpts">
+<div class="<?= ((cfg::get('show_more_options')) ? 'show' : 'collapse') ?>" id="colMoreOpts">
   <div class="card card-body bg-custom">
     <div class="form-row align-items-center">
       <div class="col-1">
@@ -74,15 +74,15 @@
   <div class="form-row align-items-center">
   <?php if ($data->check_user()): ?>
     <div class="col-1">
-      <label for='reset_user_stats' class='col-form-label'>Stats:</label>
+      <label for='reset_userstats' class='col-form-label'>Stats:</label>
     </div>
     <div class="col-auto">
       <button type="submit" name="gltoolCmd" value="show_user_stats" class="btn btn-outline-primary mr-2 mb-1">
         <em class='fa-solid fa-chart-simple'></em> Show
       </button>
-      <span class='border border-warning rounded p-2'>
+      <span class='border border-warning rounded p-2' style='border-color:#ff8c00!important'>
         Reset
-        <input type='checkbox' id='reset_user_stats' name='userCmd' value='reset_user_stats'>
+        <input type='checkbox' id='reset_userstats' name='userCmd' value='reset_userstats'>
       </span>
     </div>
   <?php endif ?>

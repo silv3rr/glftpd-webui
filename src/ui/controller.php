@@ -51,9 +51,9 @@ if (isset($_GET['reset']) && $_GET['reset']) {
 // form submits, input controls and routing. mark changed values
 
 if (isset($_SESSION['postdata'])) {
-    //if (cfg::get('debug') > 0) {
-    //    $debug->print(pos: 'controller-1 set_cmd_result', _SESSION_postdata: $_SESSION['postdata']);
-    //}
+    if (cfg::get('debug') > 10) {
+        $debug->print(pos: 'controller-1 set_cmd_result', _SESSION_postdata: $_SESSION['postdata']);
+    }
     // 'xxCmd' buttons for logs etc
     if (!empty($_SESSION['postdata']['dockerCmd'])) {
         if ($_SESSION['postdata']['dockerCmd'] === 'docker_logs_glftpd') {
@@ -110,7 +110,7 @@ if (isset($_SESSION['postdata'])) {
         unset($_SESSION['postdata']['help']);
         exit;
     }
-    
+
     if (isset($_SESSION['postdata']['show_all_stats'])) {
         if (cfg::get('modal')['all_stats'] && !isset($_SESSION['postdata']['stats_page'])) {
             $out = '<p><a href="' . $_SERVER["PHP_SELF"] . '?stats=1"><button class="fixed-top">View full screen</a></button><p>';
@@ -126,7 +126,7 @@ if (isset($_SESSION['postdata'])) {
                     $out .= "<div>";
                     $out .= format_stats($result);
                     $out .= "</div>";
-                }           
+                }
             }
             $_SESSION['modal'] = array('func' => 'show', 'title' => "All Stats", 'text' => htmlspecialchars(addslashes("<div>{$out}</div>")));
             unset($_SESSION['postdata']['show_all_stats']);

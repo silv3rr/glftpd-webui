@@ -55,7 +55,7 @@
         <label for="passwd_change" class="col-form-label">Password:</label>
       </div>
       <div class="col-5">
-        <input type="password" id="passwd_change" name="setPassCmd" placeholder="mynewpasswd" class="form-control">
+        <input type="password" id="passwd_change" name="setPassCmd" placeholder="mynewpasswd" class="form-control"/>
       </div>
     </div>
     <p></p>

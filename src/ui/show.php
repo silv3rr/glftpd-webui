@@ -101,7 +101,9 @@ function show_output() {
     print '<pre class="out">' . PHP_EOL;
     print $_SESSION['cmd_output'];
     print "</pre>" . PHP_EOL;
-    print JS_SCROLL;
+    if (cfg::get('auto_scroll')) {
+        print JS_SCROLL;
+    }
     unset($_SESSION['cmd_output']);
 }
 

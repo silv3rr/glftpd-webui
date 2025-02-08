@@ -85,8 +85,8 @@
 
   <p></p>
 
-  <?php if (cfg::get('spy')['enabled']): ?>
-    <div class="enabled-group">
+  <?php if (cfg::get('spy')['show']): ?>
+    <div>
       <p>
         <a class="btn-collapse" data-toggle="collapse" href="#colSpy" role="button" aria-expanded="false" aria-controls="colSpy">
           <em class="fa-solid fa-chevron-up" id="colSpyUp"></em>
@@ -105,7 +105,8 @@
             <em class="fa-solid fa-pause-circle"></em>
           </button>
           &nbsp;
-          <a href="/spy"><button type="button" class="btn btn-sm btn-custom mb-1 mr-2 ">
+          <a href="/spy">
+            <button type="button" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?> mb-1 mr-2 ">
               <em class="fa-solid fa-up-right-and-down-left-from-center icon"></em>
             </button></a>
         </div>
@@ -124,7 +125,7 @@
   <div class="hspace"></div>
 
   <?php if ($fm_data['count']['dirs'] > 0 || $fm_data['count']['files']['all'] > 0): ?>
-    <div class="enabled-group">
+    <div>
       <p>
         <a class="btn-collapse" data-toggle="collapse" href="#colFileMan" role="button" aria-expanded="false" aria-controls="colFileMan">
           <em class="fa-solid fa-chevron-up" id="colFileManUp"></em>
@@ -166,7 +167,7 @@
 
   <form id="form" action="/" method="POST">
 
-    <div class="enabled-group">
+    <div>
       <div class="hspace"></div>
       <p>
         <label for="userCmd">
@@ -205,7 +206,7 @@
     </div>
 
     <?php if (!empty(cfg::get('buttons')['Glftpd']) && count(cfg::get('buttons')['Glftpd']) > 0): ?>
-      <div class="enabled-group">
+      <div>
         <div class="hspace"></div>
         <p>
           <label for="glCmd">
@@ -229,7 +230,7 @@
     <?php endif ?>
 
     <?php if (cfg::get('mode') == "docker" && !empty(cfg::get('buttons')['Docker']) && count(cfg::get('buttons')['Docker']) > 0): ?>
-      <div class="enabled-group">
+      <div>
         <div class="hspace"></div>
         <p>
           <label for="dockerCmd">
@@ -241,14 +242,14 @@
         </p>
         <div class="group collapse multi-collapse" id="colDocker">
           <?php foreach (cfg::get('buttons')['Docker'] as $key => $value): ?>
-            <button type="submit" name="dockerCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-custom <?= isset($value['disabled']) ? 'disabled' : '' ?>"><?= $key ?></button>
+            <button type="submit" name="dockerCmd" value="<?= $value['cmd'] ?>" class="btn btn-sm btn-<?= cfg::get('theme')['btn-small-color'] ?> <?= isset($value['disabled']) ? 'disabled' : '' ?>"><?= $key ?></button>
           <?php endforeach ?>
         </div>
       </div>
     <?php endif ?>
 
     <?php if (!empty(cfg::get('buttons')['Terminal']) && count(cfg::get('buttons')['Terminal']) > 0): ?>
-      <div class="enabled-group">
+      <div>
         <div class="hspace"></div>
         <p>
           <label for="termCmd">

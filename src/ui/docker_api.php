@@ -23,14 +23,14 @@ require_once 'debug.php';
 class docker {
     private array $commands;
     private $debug;
-    
+
     public function __construct() {
         $this->commands = require 'docker_commands.php';
         $this->debug = new debug;
         $this->debug->count = 0;
     }
 
-    public function api(string $http_method, string $endpoint, $postfields=null): string|bool {
+    public function api(string $http_method, string $endpoint, $postfields = null): string|bool {
         $url = cfg::get('docker')['api'] . $endpoint;
         $this->debug->trace(count: $this->debug->count++, trace: 'docker-api-1', url: $url, postfields: $postfields);
         $ch = curl_init();
@@ -96,7 +96,7 @@ class docker {
                 "/containers/$container/exec",
                 '{
                     "AttachStdout": true, "Tty": false, "Cmd": [
-                        "echo", "|", "/bin/busybox", "telnet", "'. $host . '", "' . $port . '"
+                        "echo", "|", "/bin/busybox", "telnet", "' . $host . '", "' . $port . '"
                     ]
                 }'
             )
@@ -132,7 +132,7 @@ class docker {
                 if (!preg_match('/exec failed/i', $result)) {
                     $this->debug->trace(trace: 'docker-exec-3', result: $result);
                     $json_result = json_decode($result);
-                    // exec ok, but error in cmd output 
+                    // XXX: handle exec status ok, but specfic error in cmd output 
                     /*
                     if (preg_match('/operation not permitted/i', $result)) {
                         return 'Error: EPERM';
@@ -179,7 +179,8 @@ class docker {
                             }
                         }
                     }'
-                ), $hostconfig
+                ),
+                $hostconfig
             )
         );
     }
@@ -188,11 +189,11 @@ class docker {
         return json_decode(self::api("POST", "/containers/{$id}/start", ""));
     }
 
-    public function list(bool $all=false) {
+    public function list(bool $all = false) {
         return json_decode(self::api("GET", "/containers/json?all=$all"));
     }
 
-    public function func(array|string $args): mixed {
+    public function func(array|string $args): mixed  {
         $action = is_array($args) ? $args[0] : $args;
         $command = $this->commands[$action];
         if (isset($command)) {
