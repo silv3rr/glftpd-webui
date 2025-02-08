@@ -69,7 +69,7 @@ if (isset($_SESSION['postdata'])) {
         if ($_SESSION['postdata']['dockerCmd'] === 'docker_inspect_glftpd') {
             include_once 'templates/logs.html';
             print(PHP_EOL . 'Output from <strong>docker inpect glftpd</strong>...' . PHP_EOL . PHP_EOL);
-            print format_cmdout($data->func($_SESSION['postdata']['dockerCmd']));
+            print format_cmd_out($data->func($_SESSION['postdata']['dockerCmd']));
             unset($_SESSION['postdata']['dockerCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
             exit;
@@ -78,7 +78,7 @@ if (isset($_SESSION['postdata'])) {
     if (!empty($_SESSION['postdata']['gltoolCmd'])) {
         if ($_SESSION['postdata']['gltoolCmd'] === 'gltool_log') {
             include_once 'templates/logs.html';
-            print format_cmdout($data->func($_SESSION['postdata']['gltoolCmd']));
+            print format_cmd_out($data->func($_SESSION['postdata']['gltoolCmd']));
             unset($_SESSION['postdata']['gltoolCmd']);
             print '</pre>' . PHP_EOL . '</body>' . PHP_EOL . '</html>' . PHP_EOL;
             exit;
@@ -184,7 +184,7 @@ if (isset($_SESSION['postdata'])) {
                 unset($_SESSION['postdata'][$name]);
             } elseif ($name === "termCmd" && !empty($value)) {
                 if (preg_match('/^kill_[a-z_]+$/', $value)) {
-                    $_SESSION['cmd_output'] = format_cmdout($data->func($value));
+                    $_SESSION['cmd_output'] = format_cmd_out($data->func($value));
                 } else {
                     set_cmd_result($data->func($value));
                     $_SESSION['modal'] = array('func' => 'tty');
@@ -203,7 +203,7 @@ if (isset($_SESSION['postdata'])) {
                         $data->func($value);
                         $_SESSION['results'][$value] = "DONE: {$value}";
                     } else {   
-                        $_SESSION['cmd_output'] = format_cmdout($data->func($value));
+                        $_SESSION['cmd_output'] = format_cmd_out($data->func($value));
                     }
                 }
                 unset($_SESSION['postdata'][$name]);

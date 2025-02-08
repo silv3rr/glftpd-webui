@@ -59,7 +59,7 @@ function format_procs($json): string {
 // docker mode: format json result
 // local mode:  format $output from exec($command, $output, $result_code);
 
-function format_cmdout(mixed $result): mixed {
+function format_cmd_out(mixed $result): mixed {
     $out = null;
     if (is_array($result)) {
         $out = implode(PHP_EOL, $result);

@@ -77,6 +77,18 @@ class docker {
         return $data;
     }
 
+    public function format_str(string $result): array {
+        $return = array();
+        $lines = explode(PHP_EOL, trim(substr($result, 8)));
+        foreach ($lines as $line) {
+            $line = trim(sanitize_string($line));
+            if (!empty($line)) {
+                array_push($return, $line);
+            }
+        }
+        return $return;
+    }
+
     public function test_port(string $container, string $host, string $port): bool {
         $exec = json_decode(
             self::api(
@@ -132,23 +144,11 @@ class docker {
                     if (preg_match('/no such file or directory/i', $result)) {
                         return 'Error: ENOENT';
                     }
-                    return (json_last_error() === JSON_ERROR_NONE) ? $json_result : $this->format($result);
+                    return (json_last_error() === JSON_ERROR_NONE) ? $json_result : $this->format_str($result);
                 }
             }
         }
         return false;
-    }
-
-    public function format(string $result): array {
-        $return = array();
-        $lines = explode(PHP_EOL, trim(substr($result, 8)));
-        foreach($lines as $line) {
-            $line = trim(sanitize_string($line));
-            if (!empty($line)) {
-                array_push($return, $line);
-            }
-        }
-        return $return;
     }
 
     // disabled
