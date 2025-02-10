@@ -1,5 +1,7 @@
 # Config Settings
 
+auth: see [Setup.md](Setup.md#Auth_details)
+
 ### mode
 
 docker
